@@ -36,7 +36,7 @@ License:
     SOFTWARE.
 """
 
-from os import path, remove, mkdir
+from os import mkdir, path
 from shutil import rmtree
 
 

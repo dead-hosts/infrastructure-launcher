@@ -38,8 +38,8 @@ License:
 
 from .command import Command
 from .dict import Dict
+from .directory import Directory
 from .download import Download
 from .file import File
 from .list import List
 from .regex import Regex
-from .directory import Directory

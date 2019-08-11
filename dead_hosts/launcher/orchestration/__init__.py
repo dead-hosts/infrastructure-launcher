@@ -48,7 +48,7 @@ from PyFunceble.file_core import FileCore
 
 from ..configuration import Paths
 from ..configuration import TravisCI as TravisCIConfig
-from ..helpers import Command, Download, File, List, Regex, Directory
+from ..helpers import Command, Directory, Download, File, List, Regex
 from ..info import Info
 from ..travis_ci import TravisCI
 from .authorize import Authorize
