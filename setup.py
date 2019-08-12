@@ -37,7 +37,7 @@ License:
 from re import compile as comp
 from re import sub as substring
 
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 NAMESPACE = "dead_hosts"
 MODULE = "launcher"
@@ -87,12 +87,7 @@ if __name__ == "__main__":
         license="MIT",
         url="https://github.com/dead-hosts/infrastructure-launcher",
         platforms=["any"],
-        packages=[
-            f"{NAMESPACE}.{MODULE}",
-            f"{NAMESPACE}.{MODULE}.configuration",
-            f"{NAMESPACE}.{MODULE}.helpers",
-            f"{NAMESPACE}.{MODULE}.orchestration",
-        ],
+        packages=find_namespace_packages(),
         keywords=["Python", "infrastructure", "dead-hosts"],
         classifiers=[
             "Environment :: Console",
