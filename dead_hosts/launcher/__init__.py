@@ -44,7 +44,7 @@ from colorama import init as init_colorama
 
 from .orchestration import Orchestration
 
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 
 
 def command_line():

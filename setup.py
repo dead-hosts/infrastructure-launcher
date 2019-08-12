@@ -105,7 +105,8 @@ if __name__ == "__main__":
         ],
         entry_points={
             "console_scripts": [
-                "dead_hosts_infrastructure_launcher=dead_hosts.launcher:command_line"
+                "dead_hosts_launcher=dead_hosts.launcher:command_line",
+                "dh_launcher=dead_hosts.launcher:command_line"
             ]
         },
     )
