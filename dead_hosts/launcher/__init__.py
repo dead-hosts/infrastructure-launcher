@@ -44,7 +44,7 @@ from colorama import init as init_colorama
 
 from .orchestration import Orchestration
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 
 def command_line():
@@ -56,8 +56,8 @@ def command_line():
 
     parser = ArgumentParser(
         description="The launcher of the Dead-Hosts infrastructure.",
-        epilog=f"Crafted with {Fore.RED}♥{Fore.RESET} "
-        "by {Style.BRIGHT + Fore.CYAN}Nissar Chababy (@funilrys)",
+        epilog=f"Crafted with {Style.BRIGHT + Fore.RED}♥{Fore.RESET + Style.RESET_ALL} "
+        f"by {Style.BRIGHT + Fore.CYAN}Nissar Chababy (@funilrys)",
     )
 
     parser.add_argument(
