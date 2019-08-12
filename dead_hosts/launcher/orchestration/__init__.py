@@ -222,7 +222,7 @@ class Orchestration:
             f"PyFunceble -f {self.input_file_instance.file}", print_to_stdout=True
         ).execute()
 
-        if not TravisCIConfig.build_dir and not TravisCIConfig.github_token:
+        if not TravisCIConfig.github_token or not TravisCIConfig.build_dir:
             self.run_end()
 
     def run_autosave(self):

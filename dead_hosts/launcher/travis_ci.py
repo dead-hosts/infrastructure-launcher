@@ -58,7 +58,7 @@ class TravisCI:
             commands = [
                 "git remote rm origin",
                 f"git remote add origin "
-                "https://{Config.github_token}@github.com/{Config.repo_slug}.git",
+                f"https://{Config.github_token}@github.com/{Config.repo_slug}.git",
                 f'git config --global user.email "{Config.git_email}"',
                 f'git config --global user.name "{Config.git_name}"',
                 "git config --global push.default simple",
