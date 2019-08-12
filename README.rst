@@ -6,7 +6,9 @@ The launcher of the Dead-Hosts infrastructure and project.
 Installation
 ------------
 
-$ pip3 install --user dead-hosts-launcher
+::
+
+    $ pip3 install --user dead-hosts-launcher
 
 Usage
 -----

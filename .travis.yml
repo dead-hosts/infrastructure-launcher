@@ -1,0 +1,44 @@
+env:
+  matrix:
+    - PYTHON_VERSION="3.7.4"
+
+language: generic
+
+sudo: false
+
+os:
+  - linux
+
+install:
+  - export PATH="${HOME}/miniconda/bin:${PATH}"
+  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
+  - bash miniconda.sh -b -p ${HOME}/miniconda
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda create -q -n test-environment python="${PYTHON_VERSION}"
+  - source activate test-environment
+  - python -VV
+  - pip --version
+  - pip install pylint coverage coveralls codacy-coverage
+
+script:
+  - python setup.py install
+  - echo "Lint Launcher" && pylint dead_hosts
+  - cp ${TRAVIS_BUILD_DIR}/info.example.json ${TRAVIS_BUILD_DIR}/info.json
+  - dead_hosts_launcher
+
+deploy:
+  provider: pypi
+  user: funilrys
+  password:
+    secure: an0CIqgKm4MlTPaSjauO42M56A3VoCORp9X3sb8aJDMAX29JgplOcjYwbiY0qC7mnxQaPwDAWINgANAfN2C0TeXA1i1dq17gdwRKxr+h+bKQIKJuhdypr/JgGUz5HYqfYSgrgjfPnQ96HYbnIaU0saC7JgTsNNoaJ0/jkUO9S/GAMPf4zxqzKPDQDH4epQhcJrpkWPCLASo4q9MrPfxrxQoacCJmrUc4NOUmNVqgTqE8I9MMhCj9cJg9T17SDWi0utf7Py9ypCxs5AgNduzs91UB/KN+tX9Za2oVU/pyjXVjvsay833m1HMOuwZHjln0ZyCPU1mzB3EvWPNmKqQe1txMGZIOGCmAxVs3etrHlNiOTS+tvJYrtRMAGZxB4kttdYWCa2JVeV41Q9Sa8FnJ4f6jnF/u5TWJ0u6EBeBf0yu3At5GgoEYMqcNdOA0HDUFmI7Vk6ez3s21IHEDIQ6N0v2+tnQSOKQjK/3RHPPvCHFgwEnLBzMyI8vNNbml/pugQ9TprATagTJTP2Z6/THeBAjGRs2M1MRaVWxotTxZ1qLFVsxN26kzW0YJCxVXex5S0KTnOaMeFm/VpqwDSf2m/gXGgcLdO0tgJwLOer6jJAyA07hS0f/gGEeB7/xa3z1VpC5XG8rrpfFDBbfgQ5nUa2Men+PzcHwRzj4ouoHpe9k=
+  distributions: sdist bdist_wheel
+  skip_existing: true
+  on:
+    all_branches: true
+    condition: "${TRAVIS_BRANCH} =~ ^dev|master$"
+
+notifications:
+  on_success: change
+  on_failure: always
