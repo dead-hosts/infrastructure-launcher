@@ -27,8 +27,9 @@ script:
   - echo "Lint Launcher" && pylint dead_hosts
   - cp ${TRAVIS_BUILD_DIR}/info.example.json ${TRAVIS_BUILD_DIR}/info.json
   - dead_hosts_launcher
+  - ls -al ${TRAVIS_BUILD_DIR}/output/domains/ACTIVE
   - cat ${TRAVIS_BUILD_DIR}/info.json
-  - cat ${TRAVIS_BUILD_DIR}/clean.list
+  - cat ${TRAVIS_BUILD_DIR}/clean.list || echo "Error accepted"
 
 deploy:
   provider: pypi
