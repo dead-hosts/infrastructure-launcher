@@ -124,7 +124,7 @@ class PyFunceble:
 
     if TravisCI.repo_slug:
         travis_autosave_commit = (
-            f"[Autosave][Dead-Hosts::{TravisCI.repo_slug.split('/')[0]}]"
+            f"[Autosave][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
         )
     else:
         travis_autosave_commit = "[Autosave][Dead-Hosts]"
@@ -134,7 +134,7 @@ class PyFunceble:
 
     if TravisCI.repo_slug:
         travis_autosave_final_commit = (
-            f"[Final/Result][Dead-Hosts::{TravisCI.repo_slug.split('/')[0]}]"
+            f"[Final/Result][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
         )
     else:
         travis_autosave_final_commit = "[Final/Result][Dead-Hosts]"
