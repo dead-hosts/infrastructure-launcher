@@ -52,12 +52,12 @@ class PyFunceble:
     format.
     """
 
-    command_before_end = "hash dead_hosts_infrastructure_launcher && dead_hosts_infrastructure_launcher --end"
+    command_before_end = "hash dead_hosts_launcher && dead_hosts_launcher --end"
     """
     Let PyFunceble know the command it has to run before pushing the final commit.
     """
 
-    command = "hash dead_hosts_infrastructure_launcher && dead_hosts_infrastructure_launcher --save"
+    command = "hash dead_hosts_launcher && dead_hosts_launcher --save"
     """
     Let PyFunceble know the commant it has to run before pushing (except the final one).
     """

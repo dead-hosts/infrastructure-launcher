@@ -16,7 +16,7 @@ Usage
 
 ::
 
-    usage: dead_hosts_infrastructure_launcher [-h] [-d] [-s] [-e] [-v]
+    usage: dead_hosts_launcher [-h] [-d] [-s] [-e] [-v]
 
     The launcher of the Dead-Hosts infrastructure.
 

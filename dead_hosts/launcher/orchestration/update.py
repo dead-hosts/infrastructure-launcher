@@ -179,6 +179,8 @@ class Update:
                     self.info_manager.custom_pyfunceble_config, strict=True
                 )
 
+            logging.debug(f"Interpreded PyFunceble config: {local_version}")
+
             Dict(local_version).to_yaml(destination=self.pyfunceble_config_file.file)
 
     def readme(self):

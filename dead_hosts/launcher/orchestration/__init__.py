@@ -91,7 +91,9 @@ class Orchestration:
         logging.info(f"Output file: {self.output_file_instance.file}")
 
         if not end and not save:
+            TravisCI.init_repo()
             logging.info(f"Checking authorization to run.")
+
             if self.authorize.test():
                 Update(self.working_directory, self.info_manager)
 
@@ -189,7 +191,6 @@ class Orchestration:
         Run a test of the input list.
         """
 
-        TravisCI.init_repo()
         TravisCI.update_permissions()
 
         if not self.info_manager.currently_under_test:
