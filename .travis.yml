@@ -20,7 +20,7 @@ install:
   - source activate test-environment
   - python -VV
   - pip --version
-  - pip install pylint coverage coveralls codacy-coverage
+  - pip install pylint
 
 script:
   - python setup.py install
