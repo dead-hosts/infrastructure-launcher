@@ -23,7 +23,7 @@ install:
   - pip install pylint
 
 script:
-  - python setup.py install
+  - pip install -e .
   - echo "Lint Launcher" && pylint dead_hosts
   - cp ${TRAVIS_BUILD_DIR}/info.example.json ${TRAVIS_BUILD_DIR}/info.json
   - dead_hosts_launcher
