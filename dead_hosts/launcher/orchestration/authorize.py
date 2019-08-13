@@ -92,16 +92,15 @@ class Authorize:
         """
 
         if (
-            self.refresh()
-            or not self.info_manager.finish_timestamp
-            or not self.info_manager.days_until_next_test
+            not self.info_manager.days_until_next_test
             or self.info_manager.days_until_next_test < 0
-            or self.info_manager.currently_under_test
         ):
             return True
 
-        if self.info_manager.lastest_part_finish_timestamp > 0:
-            if datetime.now() > self.get_test_authorization_time():
-                return True
+        if datetime.now() > self.get_test_authorization_time():
+            return True
+
+        if self.info_manager.currently_under_test:
+            return True
 
         return False
