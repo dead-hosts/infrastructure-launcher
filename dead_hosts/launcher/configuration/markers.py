@@ -53,11 +53,6 @@ class Markers:
     Set the default date time format.
     """
 
-    last_commit = "[ci skip]"
-    """
-    Set the marker to append when we finished the commplete test.
-    """
-
     extract_about_pyfunceble = r"(?s)#\s+About\sPyFunceble(.*)"
     """
     Set the regex to use to extract the PyFunceble description.

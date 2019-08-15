@@ -85,7 +85,7 @@ class Update:
         if self.info_manager.ping:
             return (
                 PyFuncebleConfig.travis_autosave_final_commit
-                + f" | cc {self.info_manager.get_ping_for_commit()} | {Markers.last_commit}"
+                + f" | cc {self.info_manager.get_ping_for_commit()} | "
             )
         return PyFuncebleConfig.travis_autosave_final_commit
 
