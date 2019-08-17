@@ -113,6 +113,7 @@ class TravisCI:
             "python -VV",
             "pip --version",
             "pip install dead-hosts-launcher",
+            "rm miniconda.sh",
         ],
         "script": ["dead_hosts_launcher --version", "dead_hosts_launcher"],
         "notifications": {
