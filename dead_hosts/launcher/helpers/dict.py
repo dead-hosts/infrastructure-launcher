@@ -101,7 +101,7 @@ class Dict:
             allow_unicode=True,
             indent=4,
             default_flow_style=flow_style,
-        )
+        ).decode(encoding)
 
     @classmethod
     def from_json_string(cls, data):

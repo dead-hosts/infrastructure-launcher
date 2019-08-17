@@ -263,28 +263,33 @@ class Update:
             and TravisCIConfig.github_token
             and not File(self.working_directory + "info.example.json").exists()
         ):
-            logging.info("Updating .travis.yml file.")
 
             destination = self.working_directory + Paths.travis_filename
             destination_file_instance = File(destination)
+
+            logging.info(f"Updating {destination_file_instance.file}.")
+            logging.debug(
+                f"{destination_file_instance.file} exists: {destination_file_instance.exists()}"
+            )
 
             content = Dict().from_yaml_string(destination_file_instance.read())
             content = Dict(content).merge(TravisCIConfig.unified_config, strict=True)
 
             to_write = Dict(content).to_yaml()
 
-            logging.debug(f"New repository TravisCI configuration: \n{content}")
-            destination_file_instance.write(to_write)
+            logging.debug(
+                f"New repository TravisCI configuration (interpreted): \n{content}"
+            )
+            destination_file_instance.write(to_write, overwrite=True)
 
-            if (
-                Command(
-                    f"git status {destination_file_instance.file} --porcelain",
-                    print_to_stdout=False,
-                )
-                .execute()
-                .strip()
-                .startswith("M")
-            ):
+            git_status = Command(
+                f"git status '{destination_file_instance.file}' --porcelain",
+                print_to_stdout=False,
+            ).execute()
+
+            logging.debug(f"GIT states: {git_status}")
+
+            if git_status.strip().startswith("M"):
                 logging.info(
                     f"{destination_file_instance.file} changed. Commit and push new version."
                 )
