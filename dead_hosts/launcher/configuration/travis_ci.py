@@ -93,3 +93,36 @@ class TravisCI:
         """
         Provides the Git branch to use.
         """
+
+    unified_config = {
+        "env": {"matrix": ['PYTHON_VERSION="3.7.3"']},
+        "language": "generic",
+        "sudo": "required",
+        "os": ["linux"],
+        "addons": {"apt": {"packages": ["dos2unix"]}},
+        "install": [
+            'export PATH="${HOME}/miniconda/bin:${PATH}"',
+            # pylint: disable=line-too-long
+            "wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh",
+            "bash miniconda.sh -b -p ${HOME}/miniconda",
+            "hash -r",
+            "conda config --set always_yes yes --set changeps1 no",
+            "conda update -q conda",
+            'conda create -q -n launcher-environment python="${PYTHON_VERSION}"',
+            "source activate launcher-environment",
+            "python -VV",
+            "pip --version",
+            "pip install dead-hosts-launcher",
+        ],
+        "script": ["dead_hosts_launcher"],
+        "notifications": {
+            "email": {
+                "recipients": ["dead-hosts@funilrys.com"],
+                "on_success": "never",
+                "on_failure": "always",
+            }
+        },
+    }
+    """
+    Provides what we want into the configuration file.
+    """

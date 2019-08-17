@@ -78,3 +78,8 @@ class Paths:
     """
     Provides the filename of our README.
     """
+
+    travis_filename = ".travis.yml"
+    """
+    Provides the filename of our .travis.yml file.
+    """

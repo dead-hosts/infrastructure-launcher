@@ -41,7 +41,8 @@ import logging
 
 from ..configuration import Links, Markers, Paths
 from ..configuration import PyFunceble as PyFuncebleConfig
-from ..helpers import Dict, Download, File, Regex
+from ..configuration import TravisCI as TravisCIConfig
+from ..helpers import Command, Dict, Download, File, Regex
 
 
 class Update:
@@ -76,6 +77,7 @@ class Update:
 
         self.readme()
         self.our_license()
+        self.travis_yml()
 
     def get_final_commit_message(self):
         """
@@ -250,3 +252,42 @@ class Update:
         logging.info(
             f"Updated {self.working_directory +  Links.pyfunceble_official_license['destination']}"
         )
+
+    def travis_yml(self):
+        """
+        Updates the `.travis.yml` file.
+        """
+
+        if TravisCIConfig.build_dir and TravisCIConfig.github_token:
+            logging.info("Updating .travis.yml file.")
+
+            destination = self.working_directory + Paths.travis_filename
+            destination_file_instance = File(destination)
+
+            content = Dict().from_yaml_string(destination_file_instance.read())
+            content = Dict(content).merge(TravisCIConfig.unified_config)
+
+            to_write = Dict(content).to_yaml()
+
+            logging.debug(f"New repository TravisCI configuration: \n{content}")
+            destination_file_instance.write(to_write)
+
+            if (
+                Command(
+                    f"git status {destination_file_instance.file} --porcelain",
+                    print_to_stdout=False,
+                )
+                .execute()
+                .strip()
+                .startswith("M")
+            ):
+                logging.info(f"{destination_file_instance.file} changed. Commit and push new version.")
+                commands = [
+                    f"git commit -a -m '{Markers.maintenance_commit_message}'"
+                    f"git push origin {TravisCIConfig.git_branch}"
+                ]
+
+                for command in commands:
+                    Command(command, print_to_stdout=True).execute()
+
+                exit(0)
