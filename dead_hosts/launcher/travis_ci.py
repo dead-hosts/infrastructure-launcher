@@ -83,7 +83,7 @@ class TravisCI:
                 f"sudo chown -R travis:travis {Config.build_dir}",
                 f"sudo chmod -R g+rwX {Config.build_dir}",
                 f"sudo chmod 777 -Rf {Config.build_dir + Paths.directory_separator}.git",
-                f"sudo find {Config.build_dir} -type d -exec chmod g+x " "'{}' \\;'",
+                f"sudo find {Config.build_dir} -type d -exec chmod g+x {{}} \\;",
             ]
 
             for command in commands:
