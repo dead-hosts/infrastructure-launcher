@@ -269,7 +269,7 @@ class Update:
             destination_file_instance = File(destination)
 
             content = Dict().from_yaml_string(destination_file_instance.read())
-            content = Dict(content).merge(TravisCIConfig.unified_config)
+            content = Dict(content).merge(TravisCIConfig.unified_config, strict=True)
 
             to_write = Dict(content).to_yaml()
 

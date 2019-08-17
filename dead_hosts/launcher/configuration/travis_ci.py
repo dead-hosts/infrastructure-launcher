@@ -114,7 +114,7 @@ class TravisCI:
             "pip --version",
             "pip install dead-hosts-launcher",
         ],
-        "script": ["dead_hosts_launcher"],
+        "script": ["dead_hosts_launcher --version", "dead_hosts_launcher"],
         "notifications": {
             "email": {
                 "recipients": ["dead-hosts@funilrys.com"],
