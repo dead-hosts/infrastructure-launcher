@@ -264,6 +264,9 @@ class Update:
             and not File(self.working_directory + "info.example.json").exists()
         ):
 
+            to_delete_main = ["dist", "cache", "matrix", "python"]
+            to_delete_global_end = ["UPDATE_ME_LOCATION", "ADMIN_LOCATION"]
+
             destination = self.working_directory + Paths.travis_filename
             destination_file_instance = File(destination)
 
@@ -274,6 +277,16 @@ class Update:
 
             content = Dict().from_yaml_string(destination_file_instance.read())
             content = Dict(content).merge(TravisCIConfig.unified_config, strict=True)
+
+            for index in to_delete_main:
+                if index in content:
+                    del content[index]
+
+            if "env" in content and "global" in content["env"]:
+                for index, data in enumerate(content["env"]["global"]):
+                    for env_var in to_delete_global_end:
+                        if env_var in data:
+                            del content["env"]["global"][index]
 
             to_write = Dict(content).to_yaml()
 
