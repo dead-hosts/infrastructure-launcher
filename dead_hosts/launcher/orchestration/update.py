@@ -43,6 +43,7 @@ from ..configuration import Links, Markers, Paths
 from ..configuration import PyFunceble as PyFuncebleConfig
 from ..configuration import TravisCI as TravisCIConfig
 from ..helpers import Command, Dict, Download, File, Regex
+from ..travis_ci import TravisCI
 
 
 class Update:
@@ -293,6 +294,8 @@ class Update:
                 logging.info(
                     f"{destination_file_instance.file} changed. Commit and push new version."
                 )
+
+                TravisCI.update_permissions()
                 commands = [
                     "git add --all",
                     f"git commit -a -m '{Markers.maintenance_commit_message}'"

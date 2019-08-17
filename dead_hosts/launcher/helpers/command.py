@@ -90,12 +90,5 @@ class Command:
         if self.process.returncode != 0:
             decoded = self.__decode_output(stderr)
 
-            if not decoded:
-                return f"Unkown error for {repr(self.command)}"
-
-            if self.allow_stdout:
-                print(decoded)
-                exit(self.process.returncode)
-            else:
-                return decoded
+            raise Exception(decoded)
         return self.__decode_output(stdout)
