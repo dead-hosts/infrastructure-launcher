@@ -294,8 +294,9 @@ class Update:
                     f"{destination_file_instance.file} changed. Commit and push new version."
                 )
                 commands = [
-                    f"git commit -a -m '{Markers.maintenance_commit_message}'"
-                    f"git push origin {TravisCIConfig.git_branch}"
+                    "git add --all",
+                    f"git commit -m '{Markers.maintenance_commit_message}'"
+                    f"git push origin {TravisCIConfig.git_branch}",
                 ]
 
                 for command in commands:
