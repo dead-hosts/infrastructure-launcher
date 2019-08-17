@@ -61,7 +61,7 @@ class Links:
     """
 
     pyfunceble_official_config = {
-        "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/.PyFunceble_production.yaml",
+        "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/master/.PyFunceble_production.yaml",
         "destination": ".PyFunceble_production.yaml",
     }
     """
