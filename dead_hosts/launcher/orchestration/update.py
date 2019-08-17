@@ -258,7 +258,11 @@ class Update:
         Updates the `.travis.yml` file.
         """
 
-        if TravisCIConfig.build_dir and TravisCIConfig.github_token:
+        if (
+            TravisCIConfig.build_dir
+            and TravisCIConfig.github_token
+            and not File(self.working_directory + "info.example.json").exists()
+        ):
             logging.info("Updating .travis.yml file.")
 
             destination = self.working_directory + Paths.travis_filename
@@ -281,7 +285,9 @@ class Update:
                 .strip()
                 .startswith("M")
             ):
-                logging.info(f"{destination_file_instance.file} changed. Commit and push new version.")
+                logging.info(
+                    f"{destination_file_instance.file} changed. Commit and push new version."
+                )
                 commands = [
                     f"git commit -a -m '{Markers.maintenance_commit_message}'"
                     f"git push origin {TravisCIConfig.git_branch}"
