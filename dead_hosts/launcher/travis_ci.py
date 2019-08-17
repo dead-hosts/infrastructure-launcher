@@ -63,6 +63,7 @@ class TravisCI:
                 f'git config --global user.name "{Config.git_name}"',
                 "git config --global push.default simple",
                 f"git checkout {Config.git_branch}",
+                "git config core.sharedRepository group",
             ]
 
             for command in commands:

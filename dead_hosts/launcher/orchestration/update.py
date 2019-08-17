@@ -295,7 +295,7 @@ class Update:
                 )
                 commands = [
                     "git add --all",
-                    f"git commit -m '{Markers.maintenance_commit_message}'"
+                    f"git commit -a -m '{Markers.maintenance_commit_message}'"
                     f"git push origin {TravisCIConfig.git_branch}",
                 ]
 
