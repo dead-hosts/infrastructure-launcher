@@ -42,8 +42,7 @@ import logging
 from ..configuration import Links, Markers, Paths
 from ..configuration import PyFunceble as PyFuncebleConfig
 from ..configuration import TravisCI as TravisCIConfig
-from ..helpers import Command, Dict, Download, File, Regex
-from ..travis_ci import TravisCI
+from ..helpers import Dict, Download, File, Regex
 
 
 class Update:
@@ -282,27 +281,3 @@ class Update:
                 f"New repository TravisCI configuration (interpreted): \n{content}"
             )
             destination_file_instance.write(to_write, overwrite=True)
-
-            git_status = Command(
-                f"git status '{destination_file_instance.file}' --porcelain",
-                print_to_stdout=False,
-            ).execute()
-
-            logging.debug(f"GIT states: {git_status}")
-
-            if git_status.strip().startswith("M"):
-                logging.info(
-                    f"{destination_file_instance.file} changed. Commit and push new version."
-                )
-
-                TravisCI.update_permissions()
-                commands = [
-                    "git add --all",
-                    f"git commit -m '{Markers.maintenance_commit_message}'"
-                    f"git push origin {TravisCIConfig.git_branch}",
-                ]
-
-                for command in commands:
-                    Command(command, print_to_stdout=True).execute()
-
-                exit(0)
