@@ -54,6 +54,16 @@ class Authorize:
     def __init__(self, info_manager):
         self.info_manager = info_manager
 
+    @classmethod
+    def is_launch_given_by_commit_message(cls):
+        """
+        Checks if the launch per commit message is valid.
+        """
+
+        return Regex(
+            Command("git log -1", print_to_stdout=False).execute(), Markers.launch_test
+        ).match(return_data=False)
+
     def refresh(self):
         """
         Provides the refresh authorization.
@@ -64,9 +74,10 @@ class Authorize:
         :rtype: bool
         """
 
-        if not self.info_manager.currently_under_test or Regex(
-            Command("git log -1", print_to_stdout=False).execute(), Markers.launch_test
-        ).match(return_data=False):
+        if (
+            not self.info_manager.currently_under_test
+            or self.is_launch_given_by_commit_message()
+        ):
             return True
 
         return False
@@ -90,6 +101,9 @@ class Authorize:
 
         :rtype: bool
         """
+
+        if self.is_launch_given_by_commit_message():
+            return True
 
         if (
             not self.info_manager.days_until_next_test
