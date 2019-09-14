@@ -96,7 +96,7 @@ class Update:
         Updates the cross configuration of PyFunceble.
         """
 
-        if self.cross_pyfunceble_config_file.exists():
+        if self.cross_pyfunceble_config_file.exists() or not TravisCIConfig.git_email:
             logging.info("Cross repository file exists locally. Let's update it.")
 
             upstream_string_version = Download(

@@ -39,8 +39,10 @@ License:
 
 import logging
 from datetime import datetime
+from sys import stdout
 
 from colorama import Fore, Style
+from PyFunceble import VERSION as PyFunceble_VERSION
 from PyFunceble import load_config
 from PyFunceble.clean import Clean
 from PyFunceble.directory_structure import DirectoryStructure
@@ -217,7 +219,7 @@ class Orchestration:
         ].timestamp()
 
         logging.info("Updated all timestamps.")
-        logging.info("Starting PyFunceble...")
+        logging.info(f"Starting PyFunceble {PyFunceble_VERSION} ...")
 
         Command(
             f"PyFunceble -f {self.input_file_instance.file}", print_to_stdout=True
