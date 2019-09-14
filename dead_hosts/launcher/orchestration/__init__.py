@@ -164,12 +164,15 @@ class Orchestration:
                     "last_download_datetime"
                 ].timestamp()
 
-            logging.info("Formatting the list to test.")
+            if not self.info_manager["custom_pyfunceble_config"]:
+                logging.info("Formatting the list to test.")
 
-            # pylint: disable=protected-access
-            result["input_list"] = [
-                FileCore._format_line(x) for x in result["origin"].splitlines() if x
-            ]
+                # pylint: disable=protected-access
+                result["input_list"] = [
+                    FileCore._format_line(x) for x in result["origin"].splitlines() if x
+                ]
+            else:
+                result["input_list"] = result["origin"].splitlines()
 
             result["input"] = "\n".join(result["input_list"])
 
