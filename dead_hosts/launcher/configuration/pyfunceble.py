@@ -77,7 +77,7 @@ class PyFunceble:
     Let PyFunceble know that we want a plain list version.
     """
 
-    seconds_before_http_timeout = 6
+    timeout = 6
     """
     Let PyFunceble know the timeout to apply to each subject test.
     """
