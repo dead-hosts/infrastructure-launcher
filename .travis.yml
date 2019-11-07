@@ -1,6 +1,6 @@
 env:
   matrix:
-    - PYTHON_VERSION="3.7.3"
+    - PYTHON_VERSION="3.7.5"
 
 language: generic
 

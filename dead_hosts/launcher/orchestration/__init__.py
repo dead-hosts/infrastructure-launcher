@@ -38,8 +38,8 @@ License:
 """
 
 import logging
+import sys
 from datetime import datetime
-from sys import stdout
 
 from colorama import Fore, Style
 from PyFunceble import VERSION as PyFunceble_VERSION
@@ -108,7 +108,7 @@ class Orchestration:
                     f"Not authorized to run a test until {datetime.now()} "
                     f"(current time) > {self.authorize.get_test_authorization_time()}"
                 )
-                exit(0)
+                sys.exit(0)
         elif save:
             self.run_autosave()
         else:
