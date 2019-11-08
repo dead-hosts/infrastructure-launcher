@@ -172,19 +172,18 @@ class Orchestration:
             if not self.info_manager["custom_pyfunceble_config"]:
                 logging.info("Formatting the list to test.")
 
-                # pylint: disable=protected-access
-                result["input_list"] = [
-                    PyFunceble.converter.File(x).get_converted()
-                    for x in result["origin"].splitlines()
-                    if x
-                ]
+                result["input_list"] = []
 
-                for index, data in enumerate(result["input_list"]):
-                    if not isinstance(data, list):
+                for line in result["origin"].splitlines():
+                    converted = PyFunceble.converter.File(line).get_converted()
+
+                    if not converted:
                         continue
 
-                    result["input_list"].extend(data)
-                    del result["input_list"][index]
+                    if isinstance(converted, list):
+                        result["input_list"].extend([x for x in converted if x])
+                    else:
+                        result["input_list"].append(converted)
             else:
                 result["input_list"] = result["origin"].splitlines()
 
