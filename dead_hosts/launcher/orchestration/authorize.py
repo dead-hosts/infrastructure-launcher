@@ -38,8 +38,9 @@ License:
 
 from datetime import datetime, timedelta
 
+import PyFunceble.helpers as helpers
+
 from ..configuration import Markers
-from ..helpers import Command, Regex
 
 
 class Authorize:
@@ -60,9 +61,9 @@ class Authorize:
         Checks if the launch per commit message is valid.
         """
 
-        return Regex(
-            Command("git log -1", print_to_stdout=False).execute(), Markers.launch_test
-        ).match(return_data=False)
+        return helpers.Regex(Markers.launch_test).match(
+            helpers.Command("git log -1").execute(), return_match=False
+        )
 
     def refresh(self):
         """

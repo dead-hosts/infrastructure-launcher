@@ -41,16 +41,13 @@ import logging
 import sys
 from datetime import datetime
 
+import PyFunceble
 from colorama import Fore, Style
-from PyFunceble import VERSION as PyFunceble_VERSION
-from PyFunceble import load_config
-from PyFunceble.clean import Clean
-from PyFunceble.directory_structure import DirectoryStructure
-from PyFunceble.file_core import FileCore
+from colorama import init as initiate_colorama
 
 from ..configuration import Paths
 from ..configuration import TravisCI as TravisCIConfig
-from ..helpers import Command, Directory, Download, File, List, Regex
+from ..helpers import Command
 from ..info import Info
 from ..travis_ci import TravisCI
 from .authorize import Authorize
@@ -63,7 +60,7 @@ class Orchestration:
     """
 
     def __init__(self, save=False, end=False, debug=False):
-
+        initiate_colorama(autoreset=True)
         if debug:
             debug_level = logging.DEBUG
         else:
@@ -84,13 +81,19 @@ class Orchestration:
 
         self.authorize = Authorize(self.info_manager)
 
-        self.origin_file_instance = File(self.working_directory + Paths.origin_filename)
-        self.input_file_instance = File(self.working_directory + Paths.input_filename)
-        self.output_file_instance = File(self.working_directory + Paths.output_filename)
+        self.origin_file_instance = PyFunceble.helpers.File(
+            self.working_directory + Paths.origin_filename
+        )
+        self.input_file_instance = PyFunceble.helpers.File(
+            self.working_directory + Paths.input_filename
+        )
+        self.output_file_instance = PyFunceble.helpers.File(
+            self.working_directory + Paths.output_filename
+        )
 
-        logging.info(f"Origin file: {self.origin_file_instance.file}")
-        logging.info(f"Input file: {self.input_file_instance.file}")
-        logging.info(f"Output file: {self.output_file_instance.file}")
+        logging.info(f"Origin file: {self.origin_file_instance.path}")
+        logging.info(f"Input file: {self.input_file_instance.path}")
+        logging.info(f"Output file: {self.output_file_instance.path}")
 
         if not end and not save:
             logging.info(f"Checking authorization to run.")
@@ -99,7 +102,7 @@ class Orchestration:
                 TravisCI.init_repo()
                 Update(self.working_directory, self.info_manager)
 
-                load_config(generate_directory_structure=False)
+                PyFunceble.load_config(generate_directory_structure=False)
                 self.fetch_list_to_test()
 
                 self.run_test()
@@ -125,7 +128,9 @@ class Orchestration:
             logging.info(f"Raw Link: {self.info_manager.raw_link}")
 
             if self.info_manager.raw_link:
-                result["origin"] = Download(self.info_manager.raw_link).text()
+                result["origin"] = PyFunceble.helpers.Download(
+                    self.info_manager.raw_link
+                ).text()
 
                 logging.info(
                     "Could get the new version of the list. Updating the download time."
@@ -151,7 +156,7 @@ class Orchestration:
                 ].timestamp()
             else:
                 logging.info(
-                    f"Could not find {self.origin_file_instance.file}. "
+                    f"Could not find {self.origin_file_instance.path}. "
                     "Generating empty content to test."
                 )
 
@@ -169,8 +174,17 @@ class Orchestration:
 
                 # pylint: disable=protected-access
                 result["input_list"] = [
-                    FileCore._format_line(x) for x in result["origin"].splitlines() if x
+                    PyFunceble.converter.File(x).get_converted()
+                    for x in result["origin"].splitlines()
+                    if x
                 ]
+
+                for index, data in enumerate(result["input_list"]):
+                    if not isinstance(data, list):
+                        continue
+
+                    result["input_list"].extend(data)
+                    del result["input_list"][index]
             else:
                 result["input_list"] = result["origin"].splitlines()
 
@@ -179,12 +193,12 @@ class Orchestration:
             self.origin_file_instance.write(result["origin"], overwrite=True)
             self.input_file_instance.write(result["input"], overwrite=True)
 
-            logging.info(f"Updated {self.origin_file_instance.file}.")
-            logging.info(f"Updated {self.input_file_instance.file}.")
+            logging.info(f"Updated {self.origin_file_instance.path}.")
+            logging.info(f"Updated {self.input_file_instance.path}.")
 
-            Clean(None)
+            PyFunceble.output.Clean()
             logging.info("Cleaned the `output` directory of PyFunceble.")
-            DirectoryStructure()
+            PyFunceble.output.Constructor()
             logging.info(
                 "Ensured that the directory structure of PyFunceble is still valid."
             )
@@ -222,11 +236,11 @@ class Orchestration:
         ].timestamp()
 
         logging.info("Updated all timestamps.")
-        logging.info(f"Starting PyFunceble {PyFunceble_VERSION} ...")
+        logging.info(f"Starting PyFunceble {PyFunceble.VERSION} ...")
 
-        Command(
-            f"PyFunceble -f {self.input_file_instance.file}", print_to_stdout=True
-        ).execute()
+        PyFunceble.helpers.Command(
+            f"PyFunceble -f {self.input_file_instance.path}"
+        ).run_to_stdout()
 
         if not TravisCIConfig.github_token or not TravisCIConfig.build_dir:
             self.run_end()
@@ -248,7 +262,7 @@ class Orchestration:
 
         logging.info("Updated all timestamps.")
 
-        Directory(self.working_directory + "db_types").delete()
+        PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
 
         TravisCI.update_permissions()
 
@@ -275,7 +289,7 @@ class Orchestration:
 
         TravisCI.update_permissions()
 
-        pyfunceble_active_list = File(
+        pyfunceble_active_list = PyFunceble.helpers.File(
             self.working_directory + "output/domains/ACTIVE/list"
         )
         clean_list = [
@@ -285,24 +299,24 @@ class Orchestration:
             f"# Generation Time: {datetime.now().isoformat()}",
         ]
 
-        logging.info(f"PyFunceble ACTIVE list output: {pyfunceble_active_list.file}")
+        logging.info(f"PyFunceble ACTIVE list output: {pyfunceble_active_list.path}")
 
         if pyfunceble_active_list.exists():
             logging.info(
-                f"{pyfunceble_active_list.file} exists, getting and formatting its content."
+                f"{pyfunceble_active_list.path} exists, getting and formatting its content."
             )
 
             clean_list.extend(
-                List(
-                    Regex(
-                        pyfunceble_active_list.read_to_list(), r"^#"
-                    ).get_not_matching_list()
+                PyFunceble.helpers.List(
+                    PyFunceble.helpers.Regex(r"^#").get_not_matching_list(
+                        pyfunceble_active_list.read().splitlines()
+                    )
                 ).format()
             )
 
         self.output_file_instance.write("\n".join(clean_list), overwrite=True)
-        logging.info(f"Updated of the content of {self.output_file_instance.file}")
+        logging.info(f"Updated of the content of {self.output_file_instance.path}")
 
-        Directory(self.working_directory + "db_types").delete()
+        PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
 
         TravisCI.update_permissions()

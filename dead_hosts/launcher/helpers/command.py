@@ -36,8 +36,9 @@ License:
     SOFTWARE.
 """
 
+
 from os import environ
-from subprocess import PIPE, Popen
+from subprocess import PIPE, STDOUT, Popen
 
 
 class Command:
@@ -61,10 +62,10 @@ class Command:
 
         if not self.allow_stdout:
             self.process = Popen(
-                self.command, stdout=PIPE, stderr=PIPE, shell=True, env=environ
+                self.command, stdout=PIPE, stderr=STDOUT, shell=True, env=environ
             )
         else:
-            self.process = Popen(self.command, stderr=PIPE, shell=True, env=environ)
+            self.process = Popen(self.command, stderr=STDOUT, shell=True, env=environ)
 
     def __decode_output(self, to_decode):
         """

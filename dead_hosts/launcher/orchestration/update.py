@@ -39,10 +39,11 @@ License:
 
 import logging
 
+import PyFunceble.helpers as helpers
+
 from ..configuration import Links, Markers, Paths
 from ..configuration import PyFunceble as PyFuncebleConfig
 from ..configuration import TravisCI as TravisCIConfig
-from ..helpers import Dict, Download, File, Regex
 
 
 class Update:
@@ -58,18 +59,18 @@ class Update:
         self.working_directory = working_directory
         self.info_manager = info_manager
 
-        self.cross_pyfunceble_config_file = File(
+        self.cross_pyfunceble_config_file = helpers.File(
             self.working_directory
             + Links.cross_pyfunceble_configuration["link"].split("/")[-1]
         )
-        self.pyfunceble_config_file = File(
+        self.pyfunceble_config_file = helpers.File(
             self.working_directory + Links.cross_pyfunceble_configuration["destination"]
         )
 
         logging.info(
-            f"Cross repository PyFunceble config file: {self.cross_pyfunceble_config_file.file}"
+            f"Cross repository PyFunceble config file: {self.cross_pyfunceble_config_file.path}"
         )
-        logging.info(f"Local config file: {self.pyfunceble_config_file.file}")
+        logging.info(f"Local config file: {self.pyfunceble_config_file.path}")
 
         self.pyfunceble_config()
         self.pyfunceble_official_config()
@@ -99,19 +100,18 @@ class Update:
         if self.cross_pyfunceble_config_file.exists() or not TravisCIConfig.git_email:
             logging.info("Cross repository file exists locally. Let's update it.")
 
-            upstream_string_version = Download(
+            upstream_string_version = helpers.Download(
                 Links.pyfunceble_official_config["link"]
-            ).text(destination=None)
+            ).text()
 
-            local_version = Dict.from_yaml_string(upstream_string_version)
-            local_version = Dict(local_version).merge(
+            local_version = helpers.Dict.from_yaml(upstream_string_version)
+            local_version = helpers.Merge(
                 {
                     x: y
                     for x, y in PyFuncebleConfig.__dict__.items()
                     if not x.startswith("_")
-                },
-                strict=True,
-            )
+                }
+            ).into(local_version, strict=True)
 
             local_version_2 = local_version.copy()
 
@@ -129,14 +129,14 @@ class Update:
                     "Custom PyFunceble configuration given, "
                     "appending them to the local configuration file."
                 )
-                local_version_2 = Dict(local_version_2).merge(
-                    self.info_manager.custom_pyfunceble_config, strict=True
-                )
+                local_version_2 = helpers.Merge(
+                    self.info_manager.custom_pyfunceble_config
+                ).into(local_version_2, strict=True)
 
-            Dict(local_version).to_yaml(
-                destination=self.cross_pyfunceble_config_file.file
+            helpers.Dict(local_version).to_yaml_file(
+                self.cross_pyfunceble_config_file.path
             )
-            Dict(local_version_2).to_yaml(destination=self.pyfunceble_config_file.file)
+            helpers.Dict(local_version_2).to_yaml_file(self.pyfunceble_config_file.path)
             logging.info(
                 "Finished update of the cross repository PyFunceble config file."
             )
@@ -158,11 +158,11 @@ class Update:
                 "Let's fetch it into our local PyFunceble config."
             )
 
-            cross_repository_version = Download(
+            cross_repository_version = helpers.Download(
                 Links.cross_pyfunceble_configuration["link"]
-            ).text(destination=None)
+            ).text()
 
-            local_version = Dict().from_yaml_string(cross_repository_version)
+            local_version = helpers.Dict().from_yaml(cross_repository_version)
 
             if self.info_manager.ping:
                 local_version[
@@ -177,38 +177,40 @@ class Update:
                     "Custom PyFunceble configuration given, "
                     "appending them to the local configuration file."
                 )
-                local_version = Dict(local_version).merge(
-                    self.info_manager.custom_pyfunceble_config, strict=True
-                )
+                local_version = helpers.Merge(
+                    self.info_manager.custom_pyfunceble_config
+                ).into(local_version, strict=True)
 
             logging.debug(f"Interpreded PyFunceble config: {local_version}")
 
-            Dict(local_version).to_yaml(destination=self.pyfunceble_config_file.file)
+            helpers.Dict(local_version).to_yaml_file(self.pyfunceble_config_file.path)
 
     def readme(self):
         """
         Updates the README file.
         """
 
-        destination_file_instance = File(self.working_directory + Paths.readme_filename)
+        destination_file_instance = helpers.File(
+            self.working_directory + Paths.readme_filename
+        )
 
         if destination_file_instance.exists():
             logging.info(
-                f"{destination_file_instance.file} exists, let's update it's content."
+                f"{destination_file_instance.path} exists, let's update it's content."
             )
 
-            updated_version = Regex(
-                destination_file_instance.read(), Markers.extract_about_pyfunceble
-            ).replace(Markers.about_pyfunceble)
+            updated_version = helpers.Regex(
+                Markers.extract_about_pyfunceble
+            ).replace_match(destination_file_instance.read(), Markers.about_pyfunceble)
             logging.info(
-                f"Updated `About PyFunceble` section of {destination_file_instance.file}"
+                f"Updated `About PyFunceble` section of {destination_file_instance.path}"
             )
 
-            updated_version = Regex(
-                updated_version, Markers.extract_about_dead_hosts
-            ).replace(Markers.about_dead_hosts)
+            updated_version = helpers.Regex(
+                Markers.extract_about_dead_hosts
+            ).replace_match(updated_version, Markers.about_dead_hosts)
             logging.info(
-                f"Updated `About Dead-Hosts` section of {destination_file_instance.file}"
+                f"Updated `About Dead-Hosts` section of {destination_file_instance.path}"
             )
 
             destination_file_instance.write(updated_version, overwrite=True)
@@ -218,7 +220,7 @@ class Update:
         Updates the local version of our LICENSE file.
         """
 
-        Download(Links.our_license["link"]).text(
+        helpers.Download(Links.our_license["link"]).text(
             destination=self.working_directory + Links.our_license["destination"]
         )
         logging.info(
@@ -230,7 +232,7 @@ class Update:
         Update the official version of the PyFunceble file.
         """
 
-        Download(Links.pyfunceble_official_config["link"]).text(
+        helpers.Download(Links.pyfunceble_official_config["link"]).text(
             destination=self.working_directory
             + Links.pyfunceble_official_config["destination"]
         )
@@ -244,7 +246,7 @@ class Update:
         Update the official version of the PyFunceble license.
         """
 
-        Download(Links.pyfunceble_official_license["link"]).text(
+        helpers.Download(Links.pyfunceble_official_license["link"]).text(
             destination=self.working_directory
             + Links.pyfunceble_official_license["destination"]
         )
@@ -261,22 +263,24 @@ class Update:
         if (
             TravisCIConfig.build_dir
             and TravisCIConfig.github_token
-            and not File(self.working_directory + "info.example.json").exists()
+            and not helpers.File(self.working_directory + "info.example.json").exists()
         ):
 
             to_delete_main = ["dist", "cache", "matrix", "python"]
             to_delete_global_end = ["UPDATE_ME_LOCATION", "ADMIN_LOCATION"]
 
             destination = self.working_directory + Paths.travis_filename
-            destination_file_instance = File(destination)
+            destination_file_instance = helpers.File(destination)
 
-            logging.info(f"Updating {destination_file_instance.file}.")
+            logging.info(f"Updating {destination_file_instance.path}.")
             logging.debug(
-                f"{destination_file_instance.file} exists: {destination_file_instance.exists()}"
+                f"{destination_file_instance.path} exists: {destination_file_instance.exists()}"
             )
 
-            content = Dict().from_yaml_string(destination_file_instance.read())
-            content = Dict(content).merge(TravisCIConfig.unified_config, strict=True)
+            content = helpers.Dict().from_yaml(destination_file_instance.read())
+            content = helpers.Merge(TravisCIConfig.unified_config).into(
+                content, strict=True
+            )
 
             for index in to_delete_main:
                 if index in content:
@@ -288,7 +292,7 @@ class Update:
                         if env_var in data:
                             del content["env"]["global"][index]
 
-            to_write = Dict(content).to_yaml()
+            to_write = helpers.Dict(content).to_yaml()
 
             logging.debug(
                 f"New repository TravisCI configuration (interpreted): \n{content}"

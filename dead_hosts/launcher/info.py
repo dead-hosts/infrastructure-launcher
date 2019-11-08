@@ -40,8 +40,9 @@ License:
 import logging
 from datetime import datetime, timedelta
 
+import PyFunceble.helpers as helpers
+
 from .configuration import Paths, TravisCI
-from .helpers import Command, Dict, File
 
 
 class Info:
@@ -54,10 +55,10 @@ class Info:
     def __init__(self, working_directory):
         self.working_directory = working_directory
         self.file = self.working_directory + Paths.info_filename
-        self.file_instance = File(self.file)
+        self.file_instance = helpers.File(self.file)
 
         if self.file_instance.exists():
-            self.content = Dict().from_json_string(self.file_instance.read())
+            self.content = helpers.Dict().from_json(self.file_instance.read())
         else:
             self.content = {}
 
@@ -93,20 +94,22 @@ class Info:
         # pylint: disable=too-many-branches
 
         self.content["name"] = (
-            Command("basename $(git rev-parse --show-toplevel)", print_to_stdout=False)
+            helpers.Command("basename $(git rev-parse --show-toplevel)")
             .execute()
             .strip()
         )
         logging.info("Updated the `name` index of the administration file.")
 
         to_delete = [
-            File(self.working_directory + ".administrators"),
-            File(self.working_directory + "update_me.py"),
-            File(self.working_directory + "admin.py"),
+            helpers.File(self.working_directory + ".administrators"),
+            helpers.File(self.working_directory + "update_me.py"),
+            helpers.File(self.working_directory + "admin.py"),
         ]
 
         if "list_name" in self.content:
-            to_delete.append(File(self.working_directory + self.content["list_name"]))
+            to_delete.append(
+                helpers.File(self.working_directory + self.content["list_name"])
+            )
 
         if "ping" in self.content:
             local_ping_result = []
@@ -149,7 +152,7 @@ class Info:
                 file_to_delete.delete()
 
                 logging.info(
-                    f"Deleted the `{file_to_delete.file}` file, it is not needed anymore."
+                    f"Deleted the `{file_to_delete.path}` file, it is not needed anymore."
                 )
 
         for index in ["currently_under_test"]:
@@ -285,7 +288,7 @@ class Info:
             elif index.endswith("_datetime") and isinstance(value, datetime):
                 self.content[index] = value.isoformat()
 
-        Dict(self.content).to_json(self.file)
+        helpers.Dict(self.content).to_json_file(self.file)
         self.content = origin
 
     def get_ping_for_commit(self):

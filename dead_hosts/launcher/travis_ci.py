@@ -38,9 +38,10 @@ License:
 
 import logging
 
+import PyFunceble.helpers as helpers
+
 from .configuration import Paths
 from .configuration import TravisCI as Config
-from .helpers import Command
 
 
 class TravisCI:
@@ -67,7 +68,7 @@ class TravisCI:
             ]
 
             for command in commands:
-                Command(command, print_to_stdout=False).execute()
+                helpers.Command(command).execute()
 
             logging.info("Git repository prepared for push.")
 
@@ -87,6 +88,6 @@ class TravisCI:
             ]
 
             for command in commands:
-                Command(command, print_to_stdout=False).execute()
+                helpers.Command(command).execute()
 
             logging.info("Updated files and directories permissions.")
