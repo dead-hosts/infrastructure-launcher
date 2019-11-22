@@ -107,7 +107,7 @@ class PyFunceble:
     Let PyFunceble know that we want to use the multiprocessing.
     """
 
-    maximal_processes = 20
+    maximal_processes = 2
     """
     Let PyFunceble know how many processs we want to use (if multiprocess) is activated.
     """
