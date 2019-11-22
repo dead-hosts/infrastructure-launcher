@@ -102,7 +102,7 @@ class PyFunceble:
     Let PyFunceble know if we are under Travis CI (or not).
     """
 
-    multiprocess = False
+    multiprocess = True
     """
     Let PyFunceble know that we want to use the multiprocessing.
     """
