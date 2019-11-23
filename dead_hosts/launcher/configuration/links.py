@@ -52,6 +52,11 @@ class Links:
     Set the link of our shared license.
     """
 
+    our_requirements = {
+        "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/requirements.txt",
+        "destination": "requirements.txt",
+    }
+
     cross_pyfunceble_configuration = {
         "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/.PyFunceble_cross_repositories_config.yaml",
         "destination": ".PyFunceble.yaml",

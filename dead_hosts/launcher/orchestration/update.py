@@ -78,6 +78,7 @@ class Update:
 
         self.readme()
         self.our_license()
+        self.our_requirements()
         self.travis_yml()
 
     def get_final_commit_message(self):
@@ -225,6 +226,18 @@ class Update:
         )
         logging.info(
             f"Updated {self.working_directory + Links.our_license['destination']}"
+        )
+
+    def our_requirements(self):
+        """
+        Updates the local version of our requirements.txt file.
+        """
+
+        helpers.Download(Links.our_requirements["link"]).text(
+            destination=self.working_directory + Links.our_requirements["destination"]
+        )
+        logging.info(
+            f"Updated {self.working_directory + Links.our_requirements['destination']}"
         )
 
     def pyfunceble_official_config(self):
