@@ -88,10 +88,10 @@ class Update:
 
         if self.info_manager.ping:
             return (
-                PyFuncebleConfig.travis_autosave_final_commit
+                PyFuncebleConfig.ci_autosave_final_commit
                 + f" | cc {self.info_manager.get_ping_for_commit()} | "
             )
-        return PyFuncebleConfig.travis_autosave_final_commit
+        return PyFuncebleConfig.ci_autosave_final_commit
 
     def __cross_pyfunceble_config(self):
         """
@@ -120,7 +120,7 @@ class Update:
                 logging.info("Ping names given, appending them to the commit message.")
 
                 local_version_2[
-                    "travis_autosave_final_commit"
+                    "ci_autosave_final_commit"
                 ] = self.get_final_commit_message()
 
             if self.info_manager.custom_pyfunceble_config and isinstance(
@@ -167,7 +167,7 @@ class Update:
 
             if self.info_manager.ping:
                 local_version[
-                    "travis_autosave_final_commit"
+                    "ci_autosave_final_commit"
                 ] = self.get_final_commit_message()
                 logging.info("Ping names given, appending them to the commit message.")
 

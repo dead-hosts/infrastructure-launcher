@@ -92,12 +92,12 @@ class PyFunceble:
     Let PyFunceble know that we want a splitted logs.
     """
 
-    travis_autosave_minutes = 10
+    ci_autosave_minutes = 10
     """
     Let PyFunceble know that we want x minutes between each test.
     """
 
-    travis = TravisCI.build_dir is not None and TravisCI.github_token is not None
+    ci = TravisCI.build_dir is not None and TravisCI.github_token is not None
     """
     Let PyFunceble know if we are under Travis CI (or not).
     """
@@ -117,27 +117,27 @@ class PyFunceble:
     Let PyFunceble know the DNS server we want to user for DNS query.
     """
 
-    travis_branch = TravisCI.git_branch
+    ci_branch = TravisCI.git_branch
     """
     Let PyFunceble know the branch to push into.
     """
 
     if TravisCI.repo_slug:
-        travis_autosave_commit = (
+        ci_autosave_commit = (
             f"[Autosave][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
         )
     else:
-        travis_autosave_commit = "[Autosave][Dead-Hosts]"
+        ci_autosave_commit = "[Autosave][Dead-Hosts]"
         """
         Let PyFunceble know the default autosave commit message.
         """
 
     if TravisCI.repo_slug:
-        travis_autosave_final_commit = (
+        ci_autosave_final_commit = (
             f"[Final/Result][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
         )
     else:
-        travis_autosave_final_commit = "[Final/Result][Dead-Hosts]"
+        ci_autosave_final_commit = "[Final/Result][Dead-Hosts]"
         """
         Let PyFunceble know the default final commit message.
         """
