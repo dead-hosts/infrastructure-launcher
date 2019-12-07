@@ -127,3 +127,11 @@ class TravisCI:
     """
     Provides what we want into the configuration file.
     """
+
+    if "NO_CI_CONFIG_UPDATE" in environ:
+        update_ci_config = False
+    else:
+        update_ci_config = True
+        """
+        Provides a way to disable the update of the travis.yaml file.
+        """

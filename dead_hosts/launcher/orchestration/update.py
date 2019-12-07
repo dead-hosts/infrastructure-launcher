@@ -274,7 +274,8 @@ class Update:
         """
 
         if (
-            TravisCIConfig.build_dir
+            TravisCIConfig.update_ci_config
+            and TravisCIConfig.build_dir
             and TravisCIConfig.github_token
             and not helpers.File(self.working_directory + "info.example.json").exists()
         ):
