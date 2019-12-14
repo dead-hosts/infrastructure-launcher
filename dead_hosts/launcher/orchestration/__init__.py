@@ -40,6 +40,7 @@ License:
 import logging
 import sys
 from datetime import datetime
+from os import environ
 
 import PyFunceble
 from colorama import Fore, Style
@@ -69,6 +70,8 @@ class Orchestration:
         logging.basicConfig(
             format="[%(asctime)s::%(levelname)s] %(message)s", level=debug_level
         )
+
+        environ["PYFUNCEBLE_AUTO_CONFIGURATION"] = "yeah"
 
         if TravisCIConfig.build_dir:
             self.working_directory = TravisCIConfig.build_dir
