@@ -244,6 +244,7 @@ class Info:
             "raw_link": None,
             "start_datetime": default_datetime,
             "start_timestamp": default_datetime.timestamp(),
+            "live_update": True,
         }
 
         for index, value in indexes.items():

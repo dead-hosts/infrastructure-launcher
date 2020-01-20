@@ -114,3 +114,4 @@ LICENSE_*
 output/
 public-suffix.json
 whois_db.json
+.pyfunceble_intern_downtime.json

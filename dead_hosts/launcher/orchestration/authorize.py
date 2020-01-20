@@ -65,6 +65,13 @@ class Authorize:
             helpers.Command("git log -1").execute(), return_match=False
         )
 
+    def are_we_supposed_to_always_update_input(self):
+        """
+        Checks if we are supposed to update the input source at any time.
+        """
+
+        return self.info_manager.live_update is True
+
     def refresh(self):
         """
         Provides the refresh authorization.
@@ -78,6 +85,7 @@ class Authorize:
         if (
             not self.info_manager.currently_under_test
             or self.is_launch_given_by_commit_message()
+            or self.are_we_supposed_to_always_update_input()
         ):
             return True
 
