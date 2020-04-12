@@ -112,7 +112,7 @@ class PyFunceble:
     Let PyFunceble know how many processs we want to use (if multiprocess) is activated.
     """
 
-    dns_server = ["1.1.1.1", "1.0.0.1"]
+    dns_server = ["8.8.8.8", "8.4.4.8"]
     """
     Let PyFunceble know the DNS server we want to user for DNS query.
     """
