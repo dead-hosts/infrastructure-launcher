@@ -62,6 +62,11 @@ class PyFunceble:
     Let PyFunceble know the commant it has to run before pushing (except the final one).
     """
 
+    print_dots = True
+    """
+    Let PyFunceble know that we want dots to be part of stdout :-)
+    """
+
     generate_complements = False
     """
     Let PyFunceble know that we want to generate/test complements.
