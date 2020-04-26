@@ -115,3 +115,4 @@ output/
 public-suffix.json
 whois_db.json
 .pyfunceble_intern_downtime.json
+user_agents.json

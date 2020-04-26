@@ -38,10 +38,9 @@ License:
 
 import logging
 
-import PyFunceble.helpers as helpers
-
 from .configuration import Paths
 from .configuration import TravisCI as Config
+from .helpers import Command
 
 
 class TravisCI:
@@ -68,7 +67,7 @@ class TravisCI:
             ]
 
             for command in commands:
-                helpers.Command(command).execute()
+                Command(command).execute()
 
             logging.info("Git repository prepared for push.")
 
@@ -88,6 +87,16 @@ class TravisCI:
             ]
 
             for command in commands:
-                helpers.Command(command).execute()
+                Command(command).execute()
 
             logging.info("Updated files and directories permissions.")
+
+    @classmethod
+    def get_working_dir(cls) -> str:
+        """
+        Provides the working directory.
+        """
+
+        if Config.build_dir:
+            return Config.build_dir
+        return Paths.current_directory

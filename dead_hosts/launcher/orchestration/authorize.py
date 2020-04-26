@@ -41,6 +41,7 @@ from datetime import datetime, timedelta
 import PyFunceble.helpers as helpers
 
 from ..configuration import Markers
+from ..helpers import Command
 
 
 class Authorize:
@@ -62,7 +63,7 @@ class Authorize:
         """
 
         return helpers.Regex(Markers.launch_test).match(
-            helpers.Command("git log -1").execute(), return_match=False
+            Command("git log -1").execute(), return_match=False
         )
 
     def are_we_supposed_to_always_update_input(self):

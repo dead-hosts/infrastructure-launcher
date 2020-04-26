@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides a way to download things.
+Provides the base class of all updaters.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,46 +36,60 @@ License:
     SOFTWARE.
 """
 
-import requests
-
-from .file import File
+from ..info import Info
 
 
-class Download:
+class Base:
     """
-    Provides an interface for file download.
-
-    :param str link: The link to download.
+    Provides the base of all updater.
     """
 
-    def __init__(self, link):
-        self.link = link
+    do_not_start: bool = False
 
-    def text(self, destination=False, success_status_code=None):
+    def __init__(self) -> None:
+        if not hasattr(self, "info_manager"):
+            self.info_manager = Info()
+            self.working_dir = self.info_manager.working_directory
+
+            if not self.do_not_start:
+                self.start_after_authorization()
+
+    def authorization(self):
         """
-        Downloads the text of the given link.
-
-        :param str destination:
-            Where we are supposed to write the downloaded content.
-
-            .. note::
-                If a non :code:`str` value is given, we don't save into a file.
-        :param list success_status_code: The list of HTTP status code to consider as success.
+        Provides an authorization to process.
         """
 
-        if not success_status_code:
-            success_status_code = [200]
-        elif not isinstance(success_status_code, list):
-            success_status_code = [success_status_code]
+        raise NotImplementedError()
 
-        req = requests.get(self.link)
+    def pre(self):
+        """
+        Called before :code:`start`.
+        """
 
-        if req.status_code in success_status_code:
-            if destination and isinstance(destination, str):
-                File(destination).write(req.text, overwrite=True)
+        raise NotImplementedError()
 
-            return req.text
+    def post(self):
+        """
+        Called after :code:`start`.
+        """
 
-        raise ValueError(
-            f"<status_code> ({req.status_code}) not in the <success_status_code> list."
-        )
+        raise NotImplementedError()
+
+    def start(self) -> None:
+        """
+        Starts the update.
+        """
+
+        raise NotImplementedError()
+
+    def start_after_authorization(self):
+        """
+        Starts after checking the authorization.
+        """
+
+        self.authorized = self.authorization()
+
+        if self.authorization():
+            self.pre()
+            self.start()
+            self.post()

@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the helpers.
+Provides the updaters.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,4 +36,28 @@ License:
     SOFTWARE.
 """
 
-from .command import Command
+from .cross_pyfunceble_config import CrossPyFuncebleConfigUpdater
+from .official_pyfunceble_config import OfficialPyFuncebleConfigUpdater
+from .official_pyfunceble_license import OfficialPyFuncebleLicenseUpdater
+from .our_license import OurLicenseUpdater
+from .our_requirements import OurRequirementsUpdater
+from .pyfunceble_config import PyFuncebleConfigUpdater
+from .readme import ReadMeUpdater
+from .travis_ci_config import TravisCIConfigUpdater
+
+
+def exec_all() -> None:
+    """
+    Executes all updater.
+    """
+
+    CrossPyFuncebleConfigUpdater()
+    PyFuncebleConfigUpdater()
+    OfficialPyFuncebleConfigUpdater()
+    OfficialPyFuncebleLicenseUpdater()
+
+    ReadMeUpdater()
+    OurLicenseUpdater()
+    OurRequirementsUpdater()
+
+    TravisCIConfigUpdater()

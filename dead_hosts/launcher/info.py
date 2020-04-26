@@ -40,32 +40,46 @@ License:
 import logging
 from datetime import datetime, timedelta
 
-import PyFunceble.helpers as helpers
+import PyFunceble.helpers as pyfunceble_helpers
 
-from .configuration import Paths, TravisCI
+from .configuration import Paths
+from .configuration import TravisCI as TravisCIConfig
+from .helpers import Command
+from .travis_ci import TravisCI
 
 
 class Info:
     """
     Provides an interface to manage the `info.json` file.
 
-    :ivar file: The full path of the previously known as `info.json` file.
+    :ivar str working_directory:
+        Our working directory.
+    :ivar str file:
+        The full path of the previously known as `info.json` file.
+    :ivar file_instance:
+        An instance of :py:class`PyFunceble.helpers.File`.
+    :vartype file_instance: :py:class`PyFunceble.helpers.File
+    :ivar dict content:
+        The content of `info.json` (in dict).
     """
 
-    def __init__(self, working_directory):
-        self.working_directory = working_directory
-        self.file = self.working_directory + Paths.info_filename
-        self.file_instance = helpers.File(self.file)
+    def __init__(self):
+        self.working_directory: str = TravisCI.get_working_dir()
+
+        self.file: str = self.working_directory + Paths.info_filename
+        self.file_instance: pyfunceble_helpers.File = pyfunceble_helpers.File(self.file)
 
         if self.file_instance.exists():
-            self.content = helpers.Dict().from_json(self.file_instance.read())
+            self.content: dict = pyfunceble_helpers.Dict().from_json(
+                self.file_instance.read()
+            )
         else:
-            self.content = {}
+            self.content: dict = {}
 
-        logging.debug(f"Administration file path: {self.file}")
-        logging.debug(f"Administration file exists: {self.file_instance.exists()}")
-        logging.debug(f"Administration file content: {self.file_instance.read()}")
-        logging.debug(f"Administration file interpreted: {self.content}")
+        logging.debug("Administration file path: %s", self.file)
+        logging.debug("Administration file exists: %s", self.file_instance.exists())
+        logging.debug("Administration file content: %s", self.file_instance.read())
+        logging.debug("Administration file interpreted: %s", self.content)
 
         self.filter()
         self.create_missing_index()
@@ -94,21 +108,21 @@ class Info:
         # pylint: disable=too-many-branches
 
         self.content["name"] = (
-            helpers.Command("basename $(git rev-parse --show-toplevel)")
-            .execute()
-            .strip()
+            Command("basename $(git rev-parse --show-toplevel)").execute().strip()
         )
-        logging.info("Updated the `name` index of the administration file.")
+        logging.debug("Updated the `name` index of the administration file.")
 
         to_delete = [
-            helpers.File(self.working_directory + ".administrators"),
-            helpers.File(self.working_directory + "update_me.py"),
-            helpers.File(self.working_directory + "admin.py"),
+            pyfunceble_helpers.File(self.working_directory + ".administrators"),
+            pyfunceble_helpers.File(self.working_directory + "update_me.py"),
+            pyfunceble_helpers.File(self.working_directory + "admin.py"),
         ]
 
         if "list_name" in self.content:
             to_delete.append(
-                helpers.File(self.working_directory + self.content["list_name"])
+                pyfunceble_helpers.File(
+                    self.working_directory + self.content["list_name"]
+                )
             )
 
         if "ping" in self.content:
@@ -120,7 +134,7 @@ class Info:
                     local_ping_result.append(f"@{username}")
 
             self.content["ping"] = local_ping_result
-            logging.info(
+            logging.debug(
                 "Updated the `ping` index of the administration file, "
                 "the format has to stay the same everywhere."
             )
@@ -131,7 +145,7 @@ class Info:
             and not self.content["raw_link"]
         ):
             self.content["raw_link"] = None
-            logging.info(
+            logging.debug(
                 "Updated the `raw_link` index of the administration file, "
                 "empty string not accepted."
             )
@@ -142,26 +156,30 @@ class Info:
             and not isinstance(self.content["custom_pyfunceble_config"], dict)
         ):
             self.content["custom_pyfunceble_config"] = {}
-            logging.info(
-                f"Updated the `custom_pyfunceble_config` index of the "
-                "administration file, it should be a {type(True)}."
+            logging.debug(
+                "Updated the `custom_pyfunceble_config` index of the "
+                "administration file, it should be a %s.",
+                dict,
             )
 
         for file_to_delete in to_delete:
             if file_to_delete.exists():
                 file_to_delete.delete()
 
-                logging.info(
-                    f"Deleted the `{file_to_delete.path}` file, it is not needed anymore."
+                logging.debug(
+                    "Deleted the %s file, it is not needed anymore.",
+                    repr(file_to_delete.path),
                 )
 
         for index in ["currently_under_test"]:
             if index in self.content and not isinstance(self.content[index], bool):
                 self.content[index] = bool(int(self.content[index]))
 
-                logging.info(
-                    f"Updated the `{index}` index of the administration file, "
-                    "it should be a {type(True)}."
+                logging.debug(
+                    "Updated the %s index of the administration file, "
+                    "it should be a %s.",
+                    repr(index),
+                    bool,
                 )
 
         for index in [
@@ -175,9 +193,11 @@ class Info:
         ]:
             if index in self.content and not isinstance(self.content[index], float):
                 self.content[index] = float(self.content[index])
-                logging.info(
-                    f"Updated the `{index}` index of the administration file, "
-                    "it should be a {type(2.0)}."
+                logging.debug(
+                    "Updated the %s index of the administration file, "
+                    "it should be a %s.",
+                    repr(index),
+                    float,
                 )
 
         for index in [
@@ -189,10 +209,13 @@ class Info:
         ]:
             if index in self.content and not isinstance(self.content[index], datetime):
                 self.content[index] = datetime.fromtimestamp(self.content[index])
-                logging.info(
-                    f"Updated the `{index}` index of the administration file, "
-                    "the system understands {type(datetime.now())} only."
-                    f" (JSON => {type({})})."
+                logging.debug(
+                    "Updated the %s index of the administration file, "
+                    "the system understands %s only."
+                    " (JSON => %s).",
+                    repr(index),
+                    datetime,
+                    dict,
                 )
 
         for index in [
@@ -207,16 +230,20 @@ class Info:
                     self.content[index], datetime
                 ):
                     self.content[index] = datetime.fromisoformat(self.content[index])
-                    logging.info(
-                        f"Updated the `{index}` index of the administration file, "
-                        "the system understands {type(datetime.now())} only."
-                        f" (JSON => {type({})})."
+                    logging.debug(
+                        "Updated the %s index of the administration file, "
+                        "the system understands %s only."
+                        " (JSON => %s.",
+                        repr(index),
+                        datetime,
+                        dict,
                     )
                 else:
                     self.content[index] = datetime.fromtimestamp(0)
-                    logging.info(
-                        f"Set the `{index}` index of the administration file, "
-                        "it was not previously set."
+                    logging.debug(
+                        "Set the %s index of the administration file, "
+                        "it was not previously set.",
+                        repr(index),
                     )
 
     def create_missing_index(self):
@@ -238,7 +265,7 @@ class Info:
             "latest_part_start_timestamp": default_datetime.timestamp(),
             "latest_part_finish_datetime": default_datetime,
             "latest_part_start_datetime": default_datetime,
-            "name": TravisCI.repo_slug,
+            "name": TravisCIConfig.repo_slug,
             "own_management": False,
             "ping": [],
             "raw_link": None,
@@ -250,13 +277,14 @@ class Info:
         for index, value in indexes.items():
             if index not in self.content:
                 self.content[index] = value
-                logging.info(
-                    f"Created the `{index}` index of the administration file, it was not found."
+                logging.debug(
+                    "Created the %s index of the administration file, it was not found.",
+                    repr(index),
                 )
 
     def clean(self):
         """
-        Removes the undeeded indexes.
+        Removes the unneeded indexes.
         """
 
         for index in [
@@ -271,9 +299,10 @@ class Info:
             if index in self.content:
                 del self.content[index]
 
-                logging.info(
-                    f"Deleted the `{index}` index of the administration file, "
-                    "it is not needed anymore."
+                logging.debug(
+                    "Deleted the %s index of the administration file, "
+                    "it is not needed anymore.",
+                    repr(index),
                 )
 
     def save(self):
@@ -289,7 +318,7 @@ class Info:
             elif index.endswith("_datetime") and isinstance(value, datetime):
                 self.content[index] = value.isoformat()
 
-        helpers.Dict(self.content).to_json_file(self.file)
+        pyfunceble_helpers.Dict(self.content).to_json_file(self.file)
         self.content = origin
 
     def get_ping_for_commit(self):

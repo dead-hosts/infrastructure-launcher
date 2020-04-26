@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides a way to simply manipulate directories.
+Provides the updater of our LICENSE.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,43 +36,36 @@ License:
     SOFTWARE.
 """
 
-from os import mkdir, path
-from shutil import rmtree
+import logging
+from typing import Optional
+
+import PyFunceble.helpers as pyfunceble_helpers
+
+from ..configuration import Links
+from .base import Base
 
 
-class Directory:
+class OurLicenseUpdater(Base):
     """
-    Provides an interface for directory manipulation.
-
-    :param str directory: A path to the directory to work with.
-
-    :ivar directory: The directory we currently work with.
+    Provides the updater of our LICENSE.
     """
 
-    def __init__(self, directory):
-        self.directory = directory
+    destination: Optional[pyfunceble_helpers.File] = None
 
-    def exists(self):
-        """
-        Checks if the given :code:`self.file` exists.
+    def authorization(self) -> bool:
+        return True
 
-        :rtype: bool
-        """
+    def pre(self):
+        self.destination = pyfunceble_helpers.File(
+            self.working_dir + Links.our_license["destination"]
+        )
 
-        return path.isdir(self.directory)
+        logging.info("Started to update %s", self.destination.path)
 
-    def create(self):
-        """
-        Creates the given directory (if it does not exists).
-        """
+    def post(self):
+        logging.info("Finished to update %s", self.destination.path)
 
-        if not self.exists():
-            mkdir(self.directory)
-
-    def delete(self):
-        """
-        Deletes the given directory.
-        """
-
-        if self.exists():
-            rmtree(self.directory)
+    def start(self):
+        pyfunceble_helpers.Download(Links.our_license["link"]).text(
+            destination=self.destination.path
+        )

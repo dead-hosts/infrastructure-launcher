@@ -40,59 +40,57 @@ License:
 from os import environ
 from subprocess import PIPE, STDOUT, Popen
 
+import PyFunceble.helpers as pyfunceble_helpers
 
-class Command:
+
+class Command(pyfunceble_helpers.Command):
     """
-    Provides an interface to run shell commands.
-
-    :param str command: The command to execute.
-    :param bool print_to_stdout: Allow/disallow the output to stdout.
-    :param str encoding: The encoding to use to decode the shell output.
-
-    :ivar command: The given :code:`command`.
-    :ivar allow_stdout: The given :code:`print_to_stdout`.
-    :ivar encoding: The given :code:`encoding`.
-    :ivar process: The :code:`Popen` instance we use to execute the command.
+    Overwrite some methods for our use cases.
     """
 
-    def __init__(self, command, print_to_stdout=False, encoding="utf-8"):
-        self.command = command
-        self.allow_stdout = print_to_stdout
-        self.encoding = encoding
-
-        if not self.allow_stdout:
-            self.process = Popen(
-                self.command, stdout=PIPE, stderr=STDOUT, shell=True, env=environ
-            )
-        else:
-            self.process = Popen(self.command, stderr=STDOUT, shell=True, env=environ)
-
-    def __decode_output(self, to_decode):
+    def run(self, rstrip=True):
         """
-        Decodes the given command output.
+        Run the given command and yield each line(s) one by one.
 
-        :param bytes to_decode: The command output to decode.
+        .. note::
+            The difference between this method and :func:`~PyFunceble.helpers.Command.execute`
+            is that :func:`~PyFunceble.helpers.Command.execute` wait for the process to end
+            in order to return its output while this method return each line one by one
+            - as they are outputed.
 
-        :rtype: str, None, Bool
-        :return:
-            A :code:`str`, when a :code:`bytes` is given and the given :code:`to_decode`
-            for everything else.
+        :param bool rstrip:
+            Deactivates the rstrip of the output.
+
+        :raise Exception: When the exit code is not 0.
         """
 
-        if isinstance(to_decode, bytes):
-            return to_decode.decode(self.encoding)
+        with Popen(
+            self.command, stdout=PIPE, stderr=STDOUT, shell=True, env=environ
+        ) as process:
+            # We initiate a process and parse the command to it.
 
-        return to_decode
+            while True:
+                # We loop infinitly because we want to get the output
+                # until there is none.
 
-    def execute(self):
-        """
-        Executes the given command.
-        """
+                # We get the current line from the process stdout.
+                #
+                # Note: we use rstrip() because we are paranoid :-)
+                current_line = process.stdout.readline()
 
-        (stdout, stderr) = self.process.communicate()
+                if not current_line and process.poll() is not None:
+                    # The current line is empty or equal to None.
 
-        if self.process.returncode != 0:
-            decoded = self.__decode_output(stderr)
+                    # We break the loop.
+                    break
 
-            raise Exception(decoded)
-        return self.__decode_output(stdout)
+                # The line is not empty nor equal to None.
+
+                if rstrip:
+                    current_line = current_line.rstrip()
+
+                # We encode and yield the current line
+                yield self._decode_output(current_line)
+
+            if process.returncode and process.returncode != 0:
+                raise Exception("Something went wrong. Please report to stdout.")

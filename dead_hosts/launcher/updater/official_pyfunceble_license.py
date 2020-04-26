@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the helpers.
+Provides the updater of the official PyFunceble LICENSE file.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,4 +36,36 @@ License:
     SOFTWARE.
 """
 
-from .command import Command
+import logging
+from typing import Optional
+
+import PyFunceble.helpers as pyfunceble_helpers
+
+from ..configuration import Links
+from .base import Base
+
+
+class OfficialPyFuncebleLicenseUpdater(Base):
+    """
+    Provides the updater of the official PyFunceble LICENSE file.
+    """
+
+    destination: Optional[pyfunceble_helpers.File] = None
+
+    def authorization(self) -> bool:
+        return True
+
+    def pre(self):
+        self.destination = pyfunceble_helpers.File(
+            self.working_dir + Links.pyfunceble_official_license["destination"]
+        )
+
+        logging.info("Started to update %s", self.destination.path)
+
+    def post(self):
+        logging.info("Finished to update %s", self.destination.path)
+
+    def start(self):
+        pyfunceble_helpers.Download(Links.pyfunceble_official_license["link"]).text(
+            destination=self.destination.path
+        )

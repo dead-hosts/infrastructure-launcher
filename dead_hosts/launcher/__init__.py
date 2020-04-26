@@ -36,6 +36,7 @@ License:
     SOFTWARE.
 """
 
+import logging
 from argparse import ArgumentParser
 from os import environ
 
@@ -44,7 +45,7 @@ from colorama import init as init_colorama
 
 from .orchestration import Orchestration
 
-VERSION = "1.18.0"
+VERSION = "1.20.0"
 
 
 def command_line():
@@ -95,4 +96,13 @@ def command_line():
         "INFRASTRUCTURE_DEBUG" in environ and environ["INFRASTRUCTURE_DEBUG"]
     )
 
-    Orchestration(end=arguments.end, save=arguments.save, debug=debug)
+    if debug:
+        debug_level = logging.DEBUG
+    else:
+        debug_level = logging.INFO
+
+    logging.basicConfig(
+        format="[%(asctime)s::%(levelname)s] %(message)s", level=debug_level
+    )
+
+    Orchestration(end=arguments.end, save=arguments.save)
