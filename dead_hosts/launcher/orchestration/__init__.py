@@ -94,10 +94,7 @@ class Orchestration:
                 TravisCI.init_repo()
                 updater.exec_all()
 
-                pyfunceble_helpers.File(
-                    f"{self.working_directory}dir_structure.json"
-                ).delete()
-                PyFunceble.load_config(generate_directory_structure=True)
+                PyFunceble.load_config(generate_directory_structure=False)
                 self.fetch_list_to_test()
 
                 self.run_test()
