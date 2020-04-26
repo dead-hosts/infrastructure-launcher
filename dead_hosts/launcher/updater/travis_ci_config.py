@@ -40,6 +40,7 @@ import logging
 from typing import Optional
 
 import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.exceptions import GitHubTokenNotFound
 
 from ..configuration import Paths
 from ..configuration import TravisCI as TravisCIConfig
@@ -52,6 +53,22 @@ class TravisCIConfigUpdater(Base):
     """
 
     destination: Optional[pyfunceble_helpers.File] = None
+
+    def __init__(self) -> None:
+
+        self.do_not_start = True
+
+        super().__init__()
+
+        if (
+            not pyfunceble_helpers.File(f"{self.working_dir}info.example.json").exists()
+            and TravisCIConfig.build_dir
+            and not TravisCIConfig.github_token
+        ):
+            raise GitHubTokenNotFound()
+
+        self.start_after_authorization()
+
 
     def authorization(self):
         return (
