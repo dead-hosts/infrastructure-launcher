@@ -73,7 +73,7 @@ class TravisCIConfigUpdater(Base):
         logging.info("Finished to update %s!", self.destination.path)
 
     def start(self) -> None:
-        to_delete_from_main = ["dist", "cache", "matrix", "python"]
+        to_delete_from_main = ["dist", "cache", "matrix", "python", "sudo"]
         to_delete_from_global = ["UPDATE_ME_LOCATION", "ADMIN_LOCATION"]
 
         content = pyfunceble_helpers.Dict.from_yaml_file(self.destination.path)

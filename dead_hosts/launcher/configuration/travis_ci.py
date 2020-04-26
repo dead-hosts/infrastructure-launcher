@@ -97,7 +97,6 @@ class TravisCI:
     unified_config = {
         "env": {"matrix": ['PYTHON_VERSION="3.7.3"']},
         "language": "generic",
-        "sudo": "required",
         "os": ["linux"],
         "addons": {"apt": {"packages": ["dos2unix"]}},
         "install": [
