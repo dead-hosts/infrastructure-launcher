@@ -98,6 +98,7 @@ class TravisCI:
         "env": {"matrix": ['PYTHON_VERSION="3.7.3"']},
         "language": "generic",
         "os": ["linux"],
+        "dist": "bionic",
         "addons": {"apt": {"packages": ["dos2unix"]}},
         "install": [
             'export PATH="${HOME}/miniconda/bin:${PATH}"',
