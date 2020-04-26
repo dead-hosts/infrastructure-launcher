@@ -86,7 +86,7 @@ class TravisCIConfigUpdater(Base):
                 del content[index]
 
         if "env" in content and "global" in content["env"]:
-            for index, data in enumerate(content["env"]["gloabl"]):
+            for index, data in enumerate(content["env"]["global"]):
                 for env_var in to_delete_from_global:
                     if env_var in data:
                         del content["env"]["global"][index]
