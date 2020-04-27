@@ -4,8 +4,6 @@ env:
 
 language: generic
 
-sudo: false
-
 os:
   - linux
 dist: bionic
