@@ -91,7 +91,6 @@ class Orchestration:
             logging.info(f"Checking authorization to run.")
 
             if self.authorize.test():
-                TravisCI.init_repo()
                 updater.exec_all()
 
                 PyFunceble.load_config(generate_directory_structure=False)
@@ -202,8 +201,6 @@ class Orchestration:
         Run a test of the input list.
         """
 
-        TravisCI.update_permissions()
-
         if not self.info_manager.currently_under_test:
             self.info_manager["currently_under_test"] = True
 
@@ -243,8 +240,6 @@ class Orchestration:
             This is just about the administration file not PyFunceble.
         """
 
-        TravisCI.update_permissions()
-
         self.info_manager["latest_part_finish_datetime"] = datetime.now()
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
@@ -253,8 +248,6 @@ class Orchestration:
         logging.info("Updated all timestamps.")
 
         PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
-
-        TravisCI.update_permissions()
 
     def run_end(self):
         """
@@ -276,8 +269,6 @@ class Orchestration:
         ].timestamp()
 
         logging.info("Updated all timestamps and indexes that needed to be updated.")
-
-        TravisCI.update_permissions()
 
         pyfunceble_active_list = PyFunceble.helpers.File(
             self.working_directory + "output/domains/ACTIVE/list"
@@ -308,5 +299,3 @@ class Orchestration:
         logging.info(f"Updated of the content of %s", self.output_file_instance.path)
 
         PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
-
-        TravisCI.update_permissions()

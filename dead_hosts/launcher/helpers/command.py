@@ -36,7 +36,7 @@ License:
     SOFTWARE.
 """
 
-
+import sys
 from os import environ
 from subprocess import PIPE, STDOUT, Popen
 
@@ -47,6 +47,25 @@ class Command(pyfunceble_helpers.Command):
     """
     Overwrite some methods for our use cases.
     """
+
+    def get_command_output(self):
+        """
+        Run the given command and return it's output.
+        """
+
+        with Popen(
+            self.command, stdout=PIPE, stderr=PIPE, shell=True, env=environ
+        ) as process:
+            output, error = process.communicate()
+
+            if process.returncode != 0:
+                decoded = self._decode_output(error)
+
+                if not decoded:
+                    return f"Unknown error for {self.command}"
+                print(decoded)
+                sys.exit(1)
+            return self._decode_output(output)
 
     def run(self, rstrip=True):
         """

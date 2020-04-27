@@ -69,7 +69,6 @@ class TravisCIConfigUpdater(Base):
 
         self.start_after_authorization()
 
-
     def authorization(self):
         return (
             TravisCIConfig.update_ci_config
@@ -91,7 +90,11 @@ class TravisCIConfigUpdater(Base):
 
     def start(self) -> None:
         to_delete_from_main = ["dist", "cache", "matrix", "python", "sudo"]
-        to_delete_from_global = ["UPDATE_ME_LOCATION", "ADMIN_LOCATION"]
+        to_delete_from_global = [
+            "UPDATE_ME_LOCATION",
+            "ADMIN_LOCATION",
+            "TRAVIS_REPO_SLUG",
+        ]
 
         content = pyfunceble_helpers.Dict.from_yaml_file(self.destination.path)
         content = pyfunceble_helpers.Merge(TravisCIConfig.unified_config).into(

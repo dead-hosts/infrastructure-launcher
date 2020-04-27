@@ -38,6 +38,8 @@ License:
 
 from os import getcwd, sep
 
+from ..helpers import Command
+
 
 class Paths:
     """
@@ -82,4 +84,11 @@ class Paths:
     travis_filename = ".travis.yml"
     """
     Provides the filename of our .travis.yml file.
+    """
+
+    git_base_name = _base_name = (
+        Command("basename `git rev-parse --show-toplevel`").get_command_output().strip()
+    )
+    """
+    Provides the name of the git repository.
     """

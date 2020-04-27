@@ -36,6 +36,7 @@ License:
     SOFTWARE.
 """
 
+from .paths import Paths
 from .travis_ci import TravisCI
 
 
@@ -127,22 +128,17 @@ class PyFunceble:
     Let PyFunceble know the branch to push into.
     """
 
-    if TravisCI.repo_slug:
-        ci_autosave_commit = (
-            f"[Autosave][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
-        )
-    else:
-        ci_autosave_commit = "[Autosave][Dead-Hosts]"
-        """
-        Let PyFunceble know the default autosave commit message.
-        """
+    ci_distribution_branch = TravisCI.git_distribution_branch
+    """
+    Let PyFunceble know the branch to push into (for distribution)
+    """
 
-    if TravisCI.repo_slug:
-        ci_autosave_final_commit = (
-            f"[Final/Result][Dead-Hosts::{TravisCI.repo_slug.split('/')[1]}]"
-        )
-    else:
-        ci_autosave_final_commit = "[Final/Result][Dead-Hosts]"
-        """
-        Let PyFunceble know the default final commit message.
-        """
+    ci_autosave_commit = f"[Autosave][Dead-Hosts::{Paths.git_base_name}]"
+    """
+    Let PyFunceble know the default autosave commit message.
+    """
+
+    ci_autosave_final_commit = f"[Final/Result][Dead-Hosts::{Paths.git_base_name}]"
+    """
+    Let PyFunceble know the default final commit message.
+    """

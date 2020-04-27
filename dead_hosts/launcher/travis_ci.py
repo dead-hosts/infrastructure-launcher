@@ -36,60 +36,14 @@ License:
     SOFTWARE.
 """
 
-import logging
-
 from .configuration import Paths
 from .configuration import TravisCI as Config
-from .helpers import Command
 
 
 class TravisCI:
     """
     Provides some TravisCI related methods.
     """
-
-    @classmethod
-    def init_repo(cls):
-        """
-        Initiates the repository for future push.
-        """
-
-        if Config.build_dir and Config.github_token:
-            commands = [
-                "git remote rm origin",
-                f"git remote add origin "
-                f"https://{Config.github_token}@github.com/{Config.repo_slug}.git",
-                f'git config --global user.email "{Config.git_email}"',
-                f'git config --global user.name "{Config.git_name}"',
-                "git config --global push.default simple",
-                f"git checkout {Config.git_branch}",
-                "git config core.sharedRepository group",
-            ]
-
-            for command in commands:
-                Command(command).execute()
-
-            logging.info("Git repository prepared for push.")
-
-    @classmethod
-    def update_permissions(cls):
-        """
-        Updates the permissions. Indeed as we had some bad time in the past we do this
-        almost systematically.
-        """
-
-        if Config.build_dir and Config.github_token:
-            commands = [
-                f"sudo chown -R travis:travis {Config.build_dir}",
-                f"sudo chmod -R g+rwX {Config.build_dir}",
-                f"sudo chmod 777 -Rf {Config.build_dir + Paths.directory_separator}.git",
-                f"sudo find {Config.build_dir} -type d -exec chmod g+x {{}} \\;",
-            ]
-
-            for command in commands:
-                Command(command).execute()
-
-            logging.info("Updated files and directories permissions.")
 
     @classmethod
     def get_working_dir(cls) -> str:

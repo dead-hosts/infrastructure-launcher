@@ -43,8 +43,6 @@ from datetime import datetime, timedelta
 import PyFunceble.helpers as pyfunceble_helpers
 
 from .configuration import Paths
-from .configuration import TravisCI as TravisCIConfig
-from .helpers import Command
 from .travis_ci import TravisCI
 
 
@@ -107,9 +105,8 @@ class Info:
 
         # pylint: disable=too-many-branches
 
-        self.content["name"] = (
-            Command("basename $(git rev-parse --show-toplevel)").execute().strip()
-        )
+        self.content["name"] = Paths.git_base_name
+
         logging.debug("Updated the `name` index of the administration file.")
 
         to_delete = [
@@ -265,7 +262,7 @@ class Info:
             "latest_part_start_timestamp": default_datetime.timestamp(),
             "latest_part_finish_datetime": default_datetime,
             "latest_part_start_datetime": default_datetime,
-            "name": TravisCIConfig.repo_slug,
+            "name": Paths.git_base_name,
             "own_management": False,
             "ping": [],
             "raw_link": None,

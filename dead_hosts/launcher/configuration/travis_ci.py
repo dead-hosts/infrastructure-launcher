@@ -62,14 +62,6 @@ class TravisCI:
         Provides the github token.
         """
 
-    if "TRAVIS_REPO_SLUG" in environ:
-        repo_slug = environ["TRAVIS_REPO_SLUG"]
-    else:
-        repo_slug = None
-        """
-        Provides the repository slug.
-        """
-
     if "GIT_EMAIL" in environ:
         git_email = environ["GIT_EMAIL"]
     else:
@@ -92,6 +84,14 @@ class TravisCI:
         git_branch = "master"
         """
         Provides the Git branch to use.
+        """
+
+    if "GIT_DISTRIBUTION_BRANCH" in environ:
+        git_distribution_branch = environ["GIT_DISTRIBUTION_BRANCH"]
+    else:
+        git_distribution_branch = git_branch
+        """
+        Provides the Git Distribution branch branch to use.
         """
 
     unified_config = {
