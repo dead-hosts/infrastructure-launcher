@@ -1,5 +1,5 @@
 env:
-  matrix:
+  global:
     - PYTHON_VERSION="3.7.5"
 
 language: generic
@@ -8,6 +8,7 @@ sudo: false
 
 os:
   - linux
+dist: bionic
 
 install:
   - export PATH="${HOME}/miniconda/bin:${PATH}"
@@ -33,7 +34,7 @@ script:
 
 deploy:
   provider: pypi
-  user: funilrys
+  username: funilrys
   password:
     secure: an0CIqgKm4MlTPaSjauO42M56A3VoCORp9X3sb8aJDMAX29JgplOcjYwbiY0qC7mnxQaPwDAWINgANAfN2C0TeXA1i1dq17gdwRKxr+h+bKQIKJuhdypr/JgGUz5HYqfYSgrgjfPnQ96HYbnIaU0saC7JgTsNNoaJ0/jkUO9S/GAMPf4zxqzKPDQDH4epQhcJrpkWPCLASo4q9MrPfxrxQoacCJmrUc4NOUmNVqgTqE8I9MMhCj9cJg9T17SDWi0utf7Py9ypCxs5AgNduzs91UB/KN+tX9Za2oVU/pyjXVjvsay833m1HMOuwZHjln0ZyCPU1mzB3EvWPNmKqQe1txMGZIOGCmAxVs3etrHlNiOTS+tvJYrtRMAGZxB4kttdYWCa2JVeV41Q9Sa8FnJ4f6jnF/u5TWJ0u6EBeBf0yu3At5GgoEYMqcNdOA0HDUFmI7Vk6ez3s21IHEDIQ6N0v2+tnQSOKQjK/3RHPPvCHFgwEnLBzMyI8vNNbml/pugQ9TprATagTJTP2Z6/THeBAjGRs2M1MRaVWxotTxZ1qLFVsxN26kzW0YJCxVXex5S0KTnOaMeFm/VpqwDSf2m/gXGgcLdO0tgJwLOer6jJAyA07hS0f/gGEeB7/xa3z1VpC5XG8rrpfFDBbfgQ5nUa2Men+PzcHwRzj4ouoHpe9k=
   distributions: sdist bdist_wheel
@@ -43,5 +44,8 @@ deploy:
     condition: "${TRAVIS_BRANCH} =~ ^dev|master$"
 
 notifications:
-  on_success: change
-  on_failure: always
+  email:
+    on_failure: always
+    on_success: never
+    recipients:
+      - dead-hosts@outlook.com

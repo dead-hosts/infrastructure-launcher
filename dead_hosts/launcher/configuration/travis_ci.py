@@ -118,7 +118,7 @@ class TravisCI:
         "script": ["dead_hosts_launcher --version", "dead_hosts_launcher"],
         "notifications": {
             "email": {
-                "recipients": ["dead-hosts@funilrys.com"],
+                "recipients": ["dead-hosts@outlook.com"],
                 "on_success": "never",
                 "on_failure": "always",
             }
