@@ -88,7 +88,7 @@ class Orchestration:
         logging.info("Output file: %s", self.output_file_instance.path)
 
         if not end and not save:
-            logging.info(f"Checking authorization to run.")
+            logging.info("Checking authorization to run.")
 
             if self.authorize.test():
                 updater.exec_all()
@@ -296,6 +296,6 @@ class Orchestration:
             )
 
         self.output_file_instance.write("\n".join(clean_list), overwrite=True)
-        logging.info(f"Updated of the content of %s", self.output_file_instance.path)
+        logging.info("Updated of the content of %s", self.output_file_instance.path)
 
         PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
