@@ -64,7 +64,16 @@ class Orchestration:
     def __init__(self, save=False, end=False):
         initiate_colorama(autoreset=True)
 
-        environ["PYFUNCEBLE_AUTO_CONFIGURATION"] = "YES"
+        pyfunceble_helpers.EnvironmentVariable(
+            "PYFUNCEBLE_AUTO_CONFIGURATION"
+        ).set_value("YES")
+
+        git_name = pyfunceble_helpers.EnvironmentVariable("GIT_NAME")
+        git_email = pyfunceble_helpers.EnvironmentVariable("GIT_EMAIL")
+
+        if git_email.exists() and "funilrys" in git_email.get_value():
+            git_name.set_value("Dead-Hosts")
+            git_email.set_value(TravisCIConfig.default_email)
 
         self.info_manager = Info()
         self.working_directory = self.info_manager.working_directory

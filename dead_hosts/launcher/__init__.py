@@ -45,7 +45,7 @@ from colorama import init as init_colorama
 
 from .orchestration import Orchestration
 
-VERSION = "1.21.1"
+VERSION = "1.22.0"
 
 
 def command_line():
@@ -104,5 +104,7 @@ def command_line():
     logging.basicConfig(
         format="[%(asctime)s::%(levelname)s] %(message)s", level=debug_level
     )
+
+    logging.info("Launcher version: %s", VERSION)
 
     Orchestration(end=arguments.end, save=arguments.save)

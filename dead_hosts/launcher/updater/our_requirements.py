@@ -53,7 +53,7 @@ class OurRequirementsUpdater(Base):
     destination: Optional[pyfunceble_helpers.File] = None
 
     def authorization(self) -> bool:
-        return True
+        return not pyfunceble_helpers.File("info.example.json").exists()
 
     def pre(self):
         self.destination = pyfunceble_helpers.File(

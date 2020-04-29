@@ -88,28 +88,96 @@ class TravisCIConfigUpdater(Base):
     def post(self):
         logging.info("Finished to update %s!", self.destination.path)
 
-    def start(self) -> None:
-        to_delete_from_main = ["dist", "cache", "matrix", "python", "sudo"]
-        to_delete_from_global = [
+    @classmethod
+    def clean_main(cls, content: dict) -> dict:
+        """
+        Given the content of the Travis CI configuration file,
+        we clean the main entries.
+        """
+
+        to_delete = ["cache", "matrix", "python", "sudo", "addons"]
+
+        for index in to_delete:
+            if index in content:
+                del content[index]
+
+        return content
+
+    @classmethod
+    def clean_global_env(cls, content: dict) -> dict:
+        """
+        Given the content of the Travis CI configuration file,
+        we clean the env.global entries.
+        """
+
+        to_delete = [
             "UPDATE_ME_LOCATION",
             "ADMIN_LOCATION",
             "TRAVIS_REPO_SLUG",
         ]
 
-        content = pyfunceble_helpers.Dict.from_yaml_file(self.destination.path)
-        content = pyfunceble_helpers.Merge(TravisCIConfig.unified_config).into(
-            content, strict=True
-        )
+        if "env" in content and "global" in content["env"]:
+            for index, data in enumerate(content["env"]["global"]):
+                for env_var in to_delete:
+                    if env_var in data:
+                        del content["env"]["global"][index]
 
-        for index in to_delete_from_main:
-            if index in content:
-                del content[index]
+        return content
+
+    @classmethod
+    def clean_env(cls, content: dict) -> dict:
+        """
+        Given the content of the Travis CI configuration file,
+        we clean the env entries.
+        """
+
+        to_delete = ["matrix"]
+
+        if "env" in content:
+            for env_var in to_delete:
+                if env_var in content["env"]:
+                    del content["env"][env_var]
+
+        return content
+
+    @classmethod
+    def update_global(cls, content: dict) -> dict:
+        """
+        Given the content of the Travis configuration file,
+        we update the env.global entries.
+        """
+
+        to_update = {
+            "GIT_NAME": "Dead-Hosts",
+            "GIT_EMAIL": TravisCIConfig.default_email,
+        }
+        to_add = {"PYTHON_VERSION": "3.7.5"}
 
         if "env" in content and "global" in content["env"]:
             for index, data in enumerate(content["env"]["global"]):
-                for env_var in to_delete_from_global:
-                    if env_var in data:
-                        del content["env"]["global"][index]
+                for env_var, value in to_update.items():
+                    if env_var in data and data[env_var] != value:
+                        content["env"]["global"][index][env_var] = value
+
+            for env_var, value in to_add.items():
+                present = [env_var in x for x in content["env"]["global"]]
+
+                if any(present):
+                    continue
+
+                content["env"]["global"].append({env_var: value})
+
+        return content
+
+    def start(self) -> None:
+        content = pyfunceble_helpers.Dict.from_yaml_file(self.destination.path)
+        content = pyfunceble_helpers.Merge(TravisCIConfig.unified_config).into(content)
+
+        content = self.update_global(
+            self.clean_env(
+                self.clean_env(self.clean_global_env(self.clean_main(content)))
+            )
+        )
 
         to_write = pyfunceble_helpers.Dict(content).to_yaml()
 

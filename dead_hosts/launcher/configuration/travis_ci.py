@@ -70,14 +70,6 @@ class TravisCI:
         Provides the Git email to use.
         """
 
-    if "GIT_NAME" in environ:
-        git_name = environ["GIT_NAME"]
-    else:
-        git_name = None
-        """
-        Provides the Git name to use.
-        """
-
     if "GIT_BRANCH" in environ:
         git_branch = environ["GIT_BRANCH"]
     else:
@@ -109,10 +101,10 @@ class TravisCI:
             "conda config --set always_yes yes --set changeps1 no",
             "conda update -q conda",
             'conda create -q -n launcher-environment python="${PYTHON_VERSION}"',
-            "source activate launcher-environment",
+            "conda activate launcher-environment",
             "python -VV",
             "pip --version",
-            "pip install dead-hosts-launcher",
+            "pip install --upgrade dead-hosts-launcher",
             "rm miniconda.sh",
         ],
         "script": ["dead_hosts_launcher --version", "dead_hosts_launcher"],
@@ -135,3 +127,8 @@ class TravisCI:
         """
         Provides a way to disable the update of the travis.yaml file.
         """
+
+    default_email = "dead-hosts@outlook.com"
+    """
+    Provides the default email to use.
+    """
