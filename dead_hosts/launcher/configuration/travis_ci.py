@@ -111,7 +111,7 @@ class TravisCI:
         "notifications": {
             "email": {
                 "recipients": ["dead-hosts@outlook.com"],
-                "on_success": "never",
+                "on_success": "change",
                 "on_failure": "always",
             }
         },
