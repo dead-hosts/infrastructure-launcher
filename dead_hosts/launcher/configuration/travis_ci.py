@@ -101,7 +101,7 @@ class TravisCI:
             "conda config --set always_yes yes --set changeps1 no",
             "conda update -q conda",
             'conda create -q -n launcher-environment python="${PYTHON_VERSION}"',
-            "conda activate launcher-environment",
+            "source activate launcher-environment",
             "python -VV",
             "pip --version",
             "pip install --upgrade dead-hosts-launcher",
