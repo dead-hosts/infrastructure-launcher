@@ -196,13 +196,6 @@ class Orchestration:
             logging.info("Updated %s.", self.origin_file_instance.path)
             logging.info("Updated %s.", self.input_file_instance.path)
 
-            PyFunceble.output.Clean()
-            logging.info("Cleaned the `output` directory of PyFunceble.")
-            PyFunceble.output.Constructor()
-            logging.info(
-                "Ensured that the directory structure of PyFunceble is still valid."
-            )
-
         return result
 
     def run_test(self):
