@@ -149,4 +149,10 @@ class PyFunceble:
         Provides the dict version of the variables.
         """
 
-        return {x: y for x, y in cls.__dict__.items() if not x.startswith("_")}
+        to_ignore = ["get_dict"]
+
+        return {
+            x: y
+            for x, y in cls.__dict__.items()
+            if not x.startswith("_") and x not in to_ignore
+        }
