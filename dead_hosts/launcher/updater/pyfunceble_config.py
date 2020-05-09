@@ -41,6 +41,7 @@ import logging
 import PyFunceble.helpers as pyfunceble_helpers
 
 from ..configuration import Links
+from ..configuration import PyFunceble as PyFuncebleConfig
 from .cross_pyfunceble_config import CrossPyFuncebleConfigUpdater
 
 
@@ -71,6 +72,10 @@ class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
         ).text()
 
         local_version = pyfunceble_helpers.Dict.from_yaml(crossed_version)
+
+        local_version = pyfunceble_helpers.Merge(PyFuncebleConfig.get_dict()).into(
+            local_version, strict=True
+        )
 
         if self.info_manager.ping:
             logging.info("Ping names given, appending them to the commit message.")

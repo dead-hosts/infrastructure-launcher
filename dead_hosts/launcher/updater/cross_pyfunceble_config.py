@@ -102,13 +102,9 @@ class CrossPyFuncebleConfigUpdater(Base):
         ).text()
 
         local_version = pyfunceble_helpers.Dict.from_yaml(upstream_data)
-        local_version = pyfunceble_helpers.Merge(
-            {
-                x: y
-                for x, y in PyFuncebleConfig.__dict__.items()
-                if not x.startswith("_")
-            }
-        ).into(local_version, strict=True)
+        local_version = pyfunceble_helpers.Merge(PyFuncebleConfig.get_dict()).into(
+            local_version, strict=True
+        )
 
         local_version_copy = local_version.copy()
 

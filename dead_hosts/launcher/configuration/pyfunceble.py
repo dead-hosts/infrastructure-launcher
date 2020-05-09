@@ -142,3 +142,11 @@ class PyFunceble:
     """
     Let PyFunceble know the default final commit message.
     """
+
+    @classmethod
+    def get_dict(cls):
+        """
+        Provides the dict version of the variables.
+        """
+
+        return {x: y for x, y in cls.__dict__.items() if not x.startswith("_")}
