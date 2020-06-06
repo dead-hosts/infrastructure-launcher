@@ -1,1 +1,6 @@
-include *.txt *.md
+recursive-include dead_hosts *.py
+include LICENSE
+include README.rst
+include requirements.txt
+include .pylintrc
+include info.example.json
