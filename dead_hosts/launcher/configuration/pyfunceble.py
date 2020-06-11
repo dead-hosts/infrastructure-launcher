@@ -98,7 +98,7 @@ class PyFunceble:
     Let PyFunceble know that we want a splitted logs.
     """
 
-    ci_autosave_minutes = 10
+    ci_autosave_minutes = 15
     """
     Let PyFunceble know that we want x minutes between each test.
     """
