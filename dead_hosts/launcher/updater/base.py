@@ -50,6 +50,7 @@ class Base:
         if not hasattr(self, "info_manager"):
             self.info_manager = Info()
             self.working_dir = self.info_manager.working_directory
+            self.pyfunceble_config_dir = self.info_manager.pyfunceble_config_directory
 
             if not self.do_not_start:
                 self.start_after_authorization()

@@ -62,7 +62,8 @@ class CrossPyFuncebleConfigUpdater(Base):
         )
 
         self.pyfunceble_config_file = pyfunceble_helpers.File(
-            self.working_dir + Links.cross_pyfunceble_configuration["destination"]
+            self.pyfunceble_config_dir
+            + Links.cross_pyfunceble_configuration["destination"]
         )
 
         self.start_after_authorization()

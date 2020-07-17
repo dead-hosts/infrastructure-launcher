@@ -104,7 +104,9 @@ venv.bak/
 .mypy_cache/
 
 # project oriented
+.pyfunceble_intern_downtime.json
 .PyFunceble*.yaml
+.pyfunceble/
 *.list
 dir_structure*.json
 iana-*.json
@@ -113,6 +115,5 @@ info.json
 LICENSE_*
 output/
 public-suffix.json
-whois_db.json
-.pyfunceble_intern_downtime.json
 user_agents.json
+whois_db.json

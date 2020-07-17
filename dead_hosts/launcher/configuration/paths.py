@@ -56,6 +56,13 @@ class Paths:
     Provides the current directory.
     """
 
+    pyfunceble_config_directory = (
+        current_directory + directory_separator + ".pyfunceble" + directory_separator
+    )
+    """
+    Provides the location of the PyFunceble configurations.
+    """
+
     info_filename = "info.json"
     """
     Provides the filename of our admin file.

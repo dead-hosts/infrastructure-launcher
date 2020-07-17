@@ -64,6 +64,11 @@ class Orchestration:
     def __init__(self, save=False, end=False):
         initiate_colorama(autoreset=True)
 
+        self.info_manager = Info()
+        self.working_directory = self.info_manager.working_directory
+
+        logging.info("Working directory: %s", self.working_directory)
+
         pyfunceble_helpers.EnvironmentVariable(
             "PYFUNCEBLE_AUTO_CONFIGURATION"
         ).set_value("YES")
@@ -75,10 +80,13 @@ class Orchestration:
             git_name.set_value("Dead-Hosts")
             git_email.set_value(TravisCIConfig.default_email)
 
-        self.info_manager = Info()
-        self.working_directory = self.info_manager.working_directory
+        pyfunceble_helpers.EnvironmentVariable("PYFUNCEBLE_OUTPUT_LOCATION").set_value(
+            self.working_directory
+        )
 
-        logging.info("Working directory: %s", self.working_directory)
+        pyfunceble_helpers.EnvironmentVariable("PYFUNCEBLE_CONFIG_DIR").set_value(
+            self.info_manager.pyfunceble_config_directory
+        )
 
         self.authorize = Authorize(self.info_manager)
 

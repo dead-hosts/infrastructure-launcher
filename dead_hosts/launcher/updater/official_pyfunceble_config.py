@@ -57,7 +57,7 @@ class OfficialPyFuncebleConfigUpdater(Base):
 
     def pre(self):
         self.destination = pyfunceble_helpers.File(
-            self.working_dir + Links.pyfunceble_official_config["destination"]
+            self.pyfunceble_config_dir + Links.pyfunceble_official_config["destination"]
         )
 
         logging.info("Started to update %s", self.destination.path)

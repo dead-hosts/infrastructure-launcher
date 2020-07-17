@@ -1,3 +1,2 @@
 black
 pylint
-isort

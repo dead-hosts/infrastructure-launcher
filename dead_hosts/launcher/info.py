@@ -63,6 +63,7 @@ class Info:
 
     def __init__(self):
         self.working_directory: str = TravisCI.get_working_dir()
+        self.pyfunceble_config_directory: str = Paths.pyfunceble_config_directory
 
         self.file: str = self.working_directory + Paths.info_filename
         self.file_instance: pyfunceble_helpers.File = pyfunceble_helpers.File(self.file)

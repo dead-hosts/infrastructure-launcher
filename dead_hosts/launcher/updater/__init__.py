@@ -42,6 +42,7 @@ from .official_pyfunceble_license import OfficialPyFuncebleLicenseUpdater
 from .our_license import OurLicenseUpdater
 from .our_requirements import OurRequirementsUpdater
 from .pyfunceble_config import PyFuncebleConfigUpdater
+from .pyfunceble_config_location import PyFuncebleConfigLocationUpdater
 from .readme import ReadMeUpdater
 from .travis_ci_config import TravisCIConfigUpdater
 
@@ -50,6 +51,8 @@ def exec_all() -> None:
     """
     Executes all updater.
     """
+
+    PyFuncebleConfigLocationUpdater()
 
     CrossPyFuncebleConfigUpdater()
     PyFuncebleConfigUpdater()
