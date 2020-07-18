@@ -62,9 +62,13 @@ class PyFuncebleConfigLocationUpdater(Base):
     ]
 
     def authorization(self) -> bool:
+        if not pyfunceble_helpers.Directory(self.pyfunceble_config_dir).exists():
+            return True
+
         for file in self.files_to_move:
             if pyfunceble_helpers.File(self.working_dir + file).exists():
                 return True
+
         return False
 
     def pre(self) -> None:
