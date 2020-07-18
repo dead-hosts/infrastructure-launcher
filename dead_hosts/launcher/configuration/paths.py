@@ -57,7 +57,7 @@ class Paths:
     """
 
     pyfunceble_config_directory = (
-        current_directory + directory_separator + ".pyfunceble" + directory_separator
+        current_directory + ".pyfunceble" + directory_separator
     )
     """
     Provides the location of the PyFunceble configurations.

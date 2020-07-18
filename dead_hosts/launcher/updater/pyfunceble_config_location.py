@@ -88,12 +88,29 @@ class PyFuncebleConfigLocationUpdater(Base):
 
     def start(self) -> None:
         for file in self.files_to_move:
-            logging.info(
-                "Starting to move %s into %s.", file, self.pyfunceble_config_dir
-            )
-            pyfunceble_helpers.File(self.working_dir + file).move(
+            source_file = pyfunceble_helpers.File(self.working_dir + file)
+            destination_file = pyfunceble_helpers.File(
                 self.pyfunceble_config_dir + file
             )
-            logging.info(
-                "Finished to move %s into %s", file, self.pyfunceble_config_dir
-            )
+
+            if source_file.exists():
+                logging.info(
+                    "Starting to move %s into %s.",
+                    source_file.path,
+                    destination_file.path,
+                )
+
+                destination_file.delete()
+                source_file.move(destination_file.path)
+
+                logging.info(
+                    "Finished to move %s into %s",
+                    source_file.path,
+                    destination_file.path,
+                )
+            else:
+                logging.info(
+                    "Did not moved move %s into %s: It does not exists.",
+                    source_file.path,
+                    destination_file.path,
+                )
