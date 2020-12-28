@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of our requirements.txt file.
+Provides the updater of our requirements.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,36 +36,53 @@ License:
     SOFTWARE.
 """
 
+
 import logging
+import os
 from typing import Optional
 
-import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.file import FileHelper
 
-from ..configuration import Links
-from .base import Base
+import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class OurRequirementsUpdater(Base):
+class OurRequirementsUpdater(UpdaterBase):
     """
-    Provides the updater of our requirements.txt file.
+    Provides the updater of our requirements file.
     """
 
-    destination: Optional[pyfunceble_helpers.File] = None
+    DESTINATION: Optional[FileHelper] = FileHelper(
+        os.path.join(
+            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+            dead_hosts.launcher.defaults.links.OUR_REQUIREMENTS["destination"],
+        )
+    )
 
-    def authorization(self) -> bool:
-        return not pyfunceble_helpers.File("info.example.json").exists()
-
-    def pre(self):
-        self.destination = pyfunceble_helpers.File(
-            self.working_dir + Links.our_requirements["destination"]
+    @property
+    def authorized(self) -> bool:
+        return not FileHelper(
+            os.path.join(
+                dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+                "info.example.json",
+            )
         )
 
-        logging.info("Started to update %s", self.destination.path)
+    def pre(self) -> "OurRequirementsUpdater":
+        logging.info("Started to update %r", self.DESTINATION.path)
 
-    def post(self):
-        logging.info("Finished to update %s", self.destination.path)
+        return self
 
-    def start(self):
-        pyfunceble_helpers.Download(Links.our_requirements["link"]).text(
-            destination=self.destination.path
-        )
+    def post(self) -> "OurRequirementsUpdater":
+        logging.info("Finished to update %s", self.DESTINATION.path)
+
+        return self
+
+    def start(self) -> "OurRequirementsUpdater":
+        DownloadHelper(
+            dead_hosts.launcher.defaults.links.OUR_REQUIREMENTS["link"]
+        ).download_text(destination=self.DESTINATION.path)
+
+        return self

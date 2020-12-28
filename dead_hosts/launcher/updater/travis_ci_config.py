@@ -37,59 +37,55 @@ License:
 """
 
 import logging
-from typing import Optional
+import os
 
-import PyFunceble.helpers as pyfunceble_helpers
-from PyFunceble.exceptions import GitHubTokenNotFound
+from PyFunceble.helpers.dict import DictHelper
+from PyFunceble.helpers.file import FileHelper
+from PyFunceble.helpers.merge import Merge
 
-from ..configuration import Paths
-from ..configuration import TravisCI as TravisCIConfig
-from .base import Base
+import dead_hosts.launcher.defaults.markers
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class TravisCIConfigUpdater(Base):
+class TravisCIConfigUpdater(UpdaterBase):
     """
-    Provides the updater of the Travis CI configuration.
+    Provides the updater of the Travis CI configuration file.
     """
 
-    destination: Optional[pyfunceble_helpers.File] = None
+    DESTINATION: FileHelper = FileHelper(
+        os.path.join(
+            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+            dead_hosts.launcher.defaults.paths.TRAVIS_CONFIG_FILENAME,
+        )
+    )
 
-    def __init__(self) -> None:
-
-        self.do_not_start = True
-
-        super().__init__()
-
-        if (
-            not pyfunceble_helpers.File(f"{self.working_dir}info.example.json").exists()
-            and TravisCIConfig.build_dir
-            and not TravisCIConfig.github_token
-        ):
-            raise GitHubTokenNotFound()
-
-        self.start_after_authorization()
-
-    def authorization(self):
+    @property
+    def authorized(self) -> bool:
         return (
-            TravisCIConfig.update_ci_config
-            and TravisCIConfig.build_dir
-            and TravisCIConfig.github_token
-            and not pyfunceble_helpers.File(
-                f"{self.working_dir}info.example.json"
-            ).exists()
+            dead_hosts.launcher.defaults.travis_ci.UPDATE_CI_CONFIG
+            and dead_hosts.launcher.defaults.travis_ci.GITHUB_TOKEN
+            and not FileHelper(
+                os.path.join(
+                    dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+                    "info.example.json",
+                )
+            )
         )
 
-    def pre(self):
-        self.destination = pyfunceble_helpers.File(
-            f"{self.working_dir}{Paths.travis_filename}"
-        )
-        logging.info("Started to update %s!", self.destination.path)
+    def pre(self) -> "TravisCIConfigUpdater":
+        logging.info("Started to update %r!", self.DESTINATION.path)
 
-    def post(self):
-        logging.info("Finished to update %s!", self.destination.path)
+        return self
 
-    @classmethod
-    def clean_main(cls, content: dict) -> dict:
+    def post(self) -> "TravisCIConfigUpdater":
+        logging.info("Finished to update %r!", self.DESTINATION.path)
+
+        return self
+
+    @staticmethod
+    def clean_main(content: dict) -> dict:
         """
         Given the content of the Travis CI configuration file,
         we clean the main entries.
@@ -103,11 +99,11 @@ class TravisCIConfigUpdater(Base):
 
         return content
 
-    @classmethod
-    def clean_global_env(cls, content: dict) -> dict:
+    @staticmethod
+    def clean_global_env(content: dict) -> dict:
         """
-        Given the content of the Travis CI configuration file,
-        we clean the env.global entries.
+        Given the content of the Travis CI configuration file, we clean the
+        :code:`env.global` entries`.
         """
 
         to_delete = [
@@ -124,8 +120,8 @@ class TravisCIConfigUpdater(Base):
 
         return content
 
-    @classmethod
-    def clean_env(cls, content: dict) -> dict:
+    @staticmethod
+    def clean_env(content: dict) -> dict:
         """
         Given the content of the Travis CI configuration file,
         we clean the env entries.
@@ -140,8 +136,8 @@ class TravisCIConfigUpdater(Base):
 
         return content
 
-    @classmethod
-    def update_global(cls, content: dict) -> dict:
+    @staticmethod
+    def update_global(content: dict) -> dict:
         """
         Given the content of the Travis configuration file,
         we update the env.global entries.
@@ -149,9 +145,9 @@ class TravisCIConfigUpdater(Base):
 
         to_update = {
             "GIT_NAME": "Dead-Hosts",
-            "GIT_EMAIL": TravisCIConfig.default_email,
+            "GIT_EMAIL": dead_hosts.launcher.defaults.travis_ci.DEFAULT_EMAIL,
         }
-        to_add = {"PYTHON_VERSION": "3.7.5"}
+        to_add = {"PYTHON_VERSION": "3.8.0"}
 
         if "env" in content and "global" in content["env"]:
             for index, data in enumerate(content["env"]["global"]):
@@ -160,27 +156,25 @@ class TravisCIConfigUpdater(Base):
                         content["env"]["global"][index][env_var] = value
 
             for env_var, value in to_add.items():
-                present = [env_var in x for x in content["env"]["global"]]
-
-                if any(present):
+                if any([env_var in x for x in content["env"]["global"]]):
                     continue
 
                 content["env"]["global"].append({env_var: value})
 
         return content
 
-    def start(self) -> None:
-        content = pyfunceble_helpers.Dict.from_yaml_file(self.destination.path)
-        content = pyfunceble_helpers.Merge(TravisCIConfig.unified_config).into(content)
-
-        content = self.update_global(
-            self.clean_env(
-                self.clean_env(self.clean_global_env(self.clean_main(content)))
-            )
+    def start(self) -> "TravisCIConfigUpdater":
+        content = DictHelper().from_yaml_file(self.DESTINATION.path)
+        content = Merge(dead_hosts.launcher.defaults.travis_ci.UNIFIED_CONFIG).into(
+            content
         )
 
-        to_write = pyfunceble_helpers.Dict(content).to_yaml()
+        content = self.update_global(
+            self.clean_env(self.clean_global_env(self.clean_main(content)))
+        )
+
+        DictHelper(content).to_json_file(self.DESTINATION.path)
 
         logging.debug("New Travis CI configuration (interpreter):\n%s", content)
 
-        self.destination.write(to_write, overwrite=True)
+        return self

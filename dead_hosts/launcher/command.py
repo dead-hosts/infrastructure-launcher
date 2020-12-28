@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of the official pyfunceble LICENSE.
+Provides a way to run Shell commands.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,51 +36,41 @@ License:
     SOFTWARE.
 """
 
-
-import logging
 import os
-from typing import Optional
+import subprocess
+from typing import Generator
 
-from PyFunceble.helpers.download import DownloadHelper
-from PyFunceble.helpers.file import FileHelper
-
-import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.travis_ci
-from dead_hosts.launcher.updater.base import UpdaterBase
+from PyFunceble.helpers.command import CommandHelper
 
 
-class OfficialPyFuncebleLicenseUpdater(UpdaterBase):
+class Command(CommandHelper):
     """
-    Provides the updater of the official PyFunceble license file.
+    Improves PyFunceble's helper for our needs.
     """
 
-    DESTINATION: Optional[FileHelper] = FileHelper(
-        os.path.join(
-            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
-            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_LICENSE[
-                "destination"
-            ],
-        )
-    )
+    def run(self, rstrip: bool = True) -> Generator[str, None, None]:
+        """
+        Overwrites the run method. In our implementation we check the status
+        code and raise an exception if it not equal to zero.
+        """
+        with subprocess.Popen(
+            self.command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            env=os.environ,
+        ) as process:
+            while True:
+                # Note: we use rstrip() because we are paranoid :-)
+                current_line = process.stdout.readline()
 
-    @property
-    def authorized(self) -> bool:
-        return True
+                if not current_line and process.poll() is not None:
+                    break
 
-    def pre(self) -> "OfficialPyFuncebleLicenseUpdater":
-        logging.info("Started to update %r", self.DESTINATION.path)
+                if rstrip:
+                    yield self._decode_output(current_line.rstrip())
+                else:
+                    yield self._decode_output(current_line)
 
-        return self
-
-    def post(self) -> "OfficialPyFuncebleLicenseUpdater":
-        logging.info("Finished to update %s", self.DESTINATION.path)
-
-        return self
-
-    def start(self) -> "OfficialPyFuncebleLicenseUpdater":
-        DownloadHelper(
-            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_LICENSE["link"]
-        ).download_text(destination=self.DESTINATION.path)
-
-        return self
+            if process.returncode != 0:
+                raise RuntimeError("Something went wrong.")

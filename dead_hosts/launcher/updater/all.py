@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the base of all our updaters.
+Provides all the updater in one place.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,71 +36,42 @@ License:
     SOFTWARE.
 """
 
-from typing import Optional
-
 from dead_hosts.launcher.info_manager import InfoManager
+from dead_hosts.launcher.updater.cross_pyfunceble_config import (
+    CrossPyFuncebleConfigUpdater,
+)
+from dead_hosts.launcher.updater.official_pyfunceble_config import (
+    OfficialPyFuncebleConfigUpdater,
+)
+from dead_hosts.launcher.updater.official_pyfunceble_license import (
+    OfficialPyFuncebleLicenseUpdater,
+)
+from dead_hosts.launcher.updater.our_infrastructure import OurInfrastructureUpdater
+from dead_hosts.launcher.updater.our_license import OurLicenseUpdater
+from dead_hosts.launcher.updater.our_requirements import OurRequirementsUpdater
+from dead_hosts.launcher.updater.pyfunceble_config import PyFuncebleConfigUpdater
+from dead_hosts.launcher.updater.pyfunceble_config_location import (
+    PyFuncebleConfigLocationUpdater,
+)
+from dead_hosts.launcher.updater.readme import ReadmeUpdater
+from dead_hosts.launcher.updater.travis_ci_config import TravisCIConfigUpdater
 
 
-class UpdaterBase:
+def execute_all_updater(info_manager: InfoManager) -> None:
     """
-    Provides the base of all updates.
-
-    :param info_manager:
-        The info manager to work with.
-
-    :raise TypeError:
-        When the given :code:`info_manager` is not a real info manager.
+    Executes all updated in a logical order.
     """
 
-    do_not_start: bool = False
-    info_manager: Optional[InfoManager] = None
+    OurInfrastructureUpdater(info_manager)
+    PyFuncebleConfigLocationUpdater(info_manager)
 
-    def __init__(self, info_manager: InfoManager) -> None:
-        if not isinstance(info_manager, InfoManager):
-            raise TypeError(info_manager)
+    CrossPyFuncebleConfigUpdater(info_manager)
+    PyFuncebleConfigUpdater(info_manager)
+    OfficialPyFuncebleConfigUpdater(info_manager)
+    OfficialPyFuncebleLicenseUpdater(info_manager)
 
-        self.info_manager = info_manager
+    ReadmeUpdater(info_manager)
+    OurLicenseUpdater(info_manager)
+    OurRequirementsUpdater(info_manager)
 
-        if not self.do_not_start:
-            self.start_after_authorization()
-
-    @property
-    def authorized(self) -> bool:
-        """
-        Provides the authorization to process.
-        """
-
-        return False
-
-    def pre(self) -> "UpdaterBase":
-        """
-        Called before :code:`start`.
-        """
-
-        raise NotImplementedError()
-
-    def post(self) -> "UpdaterBase":
-        """
-        Called after :code:`start`.
-        """
-
-        raise NotImplementedError()
-
-    def start(self) -> "UpdaterBase":
-        """
-        Starts the update.
-        """
-
-        raise NotImplementedError()
-
-    def start_after_authorization(self) -> "UpdaterBase":
-        """
-        Starts after checking the authorization.
-        """
-
-        if self.authorized:
-            self.pre()
-            self.start()
-            self.post()
-
-        return self
+    TravisCIConfigUpdater(info_manager)

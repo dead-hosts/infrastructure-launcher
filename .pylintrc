@@ -143,6 +143,7 @@ disable=print-statement,
         bad-continuation,
         logging-fstring-interpolation,
         logging-format-interpolation,
+        unsubscriptable-object,
         duplicate-code
 
 # Enable the message, report, category or checker with the given id(s). You can

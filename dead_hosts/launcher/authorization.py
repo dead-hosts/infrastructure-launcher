@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the authorization logic.
+Provides the authorization interface.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -38,81 +38,71 @@ License:
 
 from datetime import datetime, timedelta
 
-import PyFunceble.helpers as helpers
+from PyFunceble.helpers.regex import RegexHelper
 
-from ..configuration import Markers
-from ..helpers import Command
+from dead_hosts.launcher.command import Command
+from dead_hosts.launcher.defaults.markers import LAUNCH_TEST
+from dead_hosts.launcher.info_manager import InfoManager
 
 
-class Authorize:
+class Authorization:
     """
-    Provides some authorization logic.
-
-    :param info_manager: An instance of the info manager.
-
-    :ivar info_manager: The info manager.
+    Provides the authorization logic.
     """
 
-    def __init__(self, info_manager):
+    def __init__(self, info_manager: InfoManager) -> None:
         self.info_manager = info_manager
 
-    @classmethod
-    def is_launch_given_by_commit_message(cls):
+    @property
+    def next_authorization_time(self):
         """
-        Checks if the launch per commit message is valid.
-        """
-
-        return helpers.Regex(Markers.launch_test).match(
-            Command("git log -1").execute(), return_match=False
-        )
-
-    def are_we_supposed_to_always_update_input(self):
-        """
-        Checks if we are supposed to update the input source at any time.
-        """
-
-        return self.info_manager.live_update is True
-
-    def refresh(self):
-        """
-        Provides the refresh authorization.
-
-        If this authorization is not given, we should not update
-        modify any files related to the original list we are testing.
-
-        :rtype: bool
-        """
-
-        if (
-            not self.info_manager.currently_under_test
-            or self.is_launch_given_by_commit_message()
-            or self.are_we_supposed_to_always_update_input()
-        ):
-            return True
-
-        return False
-
-    def get_test_authorization_time(self):
-        """
-        Provides the expected (minimal) date of authorization
-        of the next build.
+        Provides the time of the next authorization.
         """
 
         return self.info_manager.finish_datetime + timedelta(
             days=self.info_manager.days_until_next_test
         )
 
-    def test(self):
+    @staticmethod
+    def is_launch_flag_given_by_commit_message() -> bool:
+        """
+        Checks if the launch flag per commit message is given.
+        """
+
+        return RegexHelper(LAUNCH_TEST).match(
+            Command("git log -1").execute(), return_match=False
+        )
+
+    def are_we_suppoed_to_always_update_input(self) -> bool:
+        """
+        Checks if we are supposed to systematically update the input source.
+        """
+
+        return self.info_manager.live_update is True
+
+    def is_refresh_authorized(self) -> bool:
+        """
+        Provides the refresh authorization.
+
+        If this authorization is not given, we should not update
+        modify any files related to the original list we are testing.
+        """
+
+        return (
+            not bool(self.info_manager.currently_under_test)
+            or self.is_launch_flag_given_by_commit_message()
+            or self.are_we_suppoed_to_always_update_input()
+        )
+
+    def is_test_authorized(self) -> bool:
         """
         Provides the test authorization.
 
         If this authorization is not given, we should not start
         the test.
-
-        :rtype: bool
         """
 
-        if self.is_launch_given_by_commit_message():
+        if self.is_launch_flag_given_by_commit_message():
             return True
 
         if (
@@ -121,7 +111,7 @@ class Authorize:
         ):
             return True
 
-        if datetime.now() > self.get_test_authorization_time():
+        if datetime.utcnow() > self.next_authorization_time:
             return True
 
         if self.info_manager.currently_under_test:

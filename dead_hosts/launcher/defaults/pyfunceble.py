@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides some methods oriented to our business logic with Travis CI.
+Provides our default pyfunceble settings.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,21 +36,31 @@ License:
     SOFTWARE.
 """
 
-from .configuration import Paths
-from .configuration import TravisCI as Config
+from PyFunceble.cli.continuous_integration.travis_ci import TravisCI
 
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
 
-class TravisCI:
-    """
-    Provides some TravisCI related methods.
-    """
+# pylint: disable=line-too-long
 
-    @classmethod
-    def get_working_dir(cls) -> str:
-        """
-        Provides the working directory.
-        """
-
-        if Config.build_dir:
-            return Config.build_dir
-        return Paths.current_directory
+CONFIGURATION: dict = {
+    "cli_testing.ci.active": TravisCI().guess_all_settings().authorized,
+    "cli_testing.ci.end_command": "hash dead_hosts_launcher && dead_hosts_launcher --end",
+    "cli_testing.ci.command": "hash dead_hosts_launcher && dead_hosts_launcher --save",
+    "cli_testing.ci.max_exec_minutes": 15,
+    "cli_testing.ci.branch": dead_hosts.launcher.defaults.travis_ci.GIT_BRANCH,
+    "cli_testing.ci.distribution_branch": dead_hosts.launcher.defaults.travis_ci.GIT_DISTRIBUTION_BRANCH,
+    "cli_testing.ci.commit_message": f"[Autosave][Dead-Hosts::"
+    f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
+    "cli_testing.ci.end_commit_message": f"[Final/Result][Dead-Hosts::"
+    f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
+    "cli_testing.display_mode.dots": True,
+    "cli_testing.display_mode.all": True,
+    "cli_testing.display_mode.less": False,
+    "cli_testing.file_generation.plain": True,
+    "cli_testing.file_generation.unified_results": False,
+    "lookup.timeout": 5,
+    "share_logs": False,
+    "dns.server": ["8.8.8.8", "8.8.4.4"],
+    "dns.protocol": "UDP",
+}

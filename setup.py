@@ -45,7 +45,7 @@ MODULE = "launcher"
 PYPI_NAME = substring("_", "-", "{0}-{1}".format(NAMESPACE, MODULE))
 
 
-def _get_requirements():
+def get_requirements():
     """
     Extracts all requirements from requirements.txt.
     """
@@ -56,34 +56,35 @@ def _get_requirements():
     return requirements
 
 
-def _get_version():
+def get_version():
     """
-    Extracts the version from {NAMESPACE}/{MODULE}/__init__.py
+    Extracts the version from {NAMESPACE}/{MODULE}/__about__.py
     """
 
-    to_match = comp(r'VERSION\s=\s"(.*)"\n')
+    to_match = comp(r'__version__\s=\s"(.*)"')
     extracted = to_match.findall(
-        open(f"{NAMESPACE}/{MODULE}/__init__.py", encoding="utf-8").read()
+        open(f"{NAMESPACE}/{MODULE}/__about__.py", encoding="utf-8").read()
     )[0]
 
     return ".".join(list(filter(lambda x: x.isdigit(), extracted.split("."))))
 
 
-def _get_long_description():  # pragma: no cover
+def get_long_description():  # pragma: no cover
     """
     Returns the long description.
     """
 
-    return open("README.rst", encoding="utf-8").read()
+    with open("README.rst", encoding="utf-8") as file_stream:
+        return file_stream.read()
 
 
 if __name__ == "__main__":
     setup(
         name=PYPI_NAME,
-        version=_get_version(),
-        install_requires=_get_requirements(),
+        version=get_version(),
+        install_requires=get_requirements(),
         description="The launcher of the Dead-Hosts infrastructure.",
-        long_description=_get_long_description(),
+        long_description=get_long_description(),
         license="MIT",
         url="https://github.com/dead-hosts/infrastructure-launcher",
         platforms=["any"],
@@ -100,8 +101,10 @@ if __name__ == "__main__":
         ],
         entry_points={
             "console_scripts": [
-                "dead_hosts_launcher=dead_hosts.launcher:command_line",
-                "dh_launcher=dead_hosts.launcher:command_line"
+                "dead_hosts_launcher=dead_hosts.launcher.cli:tool"
+                "dead-hosts-launcher=dead_hosts.launcher.cli:tool"
+                "dh_launcher=dead_hosts.launcher.cli:tool",
+                "dh-launcher=dead_hosts.launcher.cli:tool",
             ]
         },
     )

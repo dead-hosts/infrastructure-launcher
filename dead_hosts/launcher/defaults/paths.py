@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the configurations of the tool.
+Provides our default paths.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,8 +36,22 @@ License:
     SOFTWARE.
 """
 
-from .links import Links
-from .markers import Markers
-from .paths import Paths
-from .pyfunceble import PyFunceble
-from .travis_ci import TravisCI
+import os
+
+from dead_hosts.launcher.command import Command
+
+CURRENT_DIRECTORY: str = os.getcwd()
+
+PYFUNCEBLE_NAMESPACE: str = ".pyfunceble"
+PYFUNCEBLE_CONFIG_DIRECTORY: str = os.path.join(CURRENT_DIRECTORY, PYFUNCEBLE_NAMESPACE)
+
+INFO_FILENAME: str = "info.json"
+ORIGIN_FILENAME: str = "origin.list"
+INPUT_FILENAME: str = "domains.list"
+OUTPUT_FILENAME: str = "clean.list"
+README_FILENAME: str = "README.md"
+TRAVIS_CONFIG_FILENAME: str = ".travis.yml"
+
+GIT_BASE_NAME: str = (
+    Command("basename $(git rev-parse --show-toplevel)").execute().strip()
+)

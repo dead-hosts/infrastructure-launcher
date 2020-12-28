@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of the location of the PyFunceble configuration files.
+Provides the updater of our pyfunceble configuration location.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,19 +36,25 @@ License:
     SOFTWARE.
 """
 
+
 import logging
+import os
 
-import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.helpers.directory import DirectoryHelper
+from PyFunceble.helpers.file import FileHelper
 
-from .base import Base
+import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class PyFuncebleConfigLocationUpdater(Base):
+class PyFuncebleConfigLocationUpdater(UpdaterBase):
     """
-    Provides the updater of the location of the PyFunceble configuration files.
+    Provides the updater of our pyfunceble configuration location.
     """
 
-    files_to_move: str = [
+    FILES_TO_MOVE: str = [
         ".pyfunceble_intern_downtime.json",
         ".PyFunceble_production.yaml",
         ".PyFunceble.yaml",
@@ -61,41 +67,57 @@ class PyFuncebleConfigLocationUpdater(Base):
         "whois_db.json",
     ]
 
-    def authorization(self) -> bool:
-        if not pyfunceble_helpers.Directory(self.pyfunceble_config_dir).exists():
+    @property
+    def authorized(self) -> bool:
+        if not DirectoryHelper(
+            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
+        ).exists():
             return True
 
-        for file in self.files_to_move:
-            if pyfunceble_helpers.File(self.working_dir + file).exists():
+        file_helper = FileHelper()
+        for file in self.FILES_TO_MOVE:
+            if file_helper.set_path(
+                os.path.join(
+                    dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY, file
+                )
+            ).exists():
                 return True
-
         return False
 
-    def pre(self) -> None:
+    def pre(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
-            "Started to move files into %s.", self.pyfunceble_config_dir,
+            "Started maintenance of %r.",
+            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY,
         )
 
-        directory_to_create = pyfunceble_helpers.Directory(self.pyfunceble_config_dir)
+        DirectoryHelper(
+            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
+        ).create()
 
-        logging.info("Ensure that %s exists", directory_to_create.path)
-        directory_to_create.create()
+        return self
 
-    def post(self) -> None:
+    def post(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
-            "Finished to move files into %s.", self.pyfunceble_config_dir,
+            "Finished maintenance %r",
+            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY,
         )
 
-    def start(self) -> None:
-        for file in self.files_to_move:
-            source_file = pyfunceble_helpers.File(self.working_dir + file)
-            destination_file = pyfunceble_helpers.File(
-                self.pyfunceble_config_dir + file
+        return self
+
+    def start(self) -> "PyFuncebleConfigLocationUpdater":
+        for file in self.FILES_TO_MOVE:
+            source_file = FileHelper(
+                os.path.join(dead_hosts.launcher.defaults.travis_ci.BUILD_DIR, file)
+            )
+            destination_file = FileHelper(
+                os.path.join(
+                    dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY, file
+                )
             )
 
             if source_file.exists():
                 logging.info(
-                    "Starting to move %s into %s.",
+                    "Starting to move %r into %r.",
                     source_file.path,
                     destination_file.path,
                 )
@@ -104,13 +126,15 @@ class PyFuncebleConfigLocationUpdater(Base):
                 source_file.move(destination_file.path)
 
                 logging.info(
-                    "Finished to move %s into %s",
+                    "Finished to move %r into %r",
                     source_file.path,
                     destination_file.path,
                 )
             else:
                 logging.info(
-                    "Did not moved move %s into %s: It does not exists.",
+                    "Did not moved move %r into %r: It does not exists.",
                     source_file.path,
                     destination_file.path,
                 )
+
+        return self

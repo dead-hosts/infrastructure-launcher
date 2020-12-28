@@ -111,9 +111,11 @@ venv.bak/
 dir_structure*.json
 iana-*.json
 inactive_db.json
+inactive.csv
 info.json
 LICENSE_*
 output/
 public-suffix.json
 user_agents.json
 whois_db.json
+whois.csv

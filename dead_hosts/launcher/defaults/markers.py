@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the differnt links we have to natively interact with.
+Provides our default markers.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,47 +36,8 @@ License:
     SOFTWARE.
 """
 
-
-class Links:
-    """
-    Provides some links.
-    """
-
-    # pylint: disable=line-too-long
-
-    our_license = {
-        "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/LICENSE",
-        "destination": "LICENSE",
-    }
-    """
-    Set the link of our shared license.
-    """
-
-    our_requirements = {
-        "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/requirements.txt",
-        "destination": "requirements.txt",
-    }
-
-    cross_pyfunceble_configuration = {
-        "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/.PyFunceble_cross_repositories_config.yaml",
-        "destination": ".PyFunceble.yaml",
-    }
-    """
-    Set the link to our cross repository's PyFunceble configuration.
-    """
-
-    pyfunceble_official_config = {
-        "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/.PyFunceble_production.yaml",
-        "destination": ".PyFunceble_production.yaml",
-    }
-    """
-    Set the link to the official pyfunceble configuration to use.
-    """
-
-    pyfunceble_official_license = {
-        "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/LICENSE",
-        "destination": "LICENSE_PyFunceble",
-    }
-    """
-    Set the link to the official pyfunceble configuration to use.
-    """
+LAUNCH_TEST: str = r"Launch\stest"
+DATE_FORMAT: str = "%Y-%m-%dT%H:%M:%S%z"
+ABOUT_FUNCEBLE_REGEX: str = r"(?s)#\s+About\sPyFunceble(.*)"
+ABOUT_DEAD_HOSTS_REGEX: str = r"(?s)#\s+About\sDead-[hH]osts.+?(?=-{4,})"
+MAINTENANCE_COMMIT_MESSAGE: str = "[SELF][Maintenance]"

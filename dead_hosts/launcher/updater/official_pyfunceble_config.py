@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of the official PyFunceble configuration file.
+Provides the updater of the official pyfunceble configuration.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,36 +36,51 @@ License:
     SOFTWARE.
 """
 
+
 import logging
+import os
 from typing import Optional
 
-import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.file import FileHelper
 
-from ..configuration import Links
-from .base import Base
+import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class OfficialPyFuncebleConfigUpdater(Base):
+class OfficialPyFuncebleConfigUpdater(UpdaterBase):
     """
-    Provides the updater of the official PyFunceble configuration file.
+    Provides the updater of the official PyFunceble configuarion file.
     """
 
-    destination: Optional[pyfunceble_helpers.File] = None
+    DESTINATION: Optional[FileHelper] = FileHelper(
+        os.path.join(
+            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY,
+            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_CONFIG[
+                "destination"
+            ],
+        )
+    )
 
-    def authorization(self) -> bool:
+    @property
+    def authorized(self) -> bool:
         return True
 
-    def pre(self):
-        self.destination = pyfunceble_helpers.File(
-            self.pyfunceble_config_dir + Links.pyfunceble_official_config["destination"]
-        )
+    def pre(self) -> "OfficialPyFuncebleConfigUpdater":
+        logging.info("Started to update %r", self.DESTINATION.path)
 
-        logging.info("Started to update %s", self.destination.path)
+        return self
 
-    def post(self):
-        logging.info("Finished to update %s", self.destination.path)
+    def post(self) -> "OfficialPyFuncebleConfigUpdater":
+        logging.info("Finished to update %s", self.DESTINATION.path)
 
-    def start(self):
-        pyfunceble_helpers.Download(Links.pyfunceble_official_config["link"]).text(
-            destination=self.destination.path
-        )
+        return self
+
+    def start(self) -> "OfficialPyFuncebleConfigUpdater":
+        DownloadHelper(
+            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_CONFIG["link"]
+        ).download_text(destination=self.DESTINATION.path)
+
+        return self

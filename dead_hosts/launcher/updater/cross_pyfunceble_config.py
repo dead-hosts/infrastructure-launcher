@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of the cross-repository PyFunceble configuration.
+Provides the updater of our cross repository PyFunceble configuration.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -37,84 +37,102 @@ License:
 """
 
 import logging
+import os
 from typing import Optional
 
-import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.helpers.dict import DictHelper
+from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.file import FileHelper
+from PyFunceble.helpers.merge import Merge
 
-from ..configuration import Links
-from ..configuration import PyFunceble as PyFuncebleConfig
-from ..configuration import TravisCI as TravisCIConfig
-from .base import Base
+import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.pyfunceble
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.info_manager import InfoManager
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class CrossPyFuncebleConfigUpdater(Base):
+class CrossPyFuncebleConfigUpdater(UpdaterBase):
     """
-    Provides the updater of the cross-repository PyFunceble configuration.
+    Provides the updated of our cross-repository PyFunceble configuartion.
     """
 
-    def __init__(self) -> None:
-        self.do_not_start = True
-        super().__init__()
+    CROSS_CONFIG_FILE: str = os.path.join(
+        dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+        dead_hosts.launcher.defaults.links.CROSS_REPO_PYFUNCEBLE_CONFIG["destination"],
+    )
 
-        self.cross_pyfunceble_config_file = pyfunceble_helpers.File(
-            self.working_dir
-            + Links.cross_pyfunceble_configuration["link"].split("/")[-1]
-        )
+    DESTINATION: str = os.path.join(
+        dead_hosts.launcher.defaults.travis_ci.BUILD_DIR, ".PyFunceble.yaml"
+    )
 
-        self.pyfunceble_config_file = pyfunceble_helpers.File(
-            self.pyfunceble_config_dir
-            + Links.cross_pyfunceble_configuration["destination"]
-        )
+    def __init__(self, info_manager: InfoManager) -> None:
+        self.cross_file_instance = FileHelper(self.CROSS_CONFIG_FILE)
+        self.pyfunceble_config_file_instance = FileHelper(self.DESTINATION)
 
-        self.start_after_authorization()
+        super().__init__(info_manager)
 
-    @classmethod
-    def get_commit_message(cls, pings: Optional[str] = None) -> str:
-        """
-        Provides the commit message.
-        """
-
-        if pings:
-            return f"{PyFuncebleConfig.ci_autosave_final_commit} | cc {pings} | "
-        return PyFuncebleConfig.ci_autosave_final_commit
-
-    def authorization(self) -> bool:
+    @property
+    def authorized(self) -> bool:
         return (
-            self.cross_pyfunceble_config_file.exists() or not TravisCIConfig.git_email
+            self.cross_file_instance.exists()
+            or not dead_hosts.launcher.defaults.travis_ci.GIT_EMAIL
         )
 
-    def pre(self):
+    @staticmethod
+    def get_commit_message(ping: Optional[str] = None) -> str:
+        """
+        Provides the commit message to use.
+        """
+
+        if ping:
+            marker = dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
+                "cli_testing.ci.end_commit_message"
+            ]
+
+            return f"{marker} | cc {ping} | "
+        return dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
+            "cli_testing.ci.commit_message"
+        ]
+
+    def pre(self) -> "CrossPyFuncebleConfigUpdater":
         logging.info(
-            "Started to update %s and %s",
-            self.cross_pyfunceble_config_file.path,
-            self.pyfunceble_config_file.path,
+            "Started to update %r and %r",
+            self.cross_file_instance.path,
+            self.pyfunceble_config_file_instance.path,
         )
 
-    def post(self):
+        return self
+
+    def post(self) -> "CrossPyFuncebleConfigUpdater":
         logging.info(
-            "Finished to update %s and %s",
-            self.cross_pyfunceble_config_file.path,
-            self.pyfunceble_config_file.path,
+            "Finished to update %r and %r",
+            self.cross_file_instance.path,
+            self.pyfunceble_config_file_instance.path,
         )
 
-    def start(self):
-        upstream_data = pyfunceble_helpers.Download(
-            Links.pyfunceble_official_config["link"]
-        ).text()
+        return self
 
-        local_version = pyfunceble_helpers.Dict.from_yaml(upstream_data)
-        local_version = pyfunceble_helpers.Merge(PyFuncebleConfig.get_dict()).into(
-            local_version, strict=True
-        )
+    def start(self) -> "CrossPyFuncebleConfigUpdater":
+        upstream_data = DownloadHelper(
+            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_CONFIG["link"]
+        ).download_text()
 
-        local_version_copy = local_version.copy()
+        flatten_upstream_version = DictHelper(
+            DictHelper().from_yaml(upstream_data)
+        ).flatten()
+
+        local_version = Merge(
+            dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION
+        ).into(flatten_upstream_version, strict=True)
 
         if self.info_manager.ping:
             logging.info("Ping names given, appending them to the commit message.")
 
-            local_version_copy["ci_autosave_final_commit"] = self.get_commit_message(
-                pings=self.info_manager.get_ping_for_commit()
-            )
+            local_version[
+                "cli_testing.ci.end_commit_message"
+            ] = self.get_commit_message(ping=self.info_manager.get_ping_for_commit())
 
         if self.info_manager.custom_pyfunceble_config and isinstance(
             self.info_manager.custom_pyfunceble_config, dict
@@ -124,13 +142,16 @@ class CrossPyFuncebleConfigUpdater(Base):
                 "appending them to the local configuration file."
             )
 
-            local_version_copy = pyfunceble_helpers.Merge(
-                self.info_manager.custom_pyfunceble_config
-            ).into(local_version_copy, strict=True)
+            local_version = Merge(self.info_manager.custom_pyfunceble_config).into(
+                local_version, strict=True
+            )
 
-        pyfunceble_helpers.Dict(local_version).to_yaml_file(
-            self.cross_pyfunceble_config_file.path
+        local_version = Merge(local_version).into(flatten_upstream_version, strict=True)
+        local_version = DictHelper(local_version).unflatten()
+
+        DictHelper(local_version).to_yaml_file(self.cross_file_instance.path)
+        DictHelper(local_version).to_yaml_file(
+            self.pyfunceble_config_file_instance.path
         )
-        pyfunceble_helpers.Dict(local_version_copy).to_yaml_file(
-            self.pyfunceble_config_file.path
-        )
+
+        return self

@@ -36,60 +36,80 @@ License:
     SOFTWARE.
 """
 
+import importlib.resources
 import logging
+import os
 
-import PyFunceble.helpers as pyfunceble_helpers
+from PyFunceble.helpers.file import FileHelper
+from PyFunceble.helpers.regex import RegexHelper
 
-from ..configuration import Markers, Paths
-from .base import Base
+import dead_hosts.launcher.defaults.markers
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class ReadMeUpdater(Base):
+class ReadmeUpdater(UpdaterBase):
     """
     Provides the updater of the README file.
     """
 
-    def __init__(self) -> None:
-        self.destination = pyfunceble_helpers.File(Paths.readme_filename)
+    DESTINATION: FileHelper = FileHelper(
+        os.path.join(
+            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+            dead_hosts.launcher.defaults.paths.README_FILENAME,
+        )
+    )
 
-        super().__init__()
+    @property
+    def authorized(self) -> bool:
+        return self.DESTINATION.exists()
 
-    def authorization(self) -> bool:
-        return self.destination.exists()
+    def pre(self) -> "ReadmeUpdater":
+        logging.info("Started to update the content of %r!", self.DESTINATION.path)
 
-    def pre(self):
-        logging.info("Started to update the content of %s!", self.destination.path)
+        return self
 
-    def post(self):
-        logging.info("Finished to update the content of %s!", self.destination.path)
+    def post(self) -> "ReadmeUpdater":
+        logging.info("Finished to update the content of %r!", self.DESTINATION.path)
 
-    def start(self) -> None:
+        return self
+
+    def start(self) -> "ReadmeUpdater":
         logging.info(
-            "Started to update the `About PyFunceble` section of %s",
-            self.destination.path,
+            "Started to update the `About PyFunceble` section of %r",
+            self.DESTINATION.path,
         )
 
-        updated_version = pyfunceble_helpers.Regex(
-            Markers.extract_about_pyfunceble
-        ).replace_match(self.destination.read(), Markers.about_pyfunceble)
+        with importlib.resources.path(
+            "dead_hosts.launcher.data.docs", "about_pyfunceble.md"
+        ) as file_path:
+            updated_version = RegexHelper(
+                dead_hosts.launcher.defaults.markers.ABOUT_FUNCEBLE_REGEX
+            ).replace_match(self.DESTINATION.read(), FileHelper(file_path).read())
 
         logging.info(
-            "Finished to update the `About PyFunceble` section of %s",
-            self.destination.path,
+            "Finished to update the `About PyFunceble` section of %r",
+            self.DESTINATION.path,
         )
 
         logging.info(
-            "Started to update the `About Dead-Hosts` section of %s",
-            self.destination.path,
+            "Started to update the `About Dead-Hosts` section of %r",
+            self.DESTINATION.path,
         )
 
-        updated_version = pyfunceble_helpers.Regex(
-            Markers.extract_about_dead_hosts
-        ).replace_match(self.destination.read(), Markers.about_dead_hosts)
+        with importlib.resources.path(
+            "dead_hosts.launcher.data.docs", "about_dead_hosts.md"
+        ) as file_path:
+            updated_version = RegexHelper(
+                dead_hosts.launcher.defaults.markers.ABOUT_DEAD_HOSTS_REGEX
+            ).replace_match(self.DESTINATION.read(), FileHelper(file_path).read())
 
         logging.info(
             "Finished to update the `About Dead-Hosts` section of %s",
-            self.destination.path,
+            self.DESTINATION.path,
         )
 
-        self.destination.write(updated_version, overwrite=True)
+        self.DESTINATION.write(updated_version, overwrite=True)
+
+        return self

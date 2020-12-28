@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of our LICENSE.
+Provides our default links.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,53 +36,29 @@ License:
     SOFTWARE.
 """
 
+# pylint: disable=line-too-long
 
-import logging
-import os
-from typing import Optional
+OUR_LICENSE: dict = {
+    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/LICENSE",
+    "destination": "LICENSE",
+}
 
-from PyFunceble.helpers.download import DownloadHelper
-from PyFunceble.helpers.file import FileHelper
+OUR_REQUIREMENTS: dict = {
+    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/requirements.txt",
+    "destination": "requirements.txt",
+}
 
-import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.travis_ci
-from dead_hosts.launcher.updater.base import UpdaterBase
+CROSS_REPO_PYFUNCEBLE_CONFIG: dict = {
+    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/.PyFunceble_cross_repositories_config.yaml",
+    "destination": ".PyFunceble_cross_repositories_config.yaml",
+}
 
+OFFICIAL_PYFUNCEBLE_LICENSE: dict = {
+    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/LICENSE",
+    "destination": "LICENSE_PyFunceble",
+}
 
-class OurLicenseUpdater(UpdaterBase):
-    """
-    Provides the updater of our license file.
-    """
-
-    DESTINATION: Optional[FileHelper] = FileHelper(
-        os.path.join(
-            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
-            dead_hosts.launcher.defaults.links.OUR_LICENSE["destination"],
-        )
-    )
-
-    @property
-    def authorized(self) -> bool:
-        return not FileHelper(
-            os.path.join(
-                dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
-                "info.example.json",
-            )
-        )
-
-    def pre(self) -> "OurLicenseUpdater":
-        logging.info("Started to update %r", self.DESTINATION.path)
-
-        return self
-
-    def post(self) -> "OurLicenseUpdater":
-        logging.info("Finished to update %s", self.DESTINATION.path)
-
-        return self
-
-    def start(self) -> "OurLicenseUpdater":
-        DownloadHelper(
-            dead_hosts.launcher.defaults.links.OUR_LICENSE["link"]
-        ).download_text(destination=self.DESTINATION.path)
-
-        return self
+OFFICIAL_PYFUNCEBLE_CONFIG: dict = {
+    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/PyFunceble/data/infrastructure/.PyFunceble_production.yaml",
+    "destination": ".PyFunceble_production.yaml",
+}

@@ -38,85 +38,89 @@ License:
 """
 
 import logging
+import os
 import sys
 from datetime import datetime
-from os import environ
+from typing import Optional
 
 import PyFunceble
-import PyFunceble.helpers as pyfunceble_helpers
-from colorama import Fore, Style
-from colorama import init as initiate_colorama
+import PyFunceble.facility
+from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
+from PyFunceble.helpers.file import FileHelper
 
-from .. import updater
-from ..configuration import Paths
-from ..configuration import TravisCI as TravisCIConfig
-from ..helpers import Command
-from ..info import Info
-from ..travis_ci import TravisCI
-from .authorize import Authorize
+import dead_hosts.launcher.defaults.paths
+import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.authorization import Authorization
+from dead_hosts.launcher.command import Command
+from dead_hosts.launcher.info_manager import InfoManager
+from dead_hosts.launcher.updater.all import execute_all_updater
 
 
 class Orchestration:
     """
-    Puts everything together.
+    Orchester the test launch.
     """
 
-    def __init__(self, save=False, end=False):
-        initiate_colorama(autoreset=True)
+    info_manager: Optional[InfoManager] = None
+    authorization_handler: Optional[Authorization] = None
 
-        self.info_manager = Info()
-        self.working_directory = self.info_manager.working_directory
+    origin_file: Optional[FileHelper] = None
+    output_file: Optional[FileHelper] = None
 
-        logging.info("Working directory: %s", self.working_directory)
+    def __init__(self, save: bool = False, end: bool = False) -> None:
 
-        pyfunceble_helpers.EnvironmentVariable(
-            "PYFUNCEBLE_AUTO_CONFIGURATION"
-        ).set_value("YES")
+        self.info_manager = InfoManager()
 
-        git_name = pyfunceble_helpers.EnvironmentVariable("GIT_NAME")
-        git_email = pyfunceble_helpers.EnvironmentVariable("GIT_EMAIL")
+        EnvironmentVariableHelper("PYFUNCEBLE_AUTO_CONFIGURATION").set_value("YES")
+
+        git_name = EnvironmentVariableHelper("GIT_NAME")
+        git_email = EnvironmentVariableHelper("GIT_EMAIL")
 
         if git_email.exists() and "funilrys" in git_email.get_value():
             git_name.set_value("Dead-Hosts")
-            git_email.set_value(TravisCIConfig.default_email)
+            git_email.set_value(dead_hosts.launcher.defaults.travis_ci.DEFAULT_EMAIL)
 
-        pyfunceble_helpers.EnvironmentVariable("PYFUNCEBLE_OUTPUT_LOCATION").set_value(
-            self.working_directory
+        EnvironmentVariableHelper("PYFUNCEBLE_OUTPUT_LOCATION").set_value(
+            self.info_manager.WORKING_DIR
         )
 
-        pyfunceble_helpers.EnvironmentVariable("PYFUNCEBLE_CONFIG_DIR").set_value(
-            self.info_manager.pyfunceble_config_directory
+        EnvironmentVariableHelper("PYFUNCEBLE_CONFIG_DIR").set_value(
+            self.info_manager.PYFUNCEBLE_CONFIG_DIR
         )
 
-        self.authorize = Authorize(self.info_manager)
+        self.authorization_handler = Authorization(self.info_manager)
 
-        self.origin_file_instance = PyFunceble.helpers.File(
-            self.working_directory + Paths.origin_filename
-        )
-        self.input_file_instance = PyFunceble.helpers.File(
-            self.working_directory + Paths.input_filename
-        )
-        self.output_file_instance = PyFunceble.helpers.File(
-            self.working_directory + Paths.output_filename
+        self.origin_file = FileHelper(
+            os.path.join(
+                self.info_manager.WORKING_DIR,
+                dead_hosts.launcher.defaults.paths.ORIGIN_FILENAME,
+            )
         )
 
-        logging.info("Origin file: %s", self.origin_file_instance.path)
-        logging.info("Input file: %s", self.input_file_instance.path)
-        logging.info("Output file: %s", self.output_file_instance.path)
+        self.output_file = FileHelper(
+            os.path.join(
+                self.info_manager.WORKING_DIR,
+                dead_hosts.launcher.defaults.paths.OUTPUT_FILENAME,
+            )
+        )
+
+        logging.info("Origin file: %r", self.origin_file.path)
+        logging.info("Output file: %r", self.output_file.path)
 
         if not end and not save:
             logging.info("Checking authorization to run.")
 
-            if self.authorize.test():
-                updater.exec_all()
+            if self.authorization_handler.is_test_authorized():
+                execute_all_updater(self.info_manager)
 
-                PyFunceble.load_config(generate_directory_structure=False)
-                self.fetch_list_to_test()
+                PyFunceble.facility.ConfigLoader.start()
+                self.fetch_file_to_test()
 
                 self.run_test()
             else:
                 logging.info(
-                    "Not authorized to run a test until %s " "(current time) > %s",
+                    "Not authorized to run a test until %r (current time) > %r",
                     datetime.now(),
                     self.authorize.get_test_authorization_time(),
                 )
@@ -126,36 +130,35 @@ class Orchestration:
         else:
             self.run_end()
 
-    def fetch_list_to_test(self):
+    def fetch_file_to_test(self) -> "Orchestration":
         """
         Provides the latest version of the file to test.
         """
 
-        result = {}
-        if self.authorize.refresh():
+        if self.authorization_handler.is_refresh_authorized():
             logging.info("We are authorized to refresh the lists! Let's do that.")
-            logging.info("Raw Link: %s", self.info_manager.raw_link)
+            logging.info("Raw Link: %r", self.info_manager.raw_link)
 
             if self.info_manager.raw_link:
-                result["origin"] = PyFunceble.helpers.Download(
-                    self.info_manager.raw_link
-                ).text()
+                DownloadHelper(self.info_manager.raw_link).download_text(
+                    destination=self.origin_file.path
+                )
 
                 logging.info(
                     "Could get the new version of the list. Updating the download time."
                 )
 
-                self.info_manager["last_download_datetime"] = datetime.now()
+                self.info_manager["last_download_datetime"] = datetime.utcnow()
                 self.info_manager["last_download_timestamp"] = self.info_manager[
                     "last_download_datetime"
                 ].timestamp()
-            elif self.origin_file_instance.exists():
+            elif self.origin_file.exists():
                 logging.info(
-                    "Raw link not given or is empty. Let's work with %s.",
-                    self.origin_file_instance.path,
+                    "Raw link not given or is empty. Let's work with %r.",
+                    self.origin_file.path,
                 )
 
-                result["origin"] = self.origin_file_instance.read()
+                self.origin_file.read()
 
                 logging.info("Emptying the download time.")
 
@@ -165,11 +168,11 @@ class Orchestration:
                 ].timestamp()
             else:
                 logging.info(
-                    f"Could not find {self.origin_file_instance.path}. "
+                    f"Could not find {self.origin_file.path}. "
                     "Generating empty content to test."
                 )
 
-                result["origin"] = ""
+                self.origin_file.write("# No content yet.", overwrite=True)
 
                 logging.info("Emptying the download time.")
 
@@ -178,33 +181,9 @@ class Orchestration:
                     "last_download_datetime"
                 ].timestamp()
 
-            if not self.info_manager["custom_pyfunceble_config"]:
-                logging.info("Formatting the list to test.")
+            logging.info("Updated %r.", self.origin_file.path)
 
-                result["input_list"] = []
-
-                for line in result["origin"].splitlines():
-                    converted = PyFunceble.converter.File(line).get_converted()
-
-                    if not converted:
-                        continue
-
-                    if isinstance(converted, list):
-                        result["input_list"].extend([x for x in converted if x])
-                    else:
-                        result["input_list"].append(converted)
-            else:
-                result["input_list"] = result["origin"].splitlines()
-
-            result["input"] = "\n".join(result["input_list"])
-
-            self.origin_file_instance.write(result["origin"], overwrite=True)
-            self.input_file_instance.write(result["input"], overwrite=True)
-
-            logging.info("Updated %s.", self.origin_file_instance.path)
-            logging.info("Updated %s.", self.input_file_instance.path)
-
-        return result
+        return self
 
     def run_test(self):
         """
@@ -214,7 +193,7 @@ class Orchestration:
         if not self.info_manager.currently_under_test:
             self.info_manager["currently_under_test"] = True
 
-            self.info_manager["start_datetime"] = datetime.now()
+            self.info_manager["start_datetime"] = datetime.utcnow()
             self.info_manager["start_timestamp"] = self.info_manager[
                 "start_datetime"
             ].timestamp()
@@ -224,7 +203,7 @@ class Orchestration:
                 "finish_datetime"
             ].timestamp()
 
-        self.info_manager["latest_part_start_datetime"] = datetime.now()
+        self.info_manager["latest_part_start_datetime"] = datetime.utcnow()
         self.info_manager["latest_part_start_timestamp"] = self.info_manager[
             "latest_part_start_datetime"
         ].timestamp()
@@ -235,11 +214,11 @@ class Orchestration:
         ].timestamp()
 
         logging.info("Updated all timestamps.")
-        logging.info("Starting PyFunceble %s ...", PyFunceble.VERSION)
+        logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
-        Command(f"PyFunceble -f {self.input_file_instance.path}").run_to_stdout()
+        Command(f"PyFunceble -f {self.origin_file.path}").run_to_stdout()
 
-        if not TravisCIConfig.github_token or not TravisCIConfig.build_dir:
+        if not dead_hosts.launcher.defaults.travis_ci.GITHUB_TOKEN:
             self.run_end()
 
     def run_autosave(self):
@@ -250,14 +229,12 @@ class Orchestration:
             This is just about the administration file not PyFunceble.
         """
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.now()
+        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
         ].timestamp()
 
         logging.info("Updated all timestamps.")
-
-        PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
 
     def run_end(self):
         """
@@ -266,7 +243,7 @@ class Orchestration:
 
         self.info_manager["currently_under_test"] = False
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.now()
+        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
         ].timestamp()
@@ -280,14 +257,22 @@ class Orchestration:
 
         logging.info("Updated all timestamps and indexes that needed to be updated.")
 
-        pyfunceble_active_list = PyFunceble.helpers.File(
-            self.working_directory + "output/domains/ACTIVE/list"
+        pyfunceble_active_list = FileHelper(
+            os.path.join(
+                self.info_manager.WORKING_DIR,
+                "output",
+                dead_hosts.launcher.defaults.paths.ORIGIN_FILENAME,
+                "domains",
+                "ACTIVE",
+                "list",
+            )
         )
+
         clean_list = [
             "# File generated by the Dead-Hosts project with the help of PyFunceble.",
             "# Dead-Hosts: https://github.com/dead-hosts",
             "# PyFunceble: https://pyfunceble.github.io",
-            f"# Generation Time: {datetime.now().isoformat()}",
+            f"# Generation Time: {datetime.utcnow().isoformat()}",
         ]
 
         logging.info(f"PyFunceble ACTIVE list output: {pyfunceble_active_list.path}")
@@ -297,15 +282,13 @@ class Orchestration:
                 f"{pyfunceble_active_list.path} exists, getting and formatting its content."
             )
 
-            clean_list.extend(
-                PyFunceble.helpers.List(
-                    PyFunceble.helpers.Regex(r"^#").get_not_matching_list(
-                        pyfunceble_active_list.read().splitlines()
-                    )
-                ).format()
-            )
+            self.output_file.write("\n".join(clean_list) + "\n\n", overwrite=True)
 
-        self.output_file_instance.write("\n".join(clean_list), overwrite=True)
-        logging.info("Updated of the content of %s", self.output_file_instance.path)
+            with pyfunceble_active_list.open("r", encoding="utf-8") as file_stream:
+                for line in file_stream:
+                    if line.startswith("#"):
+                        continue
 
-        PyFunceble.helpers.Directory(self.working_directory + "db_types").delete()
+                    self.output_file.write(line)
+
+            logging.info("Updated of the content of %r", self.output_file.path)
