@@ -122,7 +122,7 @@ class Orchestration:
                 logging.info(
                     "Not authorized to run a test until %r (current time) > %r",
                     datetime.now(),
-                    self.authorize.get_test_authorization_time(),
+                    self.authorization_handler.next_authorization_time,
                 )
                 sys.exit(0)
         elif save:
