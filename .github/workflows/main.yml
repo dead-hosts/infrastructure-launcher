@@ -79,7 +79,7 @@ jobs:
           cat ${{ github.workspace }}/clean.list
 
   deploy_pypi:
-    needs: lint
+    needs: run
     name: "Deploy 📦 to the PyPi"
 
     runs-on: "${{ matrix.os }}"
