@@ -68,7 +68,7 @@ jobs:
 
       - name: Launch the launcher
         run: |
-          dead_hosts_launcher
+          dead-hosts-launcher
 
       - name: Look for changes in info file
         run: |

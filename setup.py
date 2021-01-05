@@ -101,8 +101,8 @@ if __name__ == "__main__":
         ],
         entry_points={
             "console_scripts": [
-                "dead_hosts_launcher=dead_hosts.launcher.cli:tool"
-                "dead-hosts-launcher=dead_hosts.launcher.cli:tool"
+                "dead_hosts_launcher=dead_hosts.launcher.cli:tool",
+                "dead-hosts-launcher=dead_hosts.launcher.cli:tool",
                 "dh_launcher=dead_hosts.launcher.cli:tool",
                 "dh-launcher=dead_hosts.launcher.cli:tool",
             ]
