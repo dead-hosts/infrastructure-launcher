@@ -1,0 +1,120 @@
+name: Dead-Hosts Launcher deployment Workflow
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  lint:
+    name: Lint Dead-Hosts Launcher
+
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.9.1"
+        os:
+          - ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone repository
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install dependencies
+        run: |
+          pip install pylint
+          pip install .
+
+      - name: Lint Dead-Hosts Launcher with Pylint
+        run: pylint dead_hosts
+
+  run:
+    needs: lint
+    name: "Run Dead-Hosts Launcher and check behaviors"
+
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.9.1"
+        os:
+          - ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone repository
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install dependencies
+        run: |
+          pip install .
+
+      - name: Prepare Launcher settings
+        run: |
+          cp ${{ github.workspace }}/info.example.json ${{ github.workspace }}/info.json
+
+      - name: Launch the launcher
+        run: |
+          dead_hosts_launcher
+
+      - name: Look for changes in info file
+        run: |
+          cat ${{ github.workspace }}/info.json
+
+      - name: Look for changes in clean file
+        run: |
+          cat ${{ github.workspace }}/clean.list
+
+  deploy_pypi:
+    needs: lint
+    name: "Deploy 📦 to the PyPi"
+
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.9.1"
+        os:
+          - ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone repository
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install dependencies
+        run: |
+          pip install twine wheel setuptools
+
+      - name: Build 📦
+        run: |
+          python setup.py sdist bdist_wheel
+
+      - name: Check 📦
+        run: |
+          twine check dist/*
+
+      - name: Publish 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip_existing: true
