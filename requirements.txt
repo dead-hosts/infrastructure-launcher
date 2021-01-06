@@ -1,5 +1,4 @@
 requests
 pyyaml
 
-# Warning: This only works if you install this package though pip.
-PyFunceble-dev @ git+git://github.com/funilrys/PyFunceble.git@4.0.0-dev#egg=PyFunceble-dev
+PyFunceble-dev>=4.0.0a1
