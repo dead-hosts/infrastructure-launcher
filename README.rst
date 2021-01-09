@@ -10,6 +10,45 @@ Installation
 
     $ pip3 install --user dead-hosts-launcher
 
+Configuration
+-------------
+
+To work, the launcher will look for a file named :code:`info.json` in
+your current directory.
+
+The file should look like follow:
+
+::
+
+    {
+        "currently_under_test": false, # Don't touch this.
+        "custom_pyfunceble_config": {}, # Put your PyFunceble custom configuration here.
+        "days_until_next_test": 0.0,  # Ask an admin. Otherwise, this is the number of days between each authorizations.
+        "name": "[repository-name]",  # The name of the current repository. WARNING: Paritially autocompleted under CI.
+        "own_management": false,  # You are the one managing the PyFunceble configuration.
+        "ping": [],  # Put your GitHub username here to get a mention at the end of the test of your file.
+        "raw_link": "[URL]" # Put the link to your file. Or leave empty and fill the origin.list file.
+    }
+
+Persistent configuration
+""""""""""""""""""""""""
+
+The launcher has some hard-coded configuration that can't be changed. Even
+if you try to overwrite them, the configuration will just overwite them.
+
+Please consider the following as a flatten representation of the PyFunceble
+configuration. Meaning that each :code:`.` is a nested dictionary.
+
+::
+
+    {
+        "cli_testing.cooldown_time": 1.25,
+        "cli_testing.display_mode.execution_time": True,
+        "cli_testing.ci.max_exec_minutes": 20,
+        "cli_testing.max_workers": 1,
+    }
+
+
 Usage
 -----
 
