@@ -118,4 +118,6 @@ class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
             self.pyfunceble_config_file_instance.path
         )
 
+        logging.debug("Configuration:\n%s", self.pyfunceble_config_file_instance.read())
+
         return self

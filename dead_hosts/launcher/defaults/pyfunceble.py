@@ -70,7 +70,7 @@ CONFIGURATION: dict = {
 }
 
 PERSISTENT_CONFIG: dict = {
-    "cli_testing.cooldown_time": 1.25,
+    "cli_testing.cooldown_time": 3.25,
     "cli_testing.display_mode.execution_time": True,
     "cli_testing.ci.max_exec_minutes": 20,
     "cli_testing.max_workers": 1,
