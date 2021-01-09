@@ -1,4 +1,4 @@
 requests
 pyyaml
 
-PyFunceble-dev>=4.0.0a1
+PyFunceble-dev>=4.0.0b1

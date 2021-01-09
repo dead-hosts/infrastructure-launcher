@@ -1,6 +1,7 @@
-recursive-include dead_hosts *.py
+graft dead_hosts
+global-exclude __pycache__
+global-exclude *.py[co]
 include LICENSE
 include README.rst
 include requirements.txt
-include .pylintrc
 include info.example.json

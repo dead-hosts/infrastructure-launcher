@@ -89,6 +89,7 @@ if __name__ == "__main__":
         url="https://github.com/dead-hosts/infrastructure-launcher",
         platforms=["any"],
         packages=find_namespace_packages(),
+        include_package_data=True,
         keywords=["Python", "infrastructure", "dead-hosts"],
         classifiers=[
             "Environment :: Console",

@@ -1,0 +1,9 @@
+{
+    "currently_under_test": false,
+    "custom_pyfunceble_config": {},
+    "days_until_next_test": 0.0,
+    "name": "[repository-name]",
+    "own_management": false,
+    "ping": [],
+    "raw_link": "https://raw.githubusercontent.com/funilrys/PyFunceble/master/.travis/lists/simple"
+}
