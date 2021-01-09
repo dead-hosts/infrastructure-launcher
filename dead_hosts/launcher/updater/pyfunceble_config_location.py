@@ -64,6 +64,8 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
         "whois_db.json",
     ]
 
+    INACTIVE_FILES_TO_DELETE: str = ["inactive_db.json", "inactive.csv"]
+
     @property
     def authorized(self) -> bool:
         if not DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).exists():
@@ -75,6 +77,15 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
                 os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, file)
             ).exists():
                 return True
+
+        if all(
+            file_helper.set_path(
+                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, x)
+            ).exists()
+            for x in self.INACTIVE_FILES_TO_DELETE
+        ):
+            return True
+
         return False
 
     def pre(self) -> "PyFuncebleConfigLocationUpdater":
@@ -124,6 +135,35 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
                     "Did not moved move %r into %r: It does not exists.",
                     source_file.path,
                     destination_file.path,
+                )
+
+            if (
+                all(
+                    FileHelper(
+                        os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, x)
+                    ).exists()
+                    for x in self.INACTIVE_FILES_TO_DELETE
+                )
+                or FileHelper(
+                    os.path.join(
+                        self.info_manager.PYFUNCEBLE_CONFIG_DIR,
+                        self.INACTIVE_FILES_TO_DELETE[0],
+                    )
+                ).exists()
+            ):
+                logging.info(
+                    "Starting to delete inactive files.",
+                )
+
+                for inactive_file in self.INACTIVE_FILES_TO_DELETE:
+                    FileHelper(
+                        os.path.join(
+                            self.info_manager.PYFUNCEBLE_CONFIG_DIR, inactive_file
+                        )
+                    ).delete()
+
+                logging.info(
+                    "Finished to delete inactive files.",
                 )
 
         return self
