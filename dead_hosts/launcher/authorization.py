@@ -40,8 +40,8 @@ from datetime import datetime, timedelta
 
 from PyFunceble.helpers.regex import RegexHelper
 
+import dead_hosts.launcher.defaults.markers
 from dead_hosts.launcher.command import Command
-from dead_hosts.launcher.defaults.markers import LAUNCH_TEST
 from dead_hosts.launcher.info_manager import InfoManager
 
 
@@ -69,7 +69,7 @@ class Authorization:
         Checks if the launch flag per commit message is given.
         """
 
-        return RegexHelper(LAUNCH_TEST).match(
+        return RegexHelper(dead_hosts.launcher.defaults.markers.LAUNCH_TEST).match(
             Command("git log -1").execute(), return_match=False
         )
 

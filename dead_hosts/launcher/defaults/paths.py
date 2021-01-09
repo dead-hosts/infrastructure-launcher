@@ -42,6 +42,7 @@ from dead_hosts.launcher.command import Command
 
 CURRENT_DIRECTORY: str = os.getcwd()
 
+GHA_WORKFLOW_DIR: str = os.path.join(".github", "workflows")
 PYFUNCEBLE_NAMESPACE: str = ".pyfunceble"
 PYFUNCEBLE_CONFIG_DIRECTORY: str = os.path.join(CURRENT_DIRECTORY, PYFUNCEBLE_NAMESPACE)
 
@@ -50,7 +51,6 @@ ORIGIN_FILENAME: str = "origin.list"
 INPUT_FILENAME: str = "domains.list"
 OUTPUT_FILENAME: str = "clean.list"
 README_FILENAME: str = "README.md"
-TRAVIS_CONFIG_FILENAME: str = ".travis.yml"
 
 GIT_BASE_NAME: str = (
     Command("basename $(git rev-parse --show-toplevel)").execute().strip()

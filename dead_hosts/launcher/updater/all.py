@@ -40,6 +40,7 @@ from dead_hosts.launcher.info_manager import InfoManager
 from dead_hosts.launcher.updater.cross_pyfunceble_config import (
     CrossPyFuncebleConfigUpdater,
 )
+from dead_hosts.launcher.updater.github_actions_workflows import GHAWorkflowsUpdater
 from dead_hosts.launcher.updater.official_pyfunceble_config import (
     OfficialPyFuncebleConfigUpdater,
 )
@@ -54,7 +55,6 @@ from dead_hosts.launcher.updater.pyfunceble_config_location import (
     PyFuncebleConfigLocationUpdater,
 )
 from dead_hosts.launcher.updater.readme import ReadmeUpdater
-from dead_hosts.launcher.updater.travis_ci_config import TravisCIConfigUpdater
 
 
 def execute_all_updater(info_manager: InfoManager) -> None:
@@ -64,6 +64,7 @@ def execute_all_updater(info_manager: InfoManager) -> None:
 
     OurInfrastructureUpdater(info_manager)
     PyFuncebleConfigLocationUpdater(info_manager)
+    GHAWorkflowsUpdater(info_manager)
 
     CrossPyFuncebleConfigUpdater(info_manager)
     PyFuncebleConfigUpdater(info_manager)
@@ -73,5 +74,3 @@ def execute_all_updater(info_manager: InfoManager) -> None:
     ReadmeUpdater(info_manager)
     OurLicenseUpdater(info_manager)
     OurRequirementsUpdater(info_manager)
-
-    TravisCIConfigUpdater(info_manager)

@@ -38,8 +38,8 @@ License:
 
 from PyFunceble.cli.continuous_integration.travis_ci import TravisCI
 
+import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.travis_ci
 
 # pylint: disable=line-too-long
 
@@ -48,8 +48,8 @@ CONFIGURATION: dict = {
     "cli_testing.ci.end_command": "hash dead_hosts_launcher && dead_hosts_launcher --end",
     "cli_testing.ci.command": "hash dead_hosts_launcher && dead_hosts_launcher --save",
     "cli_testing.ci.max_exec_minutes": 15,
-    "cli_testing.ci.branch": dead_hosts.launcher.defaults.travis_ci.GIT_BRANCH,
-    "cli_testing.ci.distribution_branch": dead_hosts.launcher.defaults.travis_ci.GIT_DISTRIBUTION_BRANCH,
+    "cli_testing.ci.branch": dead_hosts.launcher.defaults.envs.GIT_BRANCH,
+    "cli_testing.ci.distribution_branch": dead_hosts.launcher.defaults.envs.GIT_DISTRIBUTION_BRANCH,
     "cli_testing.ci.commit_message": f"[Autosave][Dead-Hosts::"
     f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
     "cli_testing.ci.end_commit_message": f"[Final/Result][Dead-Hosts::"
@@ -58,9 +58,20 @@ CONFIGURATION: dict = {
     "cli_testing.display_mode.all": True,
     "cli_testing.display_mode.less": False,
     "cli_testing.file_generation.plain": True,
+    "cli_testing.file_generation.hosts": False,
     "cli_testing.file_generation.unified_results": False,
+    "cli_testing.cooldown_time": 1.25,
+    "cli_testing.display_mode.execution_time": True,
+    "cli_testing.max_workers": 1,
     "lookup.timeout": 5,
     "share_logs": False,
     "dns.server": ["8.8.8.8", "8.8.4.4"],
     "dns.protocol": "UDP",
+}
+
+PERSISTENT_CONFIG: dict = {
+    "cli_testing.cooldown_time": 1.25,
+    "cli_testing.display_mode.execution_time": True,
+    "cli_testing.ci.max_exec_minutes": 20,
+    "cli_testing.max_workers": 1,
 }

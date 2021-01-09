@@ -49,8 +49,8 @@ from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 from PyFunceble.helpers.file import FileHelper
 
+import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.travis_ci
 from dead_hosts.launcher.authorization import Authorization
 from dead_hosts.launcher.command import Command
 from dead_hosts.launcher.info_manager import InfoManager
@@ -78,11 +78,11 @@ class Orchestration:
         git_email = EnvironmentVariableHelper("GIT_EMAIL")
 
         if git_email.exists() and "funilrys" in git_email.get_value():
-            git_name.set_value("Dead-Hosts")
-            git_email.set_value(dead_hosts.launcher.defaults.travis_ci.DEFAULT_EMAIL)
+            git_name.set_value(dead_hosts.launcher.defaults.envs.GIT_NAME)
+            git_email.set_value(dead_hosts.launcher.defaults.envs.GIT_EMAIL)
 
         EnvironmentVariableHelper("PYFUNCEBLE_OUTPUT_LOCATION").set_value(
-            self.info_manager.WORKING_DIR
+            self.info_manager.WORKSPACE_DIR
         )
 
         EnvironmentVariableHelper("PYFUNCEBLE_CONFIG_DIR").set_value(
@@ -93,14 +93,14 @@ class Orchestration:
 
         self.origin_file = FileHelper(
             os.path.join(
-                self.info_manager.WORKING_DIR,
+                self.info_manager.WORKSPACE_DIR,
                 dead_hosts.launcher.defaults.paths.ORIGIN_FILENAME,
             )
         )
 
         self.output_file = FileHelper(
             os.path.join(
-                self.info_manager.WORKING_DIR,
+                self.info_manager.WORKSPACE_DIR,
                 dead_hosts.launcher.defaults.paths.OUTPUT_FILENAME,
             )
         )
@@ -218,7 +218,7 @@ class Orchestration:
 
         Command(f"PyFunceble -f {self.origin_file.path}").run_to_stdout()
 
-        if not dead_hosts.launcher.defaults.travis_ci.GITHUB_TOKEN:
+        if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
             self.run_end()
 
     def run_autosave(self):
@@ -259,7 +259,7 @@ class Orchestration:
 
         pyfunceble_active_list = FileHelper(
             os.path.join(
-                self.info_manager.WORKING_DIR,
+                self.info_manager.WORKSPACE_DIR,
                 "output",
                 dead_hosts.launcher.defaults.paths.ORIGIN_FILENAME,
                 "domains",
@@ -290,5 +290,7 @@ class Orchestration:
                         continue
 
                     self.output_file.write(line)
+
+            self.output_file.write("\n")
 
             logging.info("Updated of the content of %r", self.output_file.path)

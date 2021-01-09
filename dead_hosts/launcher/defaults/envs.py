@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides our default links.
+Provides our environment related defaults.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,40 +36,26 @@ License:
     SOFTWARE.
 """
 
-# pylint: disable=line-too-long
+import os
+from typing import List, Optional
 
-OUR_LICENSE: dict = {
-    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/LICENSE",
-    "destination": "LICENSE",
-}
+from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 
-OUR_REQUIREMENTS: dict = {
-    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/requirements.txt",
-    "destination": "requirements.txt",
-}
+env_var = EnvironmentVariableHelper()
 
-CROSS_REPO_PYFUNCEBLE_CONFIG: dict = {
-    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/.PyFunceble_cross_repositories_config.yaml",
-    "destination": ".PyFunceble_cross_repositories_config.yaml",
-}
+DEFAULT_EMAIL: str = "dead-hosts@outlook.com"
 
-OFFICIAL_PYFUNCEBLE_LICENSE: dict = {
-    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/LICENSE",
-    "destination": "LICENSE_PyFunceble",
-}
+UNDER_CI_ENVS: List[str] = ["GITHUB_ACTIONS"]
+UNDER_CI: bool = any(env_var.set_name(x).exists() for x in UNDER_CI_ENVS)
 
-OFFICIAL_PYFUNCEBLE_CONFIG: dict = {
-    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/PyFunceble/data/infrastructure/.PyFunceble_production.yaml",
-    "destination": ".PyFunceble_production.yaml",
-}
+WORKSPACE_DIR: Optional[str] = env_var.set_name("GITHUB_WORKSPACE").get_value(
+    default=os.getcwd()
+)
 
-GHA_MAIN_WORKFLOW: dict = {
-    "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/main.yml",
-    "destination": "main.yml",
-}
-
-
-GHA_SCHEDULER_WORKFLOW: dict = {
-    "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/scheduler.yml",
-    "destination": "scheduler.yml",
-}
+GITHUB_TOKEN: Optional[str] = env_var.set_name("GITHUB_TOKEN").get_value(default=None)
+GIT_EMAIL: Optional[str] = env_var.set_name("GIT_EMAIL").get_value(default=None)
+GIT_NAME: str = env_var.set_name("GIT_NAME").get_value(default="dead-hostsbot")
+GIT_BRANCH: str = env_var.set_name("GIT_BRANCH").get_value(default="master")
+GIT_DISTRIBUTION_BRANCH: str = env_var.set_name("GIT_DISTRIBUTION_BRANCH").get_value(
+    default=GIT_BRANCH
+)

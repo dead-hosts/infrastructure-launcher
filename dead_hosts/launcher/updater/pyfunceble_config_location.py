@@ -43,9 +43,6 @@ import os
 from PyFunceble.helpers.directory import DirectoryHelper
 from PyFunceble.helpers.file import FileHelper
 
-import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.travis_ci
 from dead_hosts.launcher.updater.base import UpdaterBase
 
 
@@ -69,17 +66,13 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
-        if not DirectoryHelper(
-            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
-        ).exists():
+        if not DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).exists():
             return True
 
         file_helper = FileHelper()
         for file in self.FILES_TO_MOVE:
             if file_helper.set_path(
-                os.path.join(
-                    dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY, file
-                )
+                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, file)
             ).exists():
                 return True
         return False
@@ -87,19 +80,17 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
     def pre(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
             "Started maintenance of %r.",
-            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY,
+            self.info_manager.PYFUNCEBLE_CONFIG_DIR,
         )
 
-        DirectoryHelper(
-            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
-        ).create()
+        DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).create()
 
         return self
 
     def post(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
             "Finished maintenance %r",
-            dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY,
+            self.info_manager.PYFUNCEBLE_CONFIG_DIR,
         )
 
         return self
@@ -107,12 +98,10 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
     def start(self) -> "PyFuncebleConfigLocationUpdater":
         for file in self.FILES_TO_MOVE:
             source_file = FileHelper(
-                os.path.join(dead_hosts.launcher.defaults.travis_ci.BUILD_DIR, file)
+                os.path.join(self.info_manager.WORKSPACE_DIR, file)
             )
             destination_file = FileHelper(
-                os.path.join(
-                    dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY, file
-                )
+                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, file)
             )
 
             if source_file.exists():

@@ -42,10 +42,7 @@ import os
 from PyFunceble.helpers.directory import DirectoryHelper
 from PyFunceble.helpers.file import FileHelper
 
-import dead_hosts.launcher.defaults.links
 import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.pyfunceble
-import dead_hosts.launcher.defaults.travis_ci
 from dead_hosts.launcher.updater.base import UpdaterBase
 
 
@@ -61,6 +58,7 @@ class OurInfrastructureUpdater(UpdaterBase):
         "iana-domains-db.json",
         "public-suffix.json",
         "pyfunceble.db",
+        ".travis.yml",
         os.path.join("output", "continue.json"),
     ]
 
@@ -78,20 +76,20 @@ class OurInfrastructureUpdater(UpdaterBase):
     @property
     def authorized(self) -> bool:
         return any(
-            FileHelper(os.path.join(self.info_manager.WORKING_DIR, x)).exists()
+            FileHelper(os.path.join(self.info_manager.WORKSPACE_DIR, x)).exists()
             for x in self.FILES_TO_REMOVE
         ) or any(
-            DirectoryHelper(os.path.join(self.info_manager.WORKING_DIR, x)).exists()
+            DirectoryHelper(os.path.join(self.info_manager.WORKSPACE_DIR, x)).exists()
             for x in self.DIRS_TO_REMOVE
         )
 
     def pre(self) -> "OurInfrastructureUpdater":
-        logging.info("Started maintenance of %r.", self.info_manager.WORKING_DIR)
+        logging.info("Started maintenance of %r.", self.info_manager.WORKSPACE_DIR)
 
         return self
 
     def post(self) -> "OurInfrastructureUpdater":
-        logging.info("Finished maintenance of %r", self.info_manager.WORKING_DIR)
+        logging.info("Finished maintenance of %r", self.info_manager.WORKSPACE_DIR)
 
         return self
 
@@ -101,7 +99,7 @@ class OurInfrastructureUpdater(UpdaterBase):
         dir_helper = DirectoryHelper()
 
         for file in self.FILES_TO_REMOVE:
-            file_helper.set_path(os.path.join(self.info_manager.WORKING_DIR, file))
+            file_helper.set_path(os.path.join(self.info_manager.WORKSPACE_DIR, file))
 
             if file_helper.exists():
                 logging.info("Starting deletion of %r", file_helper.path)
@@ -111,7 +109,9 @@ class OurInfrastructureUpdater(UpdaterBase):
                 logging.info("Finished deletion of %r", file_helper.path)
 
         for directory in self.DIRS_TO_REMOVE:
-            dir_helper.set_path(os.path.join(self.info_manager.WORKING_DIR, directory))
+            dir_helper.set_path(
+                os.path.join(self.info_manager.WORKSPACE_DIR, directory)
+            )
 
             if dir_helper.exists():
                 logging.info("Starting deletion of %r", dir_helper.path)

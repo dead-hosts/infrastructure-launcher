@@ -1,7 +1,7 @@
 """
 Dead Hosts's launcher - The launcher of the Dead-Hosts infrastructure.
 
-Provides the updater of the official pyfunceble LICENSE.
+Provides the updater of the GitHub actions workflow.
 
 Author:
     Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
@@ -36,48 +36,60 @@ License:
     SOFTWARE.
 """
 
-
 import logging
 import os
 
 from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.file import FileHelper
 
+import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.links
-from dead_hosts.launcher.info_manager import InfoManager
 from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class OfficialPyFuncebleLicenseUpdater(UpdaterBase):
+class GHAWorkflowsUpdater(UpdaterBase):
     """
-    Provides the updater of the official PyFunceble license file.
+    Provides the updater of the GitHub Actions workflows.
     """
-
-    def __init__(self, info_manager: InfoManager) -> None:
-        self.destination = os.path.join(
-            info_manager.WORKSPACE_DIR,
-            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_LICENSE[
-                "destination"
-            ],
-        )
-        super().__init__(info_manager)
 
     @property
     def authorized(self) -> bool:
-        return True
+        return dead_hosts.launcher.defaults.envs.UNDER_CI and not FileHelper(
+            os.path.join(
+                self.info_manager.WORKSPACE_DIR,
+                "info.example.json",
+            )
+        )
 
-    def pre(self) -> "OfficialPyFuncebleLicenseUpdater":
-        logging.info("Started to update %r", self.destination)
+    def pre(self) -> "GHAWorkflowsUpdater":
+        logging.info("Started to update %r!", self.info_manager.GHA_WORKFLOWS_DIR)
 
         return self
 
-    def post(self) -> "OfficialPyFuncebleLicenseUpdater":
-        logging.info("Finished to update %s", self.destination)
+    def post(self) -> "GHAWorkflowsUpdater":
+        logging.info("Finished to update %r!", self.info_manager.GHA_WORKFLOWS_DIR)
 
         return self
 
-    def start(self) -> "OfficialPyFuncebleLicenseUpdater":
+    def start(self) -> "GHAWorkflowsUpdater":
         DownloadHelper(
-            dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_LICENSE["link"]
-        ).download_text(destination=self.destination)
+            dead_hosts.launcher.defaults.links.GHA_MAIN_WORKFLOW["link"]
+        ).download_text(
+            destination=os.path.join(
+                self.info_manager.GHA_WORKFLOWS_DIR,
+                dead_hosts.launcher.defaults.links.GHA_MAIN_WORKFLOW["destination"],
+            )
+        )
+
+        DownloadHelper(
+            dead_hosts.launcher.defaults.links.GHA_SCHEDULER_WORKFLOW["link"]
+        ).download_text(
+            destination=os.path.join(
+                self.info_manager.GHA_WORKFLOWS_DIR,
+                dead_hosts.launcher.defaults.links.GHA_SCHEDULER_WORKFLOW[
+                    "destination"
+                ],
+            )
+        )
 
         return self

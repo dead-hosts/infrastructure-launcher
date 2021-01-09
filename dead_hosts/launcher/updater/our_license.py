@@ -39,13 +39,12 @@ License:
 
 import logging
 import os
-from typing import Optional
 
 from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.file import FileHelper
 
 import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.travis_ci
+from dead_hosts.launcher.info_manager import InfoManager
 from dead_hosts.launcher.updater.base import UpdaterBase
 
 
@@ -54,35 +53,36 @@ class OurLicenseUpdater(UpdaterBase):
     Provides the updater of our license file.
     """
 
-    DESTINATION: Optional[FileHelper] = FileHelper(
-        os.path.join(
-            dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+    def __init__(self, info_manager: InfoManager) -> None:
+        self.destination = os.path.join(
+            info_manager.WORKSPACE_DIR,
             dead_hosts.launcher.defaults.links.OUR_LICENSE["destination"],
         )
-    )
+
+        super().__init__(info_manager)
 
     @property
     def authorized(self) -> bool:
         return not FileHelper(
             os.path.join(
-                dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
+                self.info_manager.WORKSPACE_DIR,
                 "info.example.json",
             )
         )
 
     def pre(self) -> "OurLicenseUpdater":
-        logging.info("Started to update %r", self.DESTINATION.path)
+        logging.info("Started to update %r", self.destination)
 
         return self
 
     def post(self) -> "OurLicenseUpdater":
-        logging.info("Finished to update %s", self.DESTINATION.path)
+        logging.info("Finished to update %s", self.destination)
 
         return self
 
     def start(self) -> "OurLicenseUpdater":
         DownloadHelper(
             dead_hosts.launcher.defaults.links.OUR_LICENSE["link"]
-        ).download_text(destination=self.DESTINATION.path)
+        ).download_text(destination=self.destination)
 
         return self

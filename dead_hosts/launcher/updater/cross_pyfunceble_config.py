@@ -45,10 +45,9 @@ from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.file import FileHelper
 from PyFunceble.helpers.merge import Merge
 
+import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.paths
 import dead_hosts.launcher.defaults.pyfunceble
-import dead_hosts.launcher.defaults.travis_ci
 from dead_hosts.launcher.info_manager import InfoManager
 from dead_hosts.launcher.updater.base import UpdaterBase
 
@@ -58,18 +57,18 @@ class CrossPyFuncebleConfigUpdater(UpdaterBase):
     Provides the updated of our cross-repository PyFunceble configuartion.
     """
 
-    CROSS_CONFIG_FILE: str = os.path.join(
-        dead_hosts.launcher.defaults.travis_ci.BUILD_DIR,
-        dead_hosts.launcher.defaults.links.CROSS_REPO_PYFUNCEBLE_CONFIG["destination"],
-    )
-
-    DESTINATION: str = os.path.join(
-        dead_hosts.launcher.defaults.travis_ci.BUILD_DIR, ".PyFunceble.yaml"
-    )
-
     def __init__(self, info_manager: InfoManager) -> None:
-        self.cross_file_instance = FileHelper(self.CROSS_CONFIG_FILE)
-        self.pyfunceble_config_file_instance = FileHelper(self.DESTINATION)
+        self.cross_file_instance = FileHelper(
+            os.path.join(
+                info_manager.WORKSPACE_DIR,
+                dead_hosts.launcher.defaults.links.CROSS_REPO_PYFUNCEBLE_CONFIG[
+                    "destination"
+                ],
+            )
+        )
+        self.pyfunceble_config_file_instance = FileHelper(
+            os.path.join(info_manager.WORKSPACE_DIR, ".PyFunceble.yaml")
+        )
 
         super().__init__(info_manager)
 
@@ -77,7 +76,7 @@ class CrossPyFuncebleConfigUpdater(UpdaterBase):
     def authorized(self) -> bool:
         return (
             self.cross_file_instance.exists()
-            or not dead_hosts.launcher.defaults.travis_ci.GIT_EMAIL
+            or not dead_hosts.launcher.defaults.envs.GIT_EMAIL
         )
 
     @staticmethod
@@ -145,6 +144,10 @@ class CrossPyFuncebleConfigUpdater(UpdaterBase):
             local_version = Merge(self.info_manager.custom_pyfunceble_config).into(
                 local_version, strict=True
             )
+
+        local_version = Merge(
+            dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
+        ).into(local_version, strict=True)
 
         local_version = Merge(local_version).into(flatten_upstream_version, strict=True)
         local_version = DictHelper(local_version).unflatten()

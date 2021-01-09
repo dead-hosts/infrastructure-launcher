@@ -43,9 +43,7 @@ from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.merge import Merge
 
 import dead_hosts.launcher.defaults.links
-import dead_hosts.launcher.defaults.paths
 import dead_hosts.launcher.defaults.pyfunceble
-import dead_hosts.launcher.defaults.travis_ci
 from dead_hosts.launcher.updater.cross_pyfunceble_config import (
     CrossPyFuncebleConfigUpdater,
 )
@@ -53,7 +51,7 @@ from dead_hosts.launcher.updater.cross_pyfunceble_config import (
 
 class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
     """
-    Provides the updated of the PyFunceble configuartion.
+    Provides the updated of the PyFunceble configuration.
     """
 
     @property

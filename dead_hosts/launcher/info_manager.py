@@ -45,8 +45,8 @@ from typing import Any
 from PyFunceble.helpers.dict import DictHelper
 from PyFunceble.helpers.file import FileHelper
 
+import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
-import dead_hosts.launcher.defaults.travis_ci
 
 
 class InfoManager:
@@ -58,26 +58,29 @@ class InfoManager:
         needed by other interfaces.
     """
 
-    WORKING_DIR: str = dead_hosts.launcher.defaults.travis_ci.BUILD_DIR
+    WORKSPACE_DIR: str = dead_hosts.launcher.defaults.envs.WORKSPACE_DIR
     PYFUNCEBLE_CONFIG_DIR: str = (
         dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
     )
+    GHA_WORKFLOWS_DIR: str = os.path.join(
+        WORKSPACE_DIR, dead_hosts.launcher.defaults.paths.GHA_WORKFLOW_DIR
+    )
 
     INFO_FILE = os.path.join(
-        WORKING_DIR, dead_hosts.launcher.defaults.paths.INFO_FILENAME
+        WORKSPACE_DIR, dead_hosts.launcher.defaults.paths.INFO_FILENAME
     )
 
     def __init__(self) -> None:
-        self.info_fileh_instance = FileHelper(self.INFO_FILE)
+        self.info_file_instance = FileHelper(self.INFO_FILE)
 
-        if self.info_fileh_instance.exists():
-            self.content = DictHelper().from_json_file(self.info_fileh_instance.path)
+        if self.info_file_instance.exists():
+            self.content = DictHelper().from_json_file(self.info_file_instance.path)
         else:
             self.content = dict()
 
         logging.debug("Administration file path: %r", self.INFO_FILE)
         logging.debug(
-            "Administration file exists: %r", self.info_fileh_instance.exists()
+            "Administration file exists: %r", self.info_file_instance.exists()
         )
         logging.debug("Administration file content:\n%r", self.content)
 
@@ -119,7 +122,7 @@ class InfoManager:
             else:
                 local_copy[index] = copy.deepcopy(value)
 
-        DictHelper(local_copy).to_json_file(self.info_fileh_instance.path)
+        DictHelper(local_copy).to_json_file(self.info_file_instance.path)
         return self
 
     def clean(self) -> "InfoManager":
@@ -196,14 +199,14 @@ class InfoManager:
         logging.debug("Updated the `name` index of the administration file.")
 
         to_delete = [
-            FileHelper(os.path.join(self.WORKING_DIR, ".administrators")),
-            FileHelper(os.path.join(self.WORKING_DIR, "update_me.py")),
-            FileHelper(os.path.join(self.WORKING_DIR, "admin.py")),
+            FileHelper(os.path.join(self.WORKSPACE_DIR, ".administrators")),
+            FileHelper(os.path.join(self.WORKSPACE_DIR, "update_me.py")),
+            FileHelper(os.path.join(self.WORKSPACE_DIR, "admin.py")),
         ]
 
         if "list_name" in self.content:
             to_delete.append(
-                FileHelper(os.path.join(self.WORKING_DIR, self.content["list_name"]))
+                FileHelper(os.path.join(self.WORKSPACE_DIR, self.content["list_name"]))
             )
 
         if "ping" in self.content:
