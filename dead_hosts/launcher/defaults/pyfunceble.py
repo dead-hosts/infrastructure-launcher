@@ -36,7 +36,7 @@ License:
     SOFTWARE.
 """
 
-from PyFunceble.cli.continuous_integration.travis_ci import TravisCI
+from PyFunceble.cli.continuous_integration.github_actions import GitHubActions
 
 import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
@@ -44,7 +44,7 @@ import dead_hosts.launcher.defaults.paths
 # pylint: disable=line-too-long
 
 CONFIGURATION: dict = {
-    "cli_testing.ci.active": TravisCI().guess_all_settings().authorized,
+    "cli_testing.ci.active": GitHubActions().guess_all_settings().authorized,
     "cli_testing.ci.end_command": "hash dead_hosts_launcher && dead_hosts_launcher --end",
     "cli_testing.ci.command": "hash dead_hosts_launcher && dead_hosts_launcher --save",
     "cli_testing.ci.max_exec_minutes": 15,

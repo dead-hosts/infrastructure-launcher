@@ -36,5 +36,5 @@ License:
     SOFTWARE.
 """
 
-__version__ = "2.1.1"
+__version__ = "2.1.2"
 __author__ = "Nissar Chababy (@funilrys)"
