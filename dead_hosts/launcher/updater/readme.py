@@ -94,7 +94,7 @@ class ReadmeUpdater(UpdaterBase):
             updated_version = RegexHelper(
                 dead_hosts.launcher.defaults.markers.ABOUT_FUNCEBLE_REGEX
             ).replace_match(
-                self.destination_instance.read(), FileHelper(file_path).read()
+                self.destination_instance.read(), FileHelper(str(file_path)).read()
             )
 
         logging.info(
@@ -113,7 +113,7 @@ class ReadmeUpdater(UpdaterBase):
             updated_version = RegexHelper(
                 dead_hosts.launcher.defaults.markers.ABOUT_DEAD_HOSTS_REGEX
             ).replace_match(
-                self.destination_instance.read(), FileHelper(file_path).read()
+                self.destination_instance.read(), FileHelper(str(file_path)).read()
             )
 
         logging.info(
