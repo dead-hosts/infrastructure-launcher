@@ -36,30 +36,52 @@ License:
     SOFTWARE.
 """
 
+import importlib.resources
 import logging
+import os
+from typing import Optional
 
 from PyFunceble.helpers.dict import DictHelper
-from PyFunceble.helpers.download import DownloadHelper
+from PyFunceble.helpers.file import FileHelper
 from PyFunceble.helpers.merge import Merge
 
 import dead_hosts.launcher.defaults.links
 import dead_hosts.launcher.defaults.pyfunceble
-from dead_hosts.launcher.updater.cross_pyfunceble_config import (
-    CrossPyFuncebleConfigUpdater,
-)
+from dead_hosts.launcher.info_manager import InfoManager
+from dead_hosts.launcher.updater.base import UpdaterBase
 
 
-class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
+class PyFuncebleConfigUpdater(UpdaterBase):
     """
     Provides the updated of the PyFunceble configuration.
     """
 
+    def __init__(self, info_manager: InfoManager) -> None:
+        self.pyfunceble_config_file_instance = FileHelper(
+            os.path.join(info_manager.PYFUNCEBLE_CONFIG_DIR, ".PyFunceble.yaml")
+        )
+
+        super().__init__(info_manager)
+
     @property
     def authorized(self) -> bool:
-        return (
-            not self.cross_file_instance.exists()
-            and not self.info_manager.own_management
-        )
+        return not self.info_manager.own_management
+
+    @staticmethod
+    def get_commit_message(ping: Optional[str] = None) -> str:
+        """
+        Provides the commit message to use.
+        """
+
+        if ping:
+            marker = dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
+                "cli_testing.ci.end_commit_message"
+            ]
+
+            return f"{marker} | cc {ping} | "
+        return dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
+            "cli_testing.ci.commit_message"
+        ]
 
     def pre(self) -> "PyFuncebleConfigUpdater":
         logging.info(
@@ -78,13 +100,12 @@ class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
         return self
 
     def start(self) -> "PyFuncebleConfigUpdater":
-        upstreamcross_repo_version = DownloadHelper(
-            dead_hosts.launcher.defaults.links.CROSS_REPO_PYFUNCEBLE_CONFIG["link"]
-        ).download_text()
-
-        upstream_flatten = DictHelper(
-            DictHelper().from_yaml(upstreamcross_repo_version)
-        ).flatten()
+        with importlib.resources.path(
+            "PyFunceble.data.infrastructure", ".PyFunceble_production.yaml"
+        ) as file_path:
+            upstream_flatten = DictHelper(
+                DictHelper().from_yaml_file(str(file_path))
+            ).flatten()
 
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION
@@ -112,6 +133,11 @@ class PyFuncebleConfigUpdater(CrossPyFuncebleConfigUpdater):
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION
         ).into(local_version, strict=True)
+
+        local_version = Merge(
+            dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
+        ).into(local_version, strict=True)
+
         local_version = DictHelper(local_version).unflatten()
 
         DictHelper(local_version).to_yaml_file(

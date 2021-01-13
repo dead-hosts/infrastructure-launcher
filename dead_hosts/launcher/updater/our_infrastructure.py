@@ -60,6 +60,7 @@ class OurInfrastructureUpdater(UpdaterBase):
         "pyfunceble.db",
         ".travis.yml",
         os.path.join("output", "continue.json"),
+        ".PyFunceble_cross_repositories_config.yaml",
     ]
 
     DIRS_TO_REMOVE = [

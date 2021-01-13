@@ -48,11 +48,6 @@ OUR_REQUIREMENTS: dict = {
     "destination": "requirements.txt",
 }
 
-CROSS_REPO_PYFUNCEBLE_CONFIG: dict = {
-    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/.PyFunceble_cross_repositories_config.yaml",
-    "destination": ".PyFunceble_cross_repositories_config.yaml",
-}
-
 OFFICIAL_PYFUNCEBLE_LICENSE: dict = {
     "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/LICENSE",
     "destination": "LICENSE_PyFunceble",

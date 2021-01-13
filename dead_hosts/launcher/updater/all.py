@@ -37,9 +37,6 @@ License:
 """
 
 from dead_hosts.launcher.info_manager import InfoManager
-from dead_hosts.launcher.updater.cross_pyfunceble_config import (
-    CrossPyFuncebleConfigUpdater,
-)
 from dead_hosts.launcher.updater.github_actions_workflows import GHAWorkflowsUpdater
 from dead_hosts.launcher.updater.official_pyfunceble_config import (
     OfficialPyFuncebleConfigUpdater,
@@ -66,7 +63,6 @@ def execute_all_updater(info_manager: InfoManager) -> None:
     PyFuncebleConfigLocationUpdater(info_manager)
     GHAWorkflowsUpdater(info_manager)
 
-    CrossPyFuncebleConfigUpdater(info_manager)
     PyFuncebleConfigUpdater(info_manager)
     OfficialPyFuncebleConfigUpdater(info_manager)
     OfficialPyFuncebleLicenseUpdater(info_manager)

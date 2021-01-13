@@ -73,4 +73,6 @@ class Command(CommandHelper):
                     yield self._decode_output(current_line)
 
             if process.returncode != 0:
-                raise RuntimeError("Something went wrong.")
+                raise RuntimeError(
+                    "Something went wrong.\n" + self._decode_output(current_line)
+                )

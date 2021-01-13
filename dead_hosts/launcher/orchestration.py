@@ -72,8 +72,6 @@ class Orchestration:
 
         self.info_manager = InfoManager()
 
-        EnvironmentVariableHelper("PYFUNCEBLE_AUTO_CONFIGURATION").set_value("YES")
-
         git_name = EnvironmentVariableHelper("GIT_NAME")
         git_email = EnvironmentVariableHelper("GIT_EMAIL")
 
