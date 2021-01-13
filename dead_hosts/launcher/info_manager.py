@@ -237,6 +237,23 @@ class InfoManager:
                 "empty string not accepted."
             )
 
+        if "custom_pyfunceble_config" in self.content:
+            if self.content["custom_pyfunceble_config"]:
+                if not isinstance(self.content["custom_pyfunceble_config"], dict):
+                    self.content["custom_pyfunceble_config"] = {}
+                else:
+                    self.content["custom_pyfunceble_config"] = DictHelper(
+                        self.content["custom_pyfunceble_config"]
+                    ).flatten()
+            else:
+                self.content["custom_pyfunceble_config"] = {}
+
+            logging.debug(
+                "Updated the `custom_pyfunceble_config` index of the "
+                "administration file, it should be a %r.",
+                dict,
+            )
+
         if (
             "custom_pyfunceble_config" in self.content
             and self.content["custom_pyfunceble_config"]

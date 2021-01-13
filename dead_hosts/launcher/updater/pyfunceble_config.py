@@ -104,20 +104,13 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         with importlib.resources.path(
             "PyFunceble.data.infrastructure", ".PyFunceble_production.yaml"
         ) as file_path:
-            upstream_flatten = DictHelper(
+            local_version = DictHelper(
                 DictHelper().from_yaml_file(str(file_path))
             ).flatten()
 
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION
-        ).into(upstream_flatten, strict=True)
-
-        if self.info_manager.ping:
-            logging.info("Ping names given, appending them to the commit message.")
-
-            local_version[
-                "cli_testing.ci.end_commit_message"
-            ] = self.get_commit_message(ping=self.info_manager.get_ping_for_commit())
+        ).into(local_version, strict=True)
 
         if self.info_manager.custom_pyfunceble_config and isinstance(
             self.info_manager.custom_pyfunceble_config, dict
@@ -131,9 +124,12 @@ class PyFuncebleConfigUpdater(UpdaterBase):
                 local_version, strict=True
             )
 
-        local_version = Merge(
-            dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION
-        ).into(local_version, strict=True)
+        if self.info_manager.ping:
+            logging.info("Ping names given, appending them to the commit message.")
+
+            local_version[
+                "cli_testing.ci.end_commit_message"
+            ] = self.get_commit_message(ping=self.info_manager.get_ping_for_commit())
 
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
