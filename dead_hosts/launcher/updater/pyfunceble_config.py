@@ -69,20 +69,14 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         return not self.info_manager.own_management
 
     @staticmethod
-    def get_commit_message(ping: Optional[str] = None) -> str:
+    def get_commit_message(message: str, ping: Optional[str] = None) -> str:
         """
         Provides the commit message to use.
         """
 
         if ping:
-            marker = dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
-                "cli_testing.ci.end_commit_message"
-            ]
-
-            return f"{marker} | cc {ping} | "
-        return dead_hosts.launcher.defaults.pyfunceble.CONFIGURATION[
-            "cli_testing.ci.commit_message"
-        ]
+            return f"{message} | cc {ping} | "
+        return message
 
     def pre(self) -> "PyFuncebleConfigUpdater":
         logging.info(
@@ -129,7 +123,10 @@ class PyFuncebleConfigUpdater(UpdaterBase):
 
             local_version[
                 "cli_testing.ci.end_commit_message"
-            ] = self.get_commit_message(ping=self.info_manager.get_ping_for_commit())
+            ] = self.get_commit_message(
+                local_version["cli_testing.ci.end_commit_message"],
+                ping=self.info_manager.get_ping_for_commit(),
+            )
 
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
