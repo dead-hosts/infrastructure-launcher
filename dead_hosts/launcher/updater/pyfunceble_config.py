@@ -46,6 +46,7 @@ from PyFunceble.helpers.file import FileHelper
 from PyFunceble.helpers.merge import Merge
 
 import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.paths
 import dead_hosts.launcher.defaults.pyfunceble
 from dead_hosts.launcher.info_manager import InfoManager
 from dead_hosts.launcher.updater.base import UpdaterBase
@@ -137,6 +138,14 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         local_version = Merge(
             dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
         ).into(local_version, strict=True)
+
+        if FileHelper(
+            os.path.join(
+                self.info_manager.WORKSPACE_DIR,
+                dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
+            )
+        ).exists():
+            local_version["cli_testing.ci.active"] = False
 
         local_version = DictHelper(local_version).unflatten()
 

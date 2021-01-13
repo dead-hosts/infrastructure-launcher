@@ -52,6 +52,8 @@ INPUT_FILENAME: str = "domains.list"
 OUTPUT_FILENAME: str = "clean.list"
 README_FILENAME: str = "README.md"
 
+EXAMPLE_INFO_FILENAME: str = "info.example.json"
+
 GIT_BASE_NAME: str = (
     Command("basename $(git rev-parse --show-toplevel)").execute().strip()
 )

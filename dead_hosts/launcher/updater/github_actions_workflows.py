@@ -44,6 +44,7 @@ from PyFunceble.helpers.file import FileHelper
 
 import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.links
+import dead_hosts.launcher.defaults.paths
 from dead_hosts.launcher.updater.base import UpdaterBase
 
 
@@ -57,7 +58,7 @@ class GHAWorkflowsUpdater(UpdaterBase):
         return dead_hosts.launcher.defaults.envs.UNDER_CI and not FileHelper(
             os.path.join(
                 self.info_manager.WORKSPACE_DIR,
-                "info.example.json",
+                dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
             )
         )
 
