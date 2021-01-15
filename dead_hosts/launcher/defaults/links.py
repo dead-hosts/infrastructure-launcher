@@ -49,12 +49,12 @@ OUR_REQUIREMENTS: dict = {
 }
 
 OFFICIAL_PYFUNCEBLE_LICENSE: dict = {
-    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/LICENSE",
+    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/LICENSE",
     "destination": "LICENSE_PyFunceble",
 }
 
 OFFICIAL_PYFUNCEBLE_CONFIG: dict = {
-    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/4.0.0-dev/PyFunceble/data/infrastructure/.PyFunceble_production.yaml",
+    "link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/PyFunceble/data/infrastructure/.PyFunceble_production.yaml",
     "destination": ".PyFunceble_production.yaml",
 }
 
