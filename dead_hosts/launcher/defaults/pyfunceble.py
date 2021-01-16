@@ -67,6 +67,8 @@ CONFIGURATION: dict = {
     "share_logs": False,
     "dns.server": ["8.8.8.8", "8.8.4.4"],
     "dns.protocol": "UDP",
+    "cli_testing.preload_file": True,
+    "cli_testing.autocontinue": True,
 }
 
 PERSISTENT_CONFIG: dict = {
@@ -74,4 +76,6 @@ PERSISTENT_CONFIG: dict = {
     "cli_testing.display_mode.execution_time": True,
     "cli_testing.ci.max_exec_minutes": 20,
     "cli_testing.max_workers": 1,
+    "cli_testing.autocontinue": True,
+    "cli_testing.preload_file": True,
 }

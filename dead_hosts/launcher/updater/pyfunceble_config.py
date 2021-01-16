@@ -139,6 +139,8 @@ class PyFuncebleConfigUpdater(UpdaterBase):
             )
         ).exists():
             local_version["cli_testing.ci.active"] = False
+            # Default behavior of PyFunceble since 4.0.0b12.
+            local_version["cli_testing.autocontinue"] = False
 
         local_version = DictHelper(local_version).unflatten()
 
