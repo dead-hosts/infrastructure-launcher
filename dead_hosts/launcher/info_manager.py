@@ -76,7 +76,7 @@ class InfoManager:
         if self.info_file_instance.exists():
             self.content = DictHelper().from_json_file(self.info_file_instance.path)
         else:
-            self.content = dict()
+            self.content = {}
 
         logging.debug("Administration file path: %r", self.INFO_FILE)
         logging.debug(
@@ -112,7 +112,7 @@ class InfoManager:
         Stores the current state.
         """
 
-        local_copy = dict()
+        local_copy = {}
 
         for index, value in self.content.items():
             if index.endswith("_timestamp") and isinstance(value, datetime):
