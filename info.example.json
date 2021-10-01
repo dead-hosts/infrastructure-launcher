@@ -5,5 +5,5 @@
     "name": "[repository-name]",
     "own_management": false,
     "ping": [],
-    "raw_link": "https://raw.githubusercontent.com/funilrys/PyFunceble/master/.travis/lists/simple"
+    "raw_link": "https://raw.githubusercontent.com/funilrys/PyFunceble/dev/examples/lists/simple"
 }
