@@ -55,11 +55,14 @@ class GHAWorkflowsUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
-        return dead_hosts.launcher.defaults.envs.UNDER_CI and not FileHelper(
-            os.path.join(
-                self.info_manager.WORKSPACE_DIR,
-                dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
-            )
+        return (
+            dead_hosts.launcher.defaults.envs.UNDER_CI
+            and FileHelper(
+                os.path.join(
+                    self.info_manager.WORKSPACE_DIR,
+                    dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
+                )
+            ).exists()
         )
 
     def pre(self) -> "GHAWorkflowsUpdater":
