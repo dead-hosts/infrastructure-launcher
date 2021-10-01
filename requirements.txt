@@ -1,5 +1,4 @@
 requests
 pyyaml
 
-# PyFunceble-dev>=4.0.0b1
-PyFunceble-dev @ git+https://github.com/funilrys/PyFunceble.git@collection-dev#egg=PyFunceble-dev
+PyFunceble-dev>=4.0.0b66
