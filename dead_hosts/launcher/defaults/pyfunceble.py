@@ -76,9 +76,10 @@ PERSISTENT_CONFIG: dict = {
     "cli_testing.ci.max_exec_minutes": 20,
     "cli_testing.cooldown_time": 0.2,
     "cli_testing.display_mode.execution_time": True,
-    "cli_testing.max_workers": None,
+    "cli_testing.max_workers": 5,
     "cli_testing.preload_file": False,
     "collection.push": True,
     "collection.url_base": "https://collection.dead-hosts.funilrys.com",
     "lookup.collection": True,
+    "cli_testing.chancy_tester": True,
 }
