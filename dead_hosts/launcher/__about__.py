@@ -14,7 +14,7 @@ License:
 
     MIT License
 
-    Copyright (c) 2019, 2020, 2021 Dead Hosts
+    Copyright (c) 2019, 2020, 2021, 2022 Dead Hosts
     Copyright (c) 2019, 2020. 2021 Nissar Chababy
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,5 +36,5 @@ License:
     SOFTWARE.
 """
 
-__version__ = "2.1.14"
+__version__ = "2.1.15"
 __author__ = "Nissar Chababy (@funilrys)"
