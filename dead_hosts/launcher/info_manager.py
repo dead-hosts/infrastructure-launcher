@@ -183,7 +183,8 @@ class InfoManager:
                 self.content[index] = value
 
                 logging.debug(
-                    "Created the %r index of the administration file, it was not found.",
+                    "Created the %r index of the administration file, "
+                    "it was not found.",
                     index,
                 )
 

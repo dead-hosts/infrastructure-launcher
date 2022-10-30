@@ -166,8 +166,8 @@ class Orchestration:
                 ].timestamp()
             else:
                 logging.info(
-                    f"Could not find {self.origin_file.path}. "
-                    "Generating empty content to test."
+                    "Could not find %s. Generating empty content to test.",
+                    self.origin_file.path,
                 )
 
                 self.origin_file.write("# No content yet.", overwrite=True)
@@ -273,11 +273,12 @@ class Orchestration:
             f"# Generation Time: {datetime.utcnow().isoformat()}",
         ]
 
-        logging.info(f"PyFunceble ACTIVE list output: {pyfunceble_active_list.path}")
+        logging.info("PyFunceble ACTIVE list output: %s", pyfunceble_active_list.path)
 
         if pyfunceble_active_list.exists():
             logging.info(
-                f"{pyfunceble_active_list.path} exists, getting and formatting its content."
+                "%s exists, getting and formatting its content.",
+                pyfunceble_active_list.path,
             )
 
             self.output_file.write("\n".join(clean_list) + "\n\n", overwrite=True)
