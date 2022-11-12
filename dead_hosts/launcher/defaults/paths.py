@@ -57,3 +57,7 @@ EXAMPLE_INFO_FILENAME: str = "info.example.json"
 GIT_BASE_NAME: str = (
     Command("basename $(git rev-parse --show-toplevel)").execute().strip()
 )
+
+GIT_REPO_OWNER: str = (
+    Command("git rev-parse --show-toplevel").execute().strip().split("/")[-2]
+)
