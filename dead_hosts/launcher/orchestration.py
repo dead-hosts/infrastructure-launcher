@@ -45,6 +45,8 @@ from typing import Optional
 
 import PyFunceble
 import PyFunceble.facility
+import requests
+from PyFunceble.cli.continuous_integration.github_actions import GitHubActions
 from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 from PyFunceble.helpers.file import FileHelper
@@ -68,7 +70,9 @@ class Orchestration:
     origin_file: Optional[FileHelper] = None
     output_file: Optional[FileHelper] = None
 
-    def __init__(self, save: bool = False, end: bool = False) -> None:
+    def __init__(
+        self, save: bool = False, end: bool = False, authorize: bool = False
+    ) -> None:
 
         self.info_manager = InfoManager()
 
@@ -103,10 +107,13 @@ class Orchestration:
             )
         )
 
-        logging.info("Origin file: %r", self.origin_file.path)
-        logging.info("Output file: %r", self.output_file.path)
+        if not authorize:
+            logging.info("Origin file: %r", self.origin_file.path)
+            logging.info("Output file: %r", self.output_file.path)
 
-        if not end and not save:
+        if authorize:
+            self.run_authorize()
+        elif not end and not save:
             logging.info("Checking authorization to run.")
 
             if self.authorization_handler.is_test_authorized():
@@ -293,3 +300,102 @@ class Orchestration:
             self.output_file.write("\n")
 
             logging.info("Updated of the content of %r", self.output_file.path)
+
+    def _fetch_workflows(self, token, repo):
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+        }
+
+        if not token:
+            del headers["Authorization"]
+
+        req = requests.get(
+            url=f"https://api.github.com/repos/{repo}/actions/workflows",
+            headers=headers,
+            timeout=30.0,
+        )
+
+        req.raise_for_status()
+
+        result = {}
+
+        for data in req.json()["workflows"]:
+            result[data["id"]] = data
+
+        return result
+
+    def _is_job_running(self, token, repo):
+        workflows = self._fetch_workflows(token, repo)
+        ignore_status = [
+            "completed",
+            "cancelled",
+            "failure",
+            "neutral",
+            "skipped",
+            "success",
+            "timed_out",
+        ]
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+        }
+
+        if not token:
+            del headers["Authorization"]
+
+        req = requests.get(
+            url=f"https://api.github.com/repos/{repo}/actions/runs",
+            headers=headers,
+            timeout=30.0,
+        )
+
+        req.raise_for_status()
+
+        response = req.json()["workflow_runs"]
+
+        for data in response:
+            if data["status"] in ignore_status:
+                continue
+
+            workflow_name = workflows[data["workflow_id"]]["name"].lower()
+
+            if "checker" in workflow_name or "auth" in workflow_name:
+                continue
+
+            return True
+
+        return False
+
+    def run_authorize(self):
+        """
+        Authorized and proceed the scheduling.
+        """
+
+        if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
+            logging.critical("Cannot authorize: Token not found.")
+            return None
+
+        if self._is_job_running(
+            token=dead_hosts.launcher.defaults.envs.GITHUB_TOKEN,
+            repo=self.info_manager.repo,
+        ):
+            logging.critical("Cannot authorize: Job running.")
+            return None
+
+        ci_engine = GitHubActions(
+            commit_message="[Dead-Hosts::Infrastructure][AuthChecker]"
+        )
+
+        with open(
+            os.path.join(self.info_manager.WORKSPACE_DIR, ".trigger"),
+            "w",
+            encoding="utf-8",
+        ) as file_stream:
+            logging.info("Writing into: %s", file_stream.name)
+            file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
+
+        ci_engine.apply_commit()
+        logging.info("Successfully authorized.")
+
+        return True

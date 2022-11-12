@@ -73,6 +73,7 @@ def tool() -> None:
         "--save",
         help="Declare a test as " "'to be continued'.",
         action="store_true",
+        default=False,
     )
 
     parser.add_argument(
@@ -80,6 +81,14 @@ def tool() -> None:
         "--end",
         help="Declare a test as completely finished and generate `clean.list`.",
         action="store_true",
+        default=False,
+    )
+
+    parser.add_argument(
+        "--authorize",
+        help="Try to authorize the next job.",
+        action="store_true",
+        default=False,
     )
 
     parser.add_argument(
@@ -103,4 +112,4 @@ def tool() -> None:
 
     logging.info("Launcher version: %s", __version__)
 
-    Orchestration(end=arguments.end, save=arguments.save)
+    Orchestration(end=arguments.end, save=arguments.save, authorize=arguments.authorize)

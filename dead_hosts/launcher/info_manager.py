@@ -170,6 +170,8 @@ class InfoManager:
             "latest_part_finish_datetime": default_datetime,
             "latest_part_start_datetime": default_datetime,
             "name": dead_hosts.launcher.defaults.paths.GIT_BASE_NAME,
+            "repo": f"{dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER}/"
+            f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}",
             "own_management": False,
             "ping": [],
             "raw_link": None,
