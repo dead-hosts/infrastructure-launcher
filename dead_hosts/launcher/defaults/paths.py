@@ -58,16 +58,16 @@ GIT_BASE_NAME: str = (
     Command("git remote get-url origin")
     .execute()
     .strip()
-    .split(":")[-1]
+    .split(":", 1)[-1]
     .replace(".git", "")
-    .split("/")[0]
+    .split("/", 1)[0]
 )
 
 GIT_REPO_OWNER: str = (
     Command("git remote get-url origin")
     .execute()
     .strip()
-    .split(":")[-1]
+    .split(":", 1)[-1]
     .replace(".git", "")
-    .split("/")[-1]
+    .split("/", 1)[-1]
 )
