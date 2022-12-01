@@ -55,9 +55,19 @@ README_FILENAME: str = "README.md"
 EXAMPLE_INFO_FILENAME: str = "info.example.json"
 
 GIT_BASE_NAME: str = (
-    Command("basename $(git rev-parse --show-toplevel)").execute().strip()
+    Command("git remote get-url origin")
+    .execute()
+    .strip()
+    .split(":")[-1]
+    .replace(".git", "")
+    .split("/")[0]
 )
 
 GIT_REPO_OWNER: str = (
-    Command("git rev-parse --show-toplevel").execute().strip().split("/")[-2]
+    Command("git remote get-url origin")
+    .execute()
+    .strip()
+    .split(":")[-1]
+    .replace(".git", "")
+    .split("/")[-1]
 )
