@@ -61,7 +61,7 @@ GIT_BASE_NAME: str = (
     .replace("https://github.com/", "")
     .replace(".git", "")
     .split(":", 1)[-1]
-    .split("/", 1)[0]
+    .split("/", 1)[-1]
 )
 
 GIT_REPO_OWNER: str = (
@@ -71,5 +71,5 @@ GIT_REPO_OWNER: str = (
     .replace("https://github.com/", "")
     .replace(".git", "")
     .split(":", 1)[-1]
-    .split("/", 1)[-1]
+    .split("/", 1)[0]
 )
