@@ -349,6 +349,11 @@ class InfoManager:
                         repr(index),
                     )
 
+        self.content["repo"] = (
+            f"{dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER}/"
+            f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}",
+        )
+
         for file in to_delete:
             if file.exists():
                 file.delete()
