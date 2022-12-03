@@ -46,11 +46,14 @@ from typing import Optional
 import PyFunceble
 import PyFunceble.facility
 import requests
+from PyFunceble.cli.continuous_integration.exceptions import (
+    ContinuousIntegrationException,
+    StopExecution,
+)
 from PyFunceble.cli.continuous_integration.github_actions import GitHubActions
 from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 from PyFunceble.helpers.file import FileHelper
-from PyFunceble.cli.continuous_integration.exceptions import StopExecution
 
 import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
@@ -384,9 +387,13 @@ class Orchestration:
             logging.critical("Cannot authorize: Job running.")
             return None
 
-        ci_engine = GitHubActions(
-            commit_message="[Dead-Hosts::Infrastructure][AuthChecker]"
-        )
+        try:
+            ci_engine = GitHubActions(
+                commit_message="[Dead-Hosts::Infrastructure][AuthChecker]"
+            )
+            ci_engine.init()
+        except ContinuousIntegrationException:
+            pass
 
         with open(
             os.path.join(self.info_manager.WORKSPACE_DIR, ".trigger"),
@@ -398,7 +405,7 @@ class Orchestration:
 
         try:
             ci_engine.apply_commit()
-        except StopExecution:
+        except (StopExecution, ContinuousIntegrationException):
             pass
 
         logging.info("Successfully authorized.")
