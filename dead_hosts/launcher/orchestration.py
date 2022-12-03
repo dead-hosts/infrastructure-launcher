@@ -50,6 +50,7 @@ from PyFunceble.cli.continuous_integration.github_actions import GitHubActions
 from PyFunceble.helpers.download import DownloadHelper
 from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 from PyFunceble.helpers.file import FileHelper
+from PyFunceble.cli.continuous_integration.exceptions import StopExecution
 
 import dead_hosts.launcher.defaults.envs
 import dead_hosts.launcher.defaults.paths
@@ -395,7 +396,11 @@ class Orchestration:
             logging.info("Writing into: %s", file_stream.name)
             file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
 
-        ci_engine.apply_commit()
+        try:
+            ci_engine.apply_commit()
+        except StopExecution:
+            pass
+
         logging.info("Successfully authorized.")
 
         return True
