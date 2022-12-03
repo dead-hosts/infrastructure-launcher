@@ -37,6 +37,7 @@ License:
 """
 
 import os
+import urllib.parse
 
 from dead_hosts.launcher.command import Command
 
@@ -54,22 +55,13 @@ README_FILENAME: str = "README.md"
 
 EXAMPLE_INFO_FILENAME: str = "info.example.json"
 
-GIT_BASE_NAME: str = (
-    Command("git remote get-url origin")
-    .execute()
-    .strip()
-    .replace("https://github.com/", "")
-    .replace(".git", "")
-    .split(":", 1)[-1]
-    .split("/", 1)[-1]
-)
+REMOTE_URL: str = Command("git remote get-url origin").execute().strip()
+PARSED_REMOTE_URL: str = urllib.parse.urlparse(REMOTE_URL)
 
-GIT_REPO_OWNER: str = (
-    Command("git remote get-url origin")
-    .execute()
-    .strip()
-    .replace("https://github.com/", "")
-    .replace(".git", "")
-    .split(":", 1)[-1]
-    .split("/", 1)[0]
-)
+if not PARSED_REMOTE_URL.netloc:
+    REPO_BASE = PARSED_REMOTE_URL.path.split(":", 1)[-1].replace(".git", "")
+else:
+    REPO_BASE = PARSED_REMOTE_URL.path[1:].replace(".git", "")
+
+GIT_BASE_NAME: str = REPO_BASE.split("/", 1)[-1]
+GIT_REPO_OWNER: str = REPO_BASE.split("/", 1)[0]
