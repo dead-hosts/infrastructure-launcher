@@ -15,7 +15,7 @@ License:
 
     MIT License
 
-    Copyright (c) 2019, 2020, 2021, 2022 Dead Hosts
+    Copyright (c) 2019, 2020, 2021, 2022, 2023 Dead Hosts
     Copyright (c) 2019, 2020. 2021, 2022 Nissar Chababy
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
