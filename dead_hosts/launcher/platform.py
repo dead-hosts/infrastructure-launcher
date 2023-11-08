@@ -296,7 +296,7 @@ class PlatformOrchestration:
             req.json(),
         )
 
-        return None
+        return []
 
     def download_export_rules(self, export_rule_id: str, destination: str):
         """
