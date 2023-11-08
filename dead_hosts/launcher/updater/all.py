@@ -59,7 +59,6 @@ def execute_all_updater(info_manager: InfoManager) -> None:
     Executes all updated in a logical order.
     """
 
-    OurInfrastructureUpdater(info_manager)
     PyFuncebleConfigLocationUpdater(info_manager)
     GHAWorkflowsUpdater(info_manager)
 
@@ -70,3 +69,4 @@ def execute_all_updater(info_manager: InfoManager) -> None:
     ReadmeUpdater(info_manager)
     OurLicenseUpdater(info_manager)
     OurRequirementsUpdater(info_manager)
+    OurInfrastructureUpdater(info_manager)
