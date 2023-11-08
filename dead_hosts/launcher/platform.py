@@ -395,7 +395,7 @@ class PlatformOrchestration:
             json=self.remote_source_canonical_data,
         )
 
-        if req.status_code == 200:
+        if req.status_code in (200, 202):
             response = req.json()
             self.info_manager["platform_remote_source_id"] = response["id"]
 
@@ -434,7 +434,7 @@ class PlatformOrchestration:
             json=self.container_canonical_data,
         )
 
-        if req.status_code == 200:
+        if req.status_code in (200, 202):
             response = req.json()
             self.info_manager["platform_container_id"] = response["id"]
 
@@ -475,7 +475,7 @@ class PlatformOrchestration:
             json=self.remote_source_canonical_data,
         )
 
-        if req.status_code == 200:
+        if req.status_code in (200, 202):
             response = req.json()
 
             logging.info(
