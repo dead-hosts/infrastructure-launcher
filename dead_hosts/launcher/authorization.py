@@ -118,3 +118,13 @@ class Authorization:
             return True
 
         return False
+
+    def is_platform_authorized(self) -> bool:
+        """
+        Provides the platform authorization.
+
+        If this authorization is not given, we should not
+        start the test.
+        """
+
+        return self.info_manager.platform_optout is False

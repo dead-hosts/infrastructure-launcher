@@ -39,6 +39,7 @@ License:
 import copy
 import logging
 import os
+import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -119,6 +120,8 @@ class InfoManager:
                 local_copy[index] = value.timestamp()
             elif index.endswith("_datetime") and isinstance(value, datetime):
                 local_copy[index] = value.isoformat()
+            elif isinstance(value, uuid.UUID):
+                local_copy[index] = str(value)
             else:
                 local_copy[index] = copy.deepcopy(value)
 
@@ -172,12 +175,24 @@ class InfoManager:
             "name": dead_hosts.launcher.defaults.paths.GIT_BASE_NAME,
             "repo": f"{dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER}/"
             f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}",
+            "platform_shortname": (
+                dead_hosts.launcher.defaults.paths.GIT_BASE_NAME.lower()
+                .replace(" ", "-")
+                .replace("[", "")
+                .replace("]", "")
+                .replace("(", "")
+                .replace(")", "")[:128]
+            ),
+            "platform_description": "Imported from Dead-Hosts legacy infrastructure.",
             "own_management": False,
             "ping": [],
             "raw_link": None,
             "start_datetime": default_datetime,
             "start_timestamp": default_datetime.timestamp(),
             "live_update": True,
+            "platform_container_id": None,
+            "platform_remote_source_id": None,
+            "platform_optout": False,
         }
 
         for index, value in indexes.items():
@@ -190,7 +205,7 @@ class InfoManager:
                     index,
                 )
 
-    def update(self) -> "InfoManager":
+    def update(self) -> "InfoManager":  # pylint: disable=too-many-statements
         """
         Updates and filters the new content.
         """
@@ -349,9 +364,44 @@ class InfoManager:
                         repr(index),
                     )
 
+        for index in ["platform_container_id", "platform_remote_source_id"]:
+            if index in self.content:
+                if self.content[index] and not isinstance(
+                    self.content[index], uuid.UUID
+                ):
+                    self.content[index] = uuid.UUID(self.content[index])
+
+                    logging.debug(
+                        "Updated the %r index of the administration file, "
+                        "the system understands %r only."
+                        " (JSON => %r).",
+                        index,
+                        uuid.UUID,
+                        dict,
+                    )
+                else:
+                    self.content[index] = None
+
+                    logging.debug(
+                        "Set the %r index of the administration file, "
+                        "it was not previously set.",
+                        repr(index),
+                    )
+
         self.content["repo"] = (
             f"{dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER}/"
             f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}"
+        )
+
+        self.content["platform_shortname"] = (
+            self.content["name"]
+            .lower()
+            .replace(" ", "-")
+            .replace("[", "")
+            .replace("]", "")
+            .replace("(", "")
+            .replace(")", "")
+            .replace(".", "-")[:128]
         )
 
         for file in to_delete:

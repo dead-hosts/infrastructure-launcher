@@ -95,7 +95,6 @@ class OurInfrastructureUpdater(UpdaterBase):
         return self
 
     def start(self) -> "OurInfrastructureUpdater":
-
         file_helper = FileHelper()
         dir_helper = DirectoryHelper()
 
