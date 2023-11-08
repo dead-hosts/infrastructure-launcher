@@ -450,8 +450,9 @@ class Orchestration:
                 # So, we download the information from the platform.
 
                 platform.download()
-
-            ci_engine.apply_end_commit()
+                ci_engine.apply_end_commit()
+            else:
+                ci_engine.apply_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
 
