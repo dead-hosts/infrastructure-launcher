@@ -69,7 +69,7 @@ class OurRequirementsUpdater(UpdaterBase):
                 self.info_manager.WORKSPACE_DIR,
                 dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
             )
-        )
+        ).exists()
 
     def pre(self) -> "OurRequirementsUpdater":
         logging.info("Started to update %r", self.destination)

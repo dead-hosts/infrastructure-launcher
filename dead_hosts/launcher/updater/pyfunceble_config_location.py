@@ -68,6 +68,11 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
+        if self.info_manager.platform_optout is False:
+            # Controller don't want to opt-out from the platform testing.
+            # That means that we won't test anything locally.
+            return False
+
         if not DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).exists():
             return True
 

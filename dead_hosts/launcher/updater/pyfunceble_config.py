@@ -66,7 +66,10 @@ class PyFuncebleConfigUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
-        return not self.info_manager.own_management
+        return (
+            self.info_manager.platform_optout is True
+            and not self.info_manager.own_management
+        )
 
     @staticmethod
     def get_commit_message(message: str, ping: Optional[str] = None) -> str:

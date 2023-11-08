@@ -122,10 +122,9 @@ class Orchestration:
             logging.info("Checking authorization to run.")
 
             if self.authorization_handler.is_platform_authorized():
+                execute_all_updater(self.info_manager)
                 self.run_platform_sync()
             elif self.authorization_handler.is_test_authorized():
-                execute_all_updater(self.info_manager)
-
                 PyFunceble.facility.ConfigLoader.start()
                 self.fetch_file_to_test()
 

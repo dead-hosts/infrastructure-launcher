@@ -120,4 +120,23 @@ class OurInfrastructureUpdater(UpdaterBase):
 
                 logging.info("Finished deletion of %r", dir_helper.path)
 
+        # Cleanup output and .pyfunceble if controller didn't opt-out.
+        if self.info_manager.platform_optout is False:
+            dirs_to_cleanup = [
+                "output",
+                ".pyfunceble",
+            ]
+
+            for directory in dirs_to_cleanup:
+                dir_helper.set_path(
+                    os.path.join(self.info_manager.WORKSPACE_DIR, directory)
+                )
+
+                if dir_helper.exists():
+                    logging.info("Starting cleanup of %r", dir_helper.path)
+
+                    dir_helper.delete()
+
+                    logging.info("Finished cleanup of %r", dir_helper.path)
+
         return self
