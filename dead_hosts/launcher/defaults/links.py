@@ -59,12 +59,12 @@ OFFICIAL_PYFUNCEBLE_CONFIG: dict = {
 }
 
 GHA_MAIN_WORKFLOW: dict = {
-    "link": "https://github.com/dead-hosts/template/raw/dev/.github/workflows/main.yml",
+    "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/main.yml",
     "destination": "main.yml",
 }
 
 
 GHA_SCHEDULER_WORKFLOW: dict = {
-    "link": "https://github.com/dead-hosts/template/raw/dev/.github/workflows/scheduler.yml",
+    "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/scheduler.yml",
     "destination": "scheduler.yml",
 }
