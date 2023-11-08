@@ -451,7 +451,7 @@ class Orchestration:
             platform.download()
 
         try:
-            ci_engine.apply_end_commit()
+            ci_engine.apply_commit() if not known else ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
 
