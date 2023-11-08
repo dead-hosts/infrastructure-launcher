@@ -433,6 +433,12 @@ class Orchestration:
         except ContinuousIntegrationException:
             pass
 
+        try:
+            # The commit is one of the last one.
+            ci_engine.bypass()
+        except (StopExecution, ContinuousIntegrationException):
+            sys.exit(0)
+
         platform = PlatformOrchestration(self.info_manager)
 
         # We upload the local information to the platform.
@@ -445,7 +451,7 @@ class Orchestration:
             platform.download()
 
         try:
-            ci_engine.apply_commit()
+            ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
 
