@@ -122,7 +122,6 @@ class Orchestration:
             logging.info("Checking authorization to run.")
 
             if self.authorization_handler.is_platform_authorized():
-                execute_all_updater(self.info_manager)
                 self.run_platform_sync()
             elif self.authorization_handler.is_test_authorized():
                 PyFunceble.facility.ConfigLoader.start()
@@ -438,6 +437,8 @@ class Orchestration:
             ci_engine.bypass()
         except (StopExecution, ContinuousIntegrationException):
             sys.exit(0)
+
+        execute_all_updater(self.info_manager)
 
         platform = PlatformOrchestration(self.info_manager)
 
