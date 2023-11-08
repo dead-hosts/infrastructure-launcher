@@ -127,4 +127,7 @@ class Authorization:
         start the test.
         """
 
-        return self.info_manager.platform_optout is False
+        return (
+            "platform_optout" in self.info_manager.content
+            and self.info_manager.platform_optout is False
+        )
