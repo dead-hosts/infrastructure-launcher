@@ -444,14 +444,14 @@ class Orchestration:
         # We upload the local information to the platform.
         platform.upload()
 
-        if known:
-            # We may have already uploaded the information.
-            # So, we download the information from the platform.
-
-            platform.download()
-
         try:
-            ci_engine.apply_commit() if not known else ci_engine.apply_end_commit()
+            if known:
+                # We may have already uploaded the information.
+                # So, we download the information from the platform.
+
+                platform.download()
+
+            ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
 
