@@ -192,7 +192,8 @@ class InfoManager:
             "live_update": True,
             "platform_container_id": None,
             "platform_remote_source_id": None,
-            "platform_optout": False,
+            "platform_optout": dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER
+            != "dead-hosts",
         }
 
         for index, value in indexes.items():
