@@ -420,16 +420,11 @@ class Orchestration:
         Run the synchronization / Download against the platform.
         """
 
-        known = self.info_manager.platform_container_id is not None
-
-        if not known:
-            commit_message = "[Dead-Hosts::Infrastructure][PlatformSync]"
-        else:
-            commit_message = PyFuncebleConfigUpdater.get_commit_message(
-                f"[Final/Result][Dead-Hosts::"
-                f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
-                ping=self.info_manager.get_ping_for_commit(),
-            )
+        commit_message = PyFuncebleConfigUpdater.get_commit_message(
+            f"[Final/Result][Dead-Hosts::"
+            f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
+            ping=self.info_manager.get_ping_for_commit(),
+        )
 
         try:
             ci_engine = GitHubActions(commit_message=commit_message)
@@ -451,14 +446,9 @@ class Orchestration:
         platform.upload()
 
         try:
-            if known:
-                # We may have already uploaded the information.
-                # So, we download the information from the platform.
-
-                platform.download()
-                ci_engine.apply_end_commit()
-            else:
-                ci_engine.apply_commit()
+            # Download what's available - yet
+            platform.download()
+            ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
 
