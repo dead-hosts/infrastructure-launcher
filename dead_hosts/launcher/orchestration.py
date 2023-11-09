@@ -427,7 +427,9 @@ class Orchestration:
         )
 
         try:
-            ci_engine = GitHubActions(commit_message=commit_message)
+            ci_engine = GitHubActions(
+                commit_message=commit_message, end_commit_message=commit_message
+            )
             ci_engine.init()
         except ContinuousIntegrationException:
             pass
