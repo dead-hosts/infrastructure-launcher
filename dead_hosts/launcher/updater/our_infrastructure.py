@@ -76,12 +76,18 @@ class OurInfrastructureUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
-        return any(
-            FileHelper(os.path.join(self.info_manager.WORKSPACE_DIR, x)).exists()
-            for x in self.FILES_TO_REMOVE
-        ) or any(
-            DirectoryHelper(os.path.join(self.info_manager.WORKSPACE_DIR, x)).exists()
-            for x in self.DIRS_TO_REMOVE
+        return (
+            any(
+                FileHelper(os.path.join(self.info_manager.WORKSPACE_DIR, x)).exists()
+                for x in self.FILES_TO_REMOVE
+            )
+            or any(
+                DirectoryHelper(
+                    os.path.join(self.info_manager.WORKSPACE_DIR, x)
+                ).exists()
+                for x in self.DIRS_TO_REMOVE
+            )
+            or self.info_manager.platform_optout is False
         )
 
     def pre(self) -> "OurInfrastructureUpdater":

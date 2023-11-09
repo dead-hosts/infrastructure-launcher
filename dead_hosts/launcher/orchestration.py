@@ -40,6 +40,7 @@ License:
 import logging
 import os
 import sys
+import tempfile
 from datetime import datetime
 from typing import Optional
 
@@ -90,10 +91,14 @@ class Orchestration:
 
         EnvironmentVariableHelper("PYFUNCEBLE_OUTPUT_LOCATION").set_value(
             self.info_manager.WORKSPACE_DIR
+            if self.info_manager.platform_optout is True
+            else os.path.join(tempfile.gettempdir(), "pyfunceble", "output")
         )
 
         EnvironmentVariableHelper("PYFUNCEBLE_CONFIG_DIR").set_value(
             self.info_manager.PYFUNCEBLE_CONFIG_DIR
+            if self.info_manager.platform_optout is True
+            else os.path.join(tempfile.gettempdir(), "pyfunceble", "config")
         )
 
         self.authorization_handler = Authorization(self.info_manager)

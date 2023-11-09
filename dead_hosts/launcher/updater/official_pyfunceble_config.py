@@ -64,7 +64,7 @@ class OfficialPyFuncebleConfigUpdater(UpdaterBase):
 
     @property
     def authorized(self) -> bool:
-        return self.info_manager.platform_optout is False
+        return self.info_manager.platform_optout is True
 
     def pre(self) -> "OfficialPyFuncebleConfigUpdater":
         logging.info("Started to update %r", self.destination)
