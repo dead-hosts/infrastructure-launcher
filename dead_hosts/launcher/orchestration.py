@@ -420,6 +420,8 @@ class Orchestration:
         Run the synchronization / Download against the platform.
         """
 
+        logging.info("Launching the platform synchronization.")
+
         commit_message = PyFuncebleConfigUpdater.get_commit_message(
             f"[Final/Result][Dead-Hosts::"
             f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}]",
@@ -453,5 +455,7 @@ class Orchestration:
             ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
+
+        logging.info("Successfully synchronized.")
 
         return True
