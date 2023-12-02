@@ -175,7 +175,7 @@ class PlatformOrchestration:
         params = {"limit": -1}
 
         req = self.session.post(
-            f"{self.api_url}/v1/container/search", params=params, json=search_info
+            f"{self.api_url}/v1/containers/search", params=params, json=search_info
         )
 
         if req.status_code == 200:
