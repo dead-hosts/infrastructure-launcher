@@ -398,6 +398,8 @@ class Orchestration:
         except ContinuousIntegrationException:
             pass
 
+        execute_all_updater(self.info_manager)
+
         with open(
             os.path.join(self.info_manager.WORKSPACE_DIR, ".trigger"),
             "w",
