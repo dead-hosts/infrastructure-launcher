@@ -200,7 +200,7 @@ class PlatformOrchestration:
             "Query-Container | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Found no matching container.")
@@ -239,7 +239,7 @@ class PlatformOrchestration:
             "Read-Container | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Found no container matching ID (%s).", container_id)
@@ -298,7 +298,7 @@ class PlatformOrchestration:
             "Read-Remote-Sources | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info(
@@ -360,7 +360,7 @@ class PlatformOrchestration:
             "Read-Export-Rules | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info(
@@ -457,7 +457,7 @@ class PlatformOrchestration:
             "Create-Container | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Failed to create container.")
@@ -503,7 +503,7 @@ class PlatformOrchestration:
             "Create-Remote-Source | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Failed to create remote source for container with ID: %s")
@@ -546,7 +546,7 @@ class PlatformOrchestration:
             "Update-Container | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Failed to update container with ID: %s", container_id)
@@ -594,7 +594,7 @@ class PlatformOrchestration:
             "Update-Remote-Source | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info(
@@ -638,7 +638,7 @@ class PlatformOrchestration:
             "Delete-Container | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info("Failed to delete container with ID: %s", container_id)
@@ -678,7 +678,7 @@ class PlatformOrchestration:
             "Delete-Remote-Source | URL: %s | Status Code: %s | Response:\n    %s",
             req.url,
             req.status_code,
-            req.json(),
+            req.text,
         )
 
         logging.info(
