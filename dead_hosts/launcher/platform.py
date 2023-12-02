@@ -129,11 +129,25 @@ class PlatformOrchestration:
                 f"/{self.info_manager.repo}/master/origin.list"
             )
 
+        input_format = "plain"
+
+        if self.info_manager.custom_pyfunceble_config:
+            if (
+                "adblock" in self.info_manager.custom_pyfunceble_config
+                and self.info_manager.custom_pyfunceble_config["adblock"]
+            ):
+                input_format = "adblock"
+            elif (
+                "cli_decoding.adblock" in self.info_manager.custom_pyfunceble_config
+                and self.info_manager.custom_pyfunceble_config["cli_decoding.adblock"]
+            ):
+                input_format = "adblock"
+
         return {
             "description": self.info_manager.platform_description,
             "url": url,
             "subject_type": "domain",
-            "input_format": "plain",
+            "input_format": input_format,
             "link_type": "associated",
         }
 
