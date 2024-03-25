@@ -78,7 +78,7 @@ jobs:
 
       - name: Look for changes in clean file
         run: |
-          cat ${{ github.workspace }}/clean.list
+          cat ${{ github.workspace }}/clean.list || true
 
   deploy_pypi:
     needs: run
