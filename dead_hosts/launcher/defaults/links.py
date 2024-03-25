@@ -39,7 +39,7 @@ License:
 # pylint: disable=line-too-long
 
 OUR_LICENSE: dict = {
-    "link": "https://raw.githubusercontent.com/dead-hosts/repository-structure/master/LICENSE",
+    "link": "https://github.com/dead-hosts/template/raw/master/LICENSE",
     "destination": "LICENSE",
 }
 
