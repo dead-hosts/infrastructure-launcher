@@ -55,8 +55,6 @@ class PlatformOrchestration:
     Provides the platform interface.
     """
 
-    # pylint: disable=too-many-instance-attributes,too-many-public-methods
-
     DEFAULT_API_URL = "https://api.example.com"
     DEFAULT_SCOPE = "example-username"
 
@@ -280,9 +278,13 @@ class PlatformOrchestration:
 
         params = {"limit": -1}
 
-        req = self.session.post(
-            f"{self.api_url}/v1/containers/search", params=params, json=search_info
-        )
+        try:
+            req = self.session.post(
+                f"{self.api_url}/v1/containers/search", params=params, json=search_info
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return None
 
         if req.status_code == 200:
             response = req.json()
@@ -320,9 +322,13 @@ class PlatformOrchestration:
 
         logging.info("Reading container matching name (%s).", self.container_slug)
 
-        req: requests.Response = self.session.get(
-            f"{self.api_url}/v1/containers/{self.container_slug}"
-        )
+        try:
+            req: requests.Response = self.session.get(
+                f"{self.api_url}/v1/containers/{self.container_slug}"
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return None
 
         if req.status_code == 200:
             response = req.json()
@@ -361,10 +367,14 @@ class PlatformOrchestration:
 
         params = {"limit": -1}
 
-        req = self.session.get(
-            f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
-            params=params,
-        )
+        try:
+            req = self.session.get(
+                f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
+                params=params,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return []
 
         if req.status_code == 200:
             response = req.json()
@@ -424,10 +434,14 @@ class PlatformOrchestration:
 
         params = {"limit": -1}
 
-        req = self.session.get(
-            f"{self.api_url}/v1/containers/{self.container_slug}/export-rules",
-            params=params,
-        )
+        try:
+            req = self.session.get(
+                f"{self.api_url}/v1/containers/{self.container_slug}/export-rules",
+                params=params,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return []
 
         if req.status_code == 200:
             response = req.json()
@@ -492,11 +506,15 @@ class PlatformOrchestration:
             destination,
         )
 
-        req = self.session.get(
-            f"{self.api_url}/v1/containers/{self.container_slug}"
-            f"/export-rules/{export_rule_id}/plain",
-            stream=True,
-        )
+        try:
+            req = self.session.get(
+                f"{self.api_url}/v1/containers/{self.container_slug}"
+                f"/export-rules/{export_rule_id}/plain",
+                stream=True,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return False
 
         if req.status_code == 200:
             with open(destination, "wb") as file_handler:
@@ -535,9 +553,13 @@ class PlatformOrchestration:
 
         logging.info("Creating container.")
 
-        req = self.session.post(
-            f"{self.api_url}/v1/containers", json=self.container_canonical_data
-        )
+        try:
+            req = self.session.post(
+                f"{self.api_url}/v1/containers", json=self.container_canonical_data
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return ""
 
         if req.status_code in (200, 202, 303):
             response = req.json()
@@ -585,10 +607,14 @@ class PlatformOrchestration:
             self.container_slug,
         )
 
-        req = self.session.post(
-            f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
-            json=self.remote_source_canonical_data,
-        )
+        try:
+            req = self.session.post(
+                f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
+                json=self.remote_source_canonical_data,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return ""
 
         if req.status_code in (200, 202, 303):
             response = req.json()
@@ -636,10 +662,14 @@ class PlatformOrchestration:
             self.container_slug,
         )
 
-        req = self.session.patch(
-            f"{self.api_url}/v1/containers/{self.container_slug}",
-            json=self.container_canonical_data,
-        )
+        try:
+            req = self.session.patch(
+                f"{self.api_url}/v1/containers/{self.container_slug}",
+                json=self.container_canonical_data,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return ""
 
         if req.status_code in (200, 202, 303):
             response = req.json()
@@ -689,11 +719,15 @@ class PlatformOrchestration:
             self.container_slug,
         )
 
-        req = self.session.patch(
-            f"{self.api_url}/v1/containers/{self.container_slug}"
-            f"/remote-sources/{self.remote_source_id}",
-            json=self.remote_source_canonical_data,
-        )
+        try:
+            req = self.session.patch(
+                f"{self.api_url}/v1/containers/{self.container_slug}"
+                f"/remote-sources/{self.remote_source_id}",
+                json=self.remote_source_canonical_data,
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return ""
 
         if req.status_code in (200, 202, 303):
             response = req.json()
@@ -748,7 +782,13 @@ class PlatformOrchestration:
             self.container_slug,
         )
 
-        req = self.session.delete(f"{self.api_url}/v1/containers/{self.container_slug}")
+        try:
+            req = self.session.delete(
+                f"{self.api_url}/v1/containers/{self.container_slug}"
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return False
 
         if req.status_code == 204:
             logging.info(
@@ -786,10 +826,14 @@ class PlatformOrchestration:
             self.container_slug,
         )
 
-        req = self.session.delete(
-            f"{self.api_url}/v1/containers/{self.container_slug}"
-            f"/remote-sources/{self.remote_source_id}"
-        )
+        try:
+            req = self.session.delete(
+                f"{self.api_url}/v1/containers/{self.container_slug}"
+                f"/remote-sources/{self.remote_source_id}"
+            )
+        except requests.exceptions.RequestException:
+            logging.critical("Failed to communicate with platform. Opt-Out forgotten?")
+            return False
 
         if req.status_code == 204:
             logging.info(
