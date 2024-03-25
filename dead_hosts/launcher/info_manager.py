@@ -141,6 +141,7 @@ class InfoManager:
             "last_test",
             "list_name",
             "stable",
+            "platform_shortname",
         ]:
             if index in self.content:
                 del self.content[index]
@@ -175,7 +176,7 @@ class InfoManager:
             "name": dead_hosts.launcher.defaults.paths.GIT_BASE_NAME,
             "repo": f"{dead_hosts.launcher.defaults.paths.GIT_REPO_OWNER}/"
             f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}",
-            "platform_shortname": (
+            "platform_container_name": (
                 dead_hosts.launcher.defaults.paths.GIT_BASE_NAME.lower()
                 .replace(" ", "-")
                 .replace("[", "")
@@ -394,7 +395,7 @@ class InfoManager:
             f"{dead_hosts.launcher.defaults.paths.GIT_BASE_NAME}"
         )
 
-        self.content["platform_shortname"] = (
+        self.content["platform_container_name"] = (
             self.content["name"]
             .lower()
             .replace(" ", "-")

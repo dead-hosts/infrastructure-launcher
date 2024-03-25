@@ -36,6 +36,7 @@ License:
     SOFTWARE.
 """
 
+import json
 import logging
 import os
 import tempfile
@@ -54,9 +55,13 @@ class PlatformOrchestration:
     Provides the platform interface.
     """
 
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
+
     DEFAULT_API_URL = "https://api.example.com"
+    DEFAULT_SCOPE = "example-username"
 
     _api_url = DEFAULT_API_URL
+    _scope = DEFAULT_SCOPE
     __cached_header: dict = {}
 
     info_manager: InfoManager
@@ -72,6 +77,10 @@ class PlatformOrchestration:
 
         api_token = EnvironmentVariableHelper("DEV_PLATFORM_API_TOKEN").get_value(
             default=None
+        )
+
+        self.scope = EnvironmentVariableHelper("DEV_PLATFORM_SCOPE").get_value(
+            default=self.DEFAULT_SCOPE
         )
 
         self.headers = {
@@ -99,6 +108,102 @@ class PlatformOrchestration:
         self._api_url = value.rstrip("/")
 
     @property
+    def scope(self) -> str:
+        """
+        Provides the scope to use.
+        """
+
+        return self._scope
+
+    @scope.setter
+    def scope(self, value: str) -> None:
+        """
+        Sets the scope to use.
+        """
+
+        self._scope = value
+
+    @property
+    def container_id(self) -> str:
+        """
+        Provides the container ID to use.
+        """
+
+        return self.info_manager.platform_container_id
+
+    @container_id.setter
+    def container_id(self, value: str) -> None:
+        """
+        Sets the container ID to use.
+        """
+
+        self.info_manager["platform_container_id"] = value
+
+    @property
+    def container_canonical_name(self) -> str:
+        """
+        Provides the container name to use.
+        """
+
+        return self.info_manager.platform_container_name
+
+    @container_canonical_name.setter
+    def container_canonical_name(self, value: str) -> None:
+        """
+        Sets the container name to use.
+        """
+
+        self.info_manager["platform_container_name"] = value
+
+    @property
+    def container_description(self) -> str:
+        """
+        Provides the container description to use.
+        """
+
+        return self.info_manager.platform_description
+
+    @container_description.setter
+    def container_description(self, value: str) -> None:
+        """
+        Sets the container description to use.
+        """
+
+        self.info_manager["platform_description"] = value
+
+    @property
+    def remote_source_id(self) -> str:
+        """
+        Provides the remote source ID to use.
+        """
+
+        return self.info_manager.platform_remote_source_id
+
+    @remote_source_id.setter
+    def remote_source_id(self, value: str) -> None:
+        """
+        Sets the remote source ID to use.
+        """
+
+        self.info_manager["platform_remote_source_id"] = value
+
+    @property
+    def container_display_name(self) -> str:
+        """
+        Provides the container display name to use.
+        """
+
+        return self.info_manager.name
+
+    @property
+    def container_slug(self) -> str:
+        """
+        Provides the container slug to use.
+        """
+
+        return f"{self.scope}/{self.info_manager.platform_container_name}"
+
+    @property
     def container_canonical_data(self) -> dict:
         """
         Provides the canonical data of the container.
@@ -108,9 +213,9 @@ class PlatformOrchestration:
             "availability_test": True,
             "reputation_test": False,
             "syntax_test": True,
-            "shortname": self.info_manager.platform_shortname,
-            "name": self.info_manager.name,
-            "description": self.info_manager.platform_description,
+            "name": self.container_canonical_name,
+            "display_name": self.container_canonical_name,
+            "description": self.container_description,
             "public": False,
             "subject_type": "domain",
         }
@@ -144,7 +249,7 @@ class PlatformOrchestration:
                 input_format = "adblock"
 
         return {
-            "description": self.info_manager.platform_description,
+            "description": self.container_description,
             "url": url,
             "subject_type": "domain",
             "input_format": input_format,
@@ -152,24 +257,25 @@ class PlatformOrchestration:
         }
 
     def search_matching_container(
-        self, name: Optional[str] = None, shortname: Optional[str] = None
+        self, display_name: Optional[str] = None, name: Optional[str] = None
     ) -> Optional[dict]:
         """
         Queries the matching container.
         """
 
         logging.info(
-            "Searching for container matching name (%s) or shortname (%s).",
-            self.info_manager.name if not name else name,
-            self.info_manager.platform_shortname if not shortname else shortname,
+            "Searching for container matching name (%s) or display name (%s).",
+            self.container_display_name if not display_name else display_name,
+            self.container_canonical_name if not name else name,
         )
 
         search_info = {
             "approximate": False,
-            "name": self.info_manager.name if not name else name,
-            "shortname": self.info_manager.platform_shortname
-            if not shortname
-            else shortname,
+            "display_name": (
+                self.container_display_name if not display_name else display_name
+            ),
+            "name": (self.container_canonical_name if not name else name),
+            "username": self.scope,
         }
 
         params = {"limit": -1}
@@ -212,11 +318,11 @@ class PlatformOrchestration:
         Reads the container.
         """
 
-        container_id = self.info_manager.platform_container_id
+        logging.info("Reading container matching name (%s).", self.container_slug)
 
-        logging.info("Reading container matching ID (%s).", container_id)
-
-        req = self.session.get(f"{self.api_url}/v1/containers/{container_id}")
+        req: requests.Response = self.session.get(
+            f"{self.api_url}/v1/containers/{self.container_slug}"
+        )
 
         if req.status_code == 200:
             response = req.json()
@@ -228,10 +334,7 @@ class PlatformOrchestration:
                 response,
             )
 
-            logging.info(
-                "Found container matching ID (%s).",
-                container_id,
-            )
+            logging.info("Found container matching name (%s).", self.container_slug)
 
             return response
 
@@ -242,7 +345,7 @@ class PlatformOrchestration:
             req.text,
         )
 
-        logging.info("Found no container matching ID (%s).", container_id)
+        logging.info("Found no container matching name (%s).", self.container_slug)
 
         return None
 
@@ -251,14 +354,15 @@ class PlatformOrchestration:
         Reads the remote sources of the container.
         """
 
-        container_id = self.info_manager.platform_container_id
-
-        logging.info("Reading remote sources of container matching ID (%s).")
+        logging.info(
+            "Reading remote sources of container matching name (%s).",
+            self.container_slug,
+        )
 
         params = {"limit": -1}
 
         req = self.session.get(
-            f"{self.api_url}/v1/containers/{container_id}/remote-sources",
+            f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
             params=params,
         )
 
@@ -273,9 +377,9 @@ class PlatformOrchestration:
             )
 
             logging.info(
-                "Found %d remote sources of container matching ID (%s).",
+                "Found %d remote sources of container matching name (%s).",
                 len(response),
-                container_id,
+                self.container_slug,
             )
 
             return response
@@ -288,8 +392,8 @@ class PlatformOrchestration:
             )
 
             logging.info(
-                "Found no remote sources of container matching ID (%s).",
-                container_id,
+                "Found no remote sources of container  matching name (%s).",
+                self.container_slug,
             )
 
             return []
@@ -302,25 +406,26 @@ class PlatformOrchestration:
         )
 
         logging.info(
-            "Found no remote sources of container matching ID (%s).",
-            container_id,
+            "Found no remote sources of container matching name (%s).",
+            self.container_slug,
         )
 
-        return None
+        return []
 
     def read_export_rules(self):
         """
         Reads the export rules of the container.
         """
 
-        container_id = self.info_manager.platform_container_id
-
-        logging.info("Reading export rules of container matching ID (%s).")
+        logging.info(
+            "Reading export rules of container matching name (%s).",
+            self.container_slug,
+        )
 
         params = {"limit": -1}
 
         req = self.session.get(
-            f"{self.api_url}/v1/containers/{container_id}/export-rules",
+            f"{self.api_url}/v1/containers/{self.container_slug}/export-rules",
             params=params,
         )
 
@@ -335,9 +440,9 @@ class PlatformOrchestration:
             )
 
             logging.info(
-                "Found %d export rules of container matching ID (%s).",
+                "Found %d export rules of container matching name (%s).",
                 len(response),
-                container_id,
+                self.container_slug,
             )
 
             return response
@@ -350,8 +455,8 @@ class PlatformOrchestration:
             )
 
             logging.info(
-                "Found no export rules of container matching ID (%s).",
-                container_id,
+                "Found no export rules of container matching name (%s).",
+                self.container_slug,
             )
 
             return []
@@ -364,8 +469,8 @@ class PlatformOrchestration:
         )
 
         logging.info(
-            "Found no export rules of container matching ID (%s).",
-            container_id,
+            "Found no export rules of container matching name (%s).",
+            self.container_slug,
         )
 
         return []
@@ -381,8 +486,6 @@ class PlatformOrchestration:
             The destination of the downloaded file.
         """
 
-        container_id = self.info_manager.platform_container_id
-
         logging.info(
             "Downloading export rule with ID: %s to %s",
             export_rule_id,
@@ -390,7 +493,7 @@ class PlatformOrchestration:
         )
 
         req = self.session.get(
-            f"{self.api_url}/v1/containers/{container_id}"
+            f"{self.api_url}/v1/containers/{self.container_slug}"
             f"/export-rules/{export_rule_id}/plain",
             stream=True,
         )
@@ -438,7 +541,9 @@ class PlatformOrchestration:
 
         if req.status_code in (200, 202, 303):
             response = req.json()
-            self.info_manager["platform_container_id"] = response["id"]
+
+            self.container_id = response["id"]
+            self.container_canonical_name = response["name"]
 
             logging.info(
                 "Successfully created container with ID: %s",
@@ -462,7 +567,10 @@ class PlatformOrchestration:
 
         logging.info("Failed to create container.")
 
-        return req.json()
+        try:
+            return req.json()
+        except json.JSONDecodeError:
+            return req.text
 
     def create_remote_source(self):
         """
@@ -472,18 +580,20 @@ class PlatformOrchestration:
             This method assumes that only 1 remote source is desired.
         """
 
-        container_id = self.info_manager.platform_container_id
-
-        logging.info("Creating remote source for container with ID: %s", container_id)
+        logging.info(
+            "Creating remote source for container matching name (%s)",
+            self.container_slug,
+        )
 
         req = self.session.post(
-            f"{self.api_url}/v1/containers/{container_id}/remote-sources",
+            f"{self.api_url}/v1/containers/{self.container_slug}/remote-sources",
             json=self.remote_source_canonical_data,
         )
 
         if req.status_code in (200, 202, 303):
             response = req.json()
-            self.info_manager["platform_remote_source_id"] = response["id"]
+
+            self.remote_source_id = response["id"]
 
             logging.info(
                 "Successfully created remote source with ID: %s",
@@ -506,31 +616,40 @@ class PlatformOrchestration:
             req.text,
         )
 
-        logging.info("Failed to create remote source for container with ID: %s")
+        logging.info(
+            "Failed to create remote source for container matching name (%s)",
+            self.container_slug,
+        )
 
-        return req.json()
+        try:
+            return req.json()
+        except json.JSONDecodeError:
+            return req.text
 
     def update_container(self):
         """
         Updates the container.
         """
 
-        container_id = self.info_manager.platform_container_id
-
-        logging.info("Updating container with ID: %s", container_id)
+        logging.info(
+            "Updating container matching name (%s)",
+            self.container_slug,
+        )
 
         req = self.session.patch(
-            f"{self.api_url}/v1/containers/{container_id}",
+            f"{self.api_url}/v1/containers/{self.container_slug}",
             json=self.container_canonical_data,
         )
 
         if req.status_code in (200, 202, 303):
             response = req.json()
-            self.info_manager["platform_container_id"] = response["id"]
+
+            self.container_id = response["id"]
+            self.container_canonical_name = response["name"]
 
             logging.info(
-                "Successfully updated container with ID: %s",
-                self.info_manager.platform_container_id,
+                "Successfully updated container matching name (%s)",
+                self.container_slug,
             )
 
             logging.debug(
@@ -549,27 +668,30 @@ class PlatformOrchestration:
             req.text,
         )
 
-        logging.info("Failed to update container with ID: %s", container_id)
+        logging.info(
+            "Failed to update container matching name (%s)",
+            self.container_slug,
+        )
 
-        return None
+        try:
+            return req.json()
+        except json.JSONDecodeError:
+            return req.text
 
     def update_remote_source(self):
         """
         Updates the remote source.
         """
 
-        container_id = self.info_manager.platform_container_id
-        remote_source_id = self.info_manager.platform_remote_source_id
-
         logging.info(
-            "Updating remote source with ID (%s) for container with ID (%s)",
-            remote_source_id,
-            container_id,
+            "Updating remote source with ID (%s) for container matching name (%s)",
+            self.remote_source_id,
+            self.container_slug,
         )
 
         req = self.session.patch(
-            f"{self.api_url}/v1/containers/{container_id}"
-            f"/remote-sources/{remote_source_id}",
+            f"{self.api_url}/v1/containers/{self.container_slug}"
+            f"/remote-sources/{self.remote_source_id}",
             json=self.remote_source_canonical_data,
         )
 
@@ -598,12 +720,16 @@ class PlatformOrchestration:
         )
 
         logging.info(
-            "Failed to update remote source with ID (%s) for container with ID (%s)",
-            remote_source_id,
-            container_id,
+            "Failed to update remote source with ID (%s) for container matching "
+            "name (%s)",
+            self.remote_source_id,
+            self.container_slug,
         )
 
-        return None
+        try:
+            return req.json()
+        except json.JSONDecodeError:
+            return req.text
 
     def delete_container(self):
         """
@@ -617,20 +743,21 @@ class PlatformOrchestration:
         :type container_id: uuid.UUID
         """
 
-        container_id = self.info_manager.platform_container_id
+        logging.info(
+            "Deleting container matching name (%s).",
+            self.container_slug,
+        )
 
-        logging.info("Deleting container with ID: %s", container_id)
-
-        req = self.session.delete(f"{self.api_url}/v1/containers/{container_id}")
+        req = self.session.delete(f"{self.api_url}/v1/containers/{self.container_slug}")
 
         if req.status_code == 204:
             logging.info(
-                "Successfully deleted container with ID: %s",
-                container_id,
+                "Successfully deleted container matching name (%s).",
+                self.container_slug,
             )
 
-            self.info_manager["platform_container_id"] = None
-            self.info_manager["platform_remote_source_id"] = None
+            self.container_id = None
+            self.remote_source_id = None
 
             return True
 
@@ -641,7 +768,10 @@ class PlatformOrchestration:
             req.text,
         )
 
-        logging.info("Failed to delete container with ID: %s", container_id)
+        logging.info(
+            "Failed to delete container matching name (%s).",
+            self.container_slug,
+        )
 
         return False
 
@@ -650,27 +780,24 @@ class PlatformOrchestration:
         Deletes the remote source.
         """
 
-        container_id = self.info_manager.platform_container_id
-        remote_source_id = self.info_manager.platform_remote_source_id
-
         logging.info(
-            "Deleting remote source with ID (%s) for container with ID (%s)",
-            remote_source_id,
-            container_id,
+            "Deleting remote source with ID (%s) for container matching name (%s)",
+            self.remote_source_id,
+            self.container_slug,
         )
 
         req = self.session.delete(
-            f"{self.api_url}/v1/containers/{container_id}"
-            f"/remote-sources/{remote_source_id}"
+            f"{self.api_url}/v1/containers/{self.container_slug}"
+            f"/remote-sources/{self.remote_source_id}"
         )
 
         if req.status_code == 204:
             logging.info(
                 "Successfully deleted remote source with ID: %s",
-                remote_source_id,
+                self.remote_source_id,
             )
 
-            self.info_manager["platform_remote_source_id"] = None
+            self.remote_source_id = None
 
             return True
 
@@ -682,9 +809,10 @@ class PlatformOrchestration:
         )
 
         logging.info(
-            "Failed to delete remote source with ID (%s) for container with ID (%s)",
-            remote_source_id,
-            container_id,
+            "Failed to delete remote source with ID (%s) for container matching "
+            "name (%s)",
+            self.remote_source_id,
+            self.container_slug,
         )
 
         return False
@@ -695,14 +823,13 @@ class PlatformOrchestration:
         - for testing.
         """
 
-        if not self.info_manager.platform_container_id:
-            found_containers = self.search_matching_container(
-                name=self.info_manager.name,
-                shortname=self.info_manager.platform_shortname,
-            )
+        if not self.container_id:
+            found_containers = self.search_matching_container()
 
             if found_containers:
-                self.info_manager["platform_container_id"] = found_containers[0]["id"]
+                self.container_id = found_containers[0]["id"]
+                self.container_canonical_name = found_containers[0]["name"]
+
                 self.update_container()
             else:
                 self.create_container()
@@ -711,13 +838,11 @@ class PlatformOrchestration:
         else:
             self.create_container()
 
-        if not self.info_manager.platform_remote_source_id:
+        if not self.remote_source_id:
             found_remote_sources = self.read_remote_sources()
 
             if found_remote_sources:
-                self.info_manager["platform_remote_source_id"] = found_remote_sources[
-                    0
-                ]["id"]
+                self.remote_source_id = found_remote_sources[0]["id"]
                 self.update_remote_source()
             else:
                 self.create_remote_source()
@@ -725,7 +850,7 @@ class PlatformOrchestration:
             dataset = self.read_remote_sources()
 
             if dataset:
-                self.info_manager["platform_remote_source_id"] = dataset[0]["id"]
+                self.remote_source_id = dataset[0]["id"]
 
                 self.update_remote_source()
             else:
@@ -736,16 +861,14 @@ class PlatformOrchestration:
         Downloads the latest compiled version of the dataset.
         """
 
-        if not self.info_manager.platform_container_id:
-            found_containers = self.search_matching_container(
-                name=self.info_manager.name,
-                shortname=self.info_manager.platform_shortname,
-            )
+        if not self.container_id:
+            found_containers = self.search_matching_container()
 
             if found_containers:
-                self.info_manager["platform_container_id"] = found_containers[0]["id"]
+                self.container_id = found_containers[0]["id"]
+                self.container_canonical_name = found_containers[0]["name"]
 
-        if not self.info_manager.platform_container_id:
+        if not self.container_id:
             logging.info("No container found. Aborting.")
             return False
 
