@@ -111,7 +111,7 @@ class PlatformOrchestration:
             "shortname": self.info_manager.platform_shortname,
             "name": self.info_manager.name,
             "description": self.info_manager.platform_description,
-            "public": True,
+            "public": False,
             "subject_type": "domain",
         }
 
