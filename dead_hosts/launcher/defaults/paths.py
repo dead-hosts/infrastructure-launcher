@@ -61,9 +61,12 @@ REMOTE_URL: str = Command("git remote get-url origin").execute().strip()
 PARSED_REMOTE_URL: str = urllib.parse.urlparse(REMOTE_URL)
 
 if not PARSED_REMOTE_URL.netloc:
-    REPO_BASE = PARSED_REMOTE_URL.path.split(":", 1)[-1].replace(".git", "")
+    REPO_BASE = PARSED_REMOTE_URL.path.split(":", 1)[-1]
 else:
-    REPO_BASE = PARSED_REMOTE_URL.path[1:].replace(".git", "")
+    REPO_BASE = PARSED_REMOTE_URL.path[1:]
+
+if REPO_BASE.endswith(".git"):
+    REPO_BASE = REPO_BASE[:-4]
 
 GIT_BASE_NAME: str = REPO_BASE.split("/", 1)[-1]
 GIT_REPO_OWNER: str = REPO_BASE.split("/", 1)[0]
