@@ -70,14 +70,18 @@ class PlatformOrchestration:
         self.info_manager = info_manager
 
         self.api_url = EnvironmentVariableHelper("DEV_PLATFORM_API_URL").get_value(
+            default=None
+        ) or EnvironmentVariableHelper("PLATFORM_API_URL").get_value(
             default=self.DEFAULT_API_URL
         )
 
         api_token = EnvironmentVariableHelper("DEV_PLATFORM_API_TOKEN").get_value(
             default=None
-        )
+        ) or EnvironmentVariableHelper("PLATFORM_API_TOKEN").get_value(default=None)
 
         self.scope = EnvironmentVariableHelper("DEV_PLATFORM_SCOPE").get_value(
+            default=None
+        ) or EnvironmentVariableHelper("PLATFORM_SCOPE").get_value(
             default=self.DEFAULT_SCOPE
         )
 
