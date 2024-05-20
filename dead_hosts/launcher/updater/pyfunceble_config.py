@@ -124,16 +124,21 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         if self.info_manager.ping:
             logging.info("Ping names given, appending them to the commit message.")
 
-            local_version[
-                "cli_testing.ci.end_commit_message"
-            ] = self.get_commit_message(
-                local_version["cli_testing.ci.end_commit_message"],
-                ping=self.info_manager.get_ping_for_commit(),
+            local_version["cli_testing.ci.end_commit_message"] = (
+                self.get_commit_message(
+                    local_version["cli_testing.ci.end_commit_message"],
+                    ping=self.info_manager.get_ping_for_commit(),
+                )
             )
 
-        local_version = Merge(
-            dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
-        ).into(local_version, strict=True)
+        if not self.info_manager.platform_optout:
+            local_version = Merge(
+                dead_hosts.launcher.defaults.pyfunceble.PLATFORM_PERSISTENT_CONFIG
+            ).into(local_version, strict=True)
+        else:
+            local_version = Merge(
+                dead_hosts.launcher.defaults.pyfunceble.PERSISTENT_CONFIG
+            ).into(local_version, strict=True)
 
         if FileHelper(
             os.path.join(

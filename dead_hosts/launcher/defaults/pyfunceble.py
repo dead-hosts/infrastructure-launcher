@@ -79,7 +79,13 @@ PERSISTENT_CONFIG: dict = {
     "cli_testing.max_workers": 5,
     "cli_testing.preload_file": False,
     "collection.push": True,
-    "collection.url_base": "https://collection.dead-hosts.funilrys.com",
     "lookup.collection": True,
     "cli_testing.chancy_tester": True,
+}
+
+PLATFORM_PERSISTENT_CONFIG: dict = {
+    "cli_testing.display_mode.dots": True,
+    "cli_testing.max_workers": 1,
+    "cli_testing.chancy_tester": False,
+    "cli_testing.testing_mode.platform_contribution": True
 }

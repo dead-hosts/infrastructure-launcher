@@ -128,6 +128,9 @@ class Orchestration:
 
             if self.authorization_handler.is_platform_authorized():
                 self.run_platform_sync()
+
+                if EnvironmentVariableHelper("PLATFORM_WORKER").get_value():
+                    self.run_platform_worker()
             elif self.authorization_handler.is_test_authorized():
                 PyFunceble.facility.ConfigLoader.start()
                 self.fetch_file_to_test()
@@ -200,6 +203,18 @@ class Orchestration:
 
         return self
 
+    def run_platform_worker(self):
+        """
+        Run a test of the input list.
+        """
+
+        logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
+
+        Command(f"pyfunceble platform").run_to_stdout()
+
+        if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
+            self.run_end()
+
     def run_test(self):
         """
         Run a test of the input list.
@@ -231,7 +246,7 @@ class Orchestration:
         logging.info("Updated all timestamps.")
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
-        Command(f"PyFunceble -f {self.origin_file.path}").run_to_stdout()
+        Command(f"pyfunceble -f {self.origin_file.path}").run_to_stdout()
 
         if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
             self.run_end()
