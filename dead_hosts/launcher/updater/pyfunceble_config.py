@@ -59,7 +59,7 @@ class PyFuncebleConfigUpdater(UpdaterBase):
 
     def __init__(self, info_manager: InfoManager) -> None:
         self.pyfunceble_config_file_instance = FileHelper(
-            os.path.join(info_manager.PYFUNCEBLE_CONFIG_DIR, ".PyFunceble.yaml")
+            os.path.join(info_manager.pyfunceble_config_dir, ".PyFunceble.yaml")
         )
 
         super().__init__(info_manager)

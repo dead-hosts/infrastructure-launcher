@@ -36,7 +36,6 @@ License:
     SOFTWARE.
 """
 
-
 import logging
 import os
 
@@ -73,19 +72,19 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
             # That means that we won't test anything locally.
             return False
 
-        if not DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).exists():
+        if not DirectoryHelper(self.info_manager.pyfunceble_config_dir).exists():
             return True
 
         file_helper = FileHelper()
         for file in self.FILES_TO_MOVE:
             if file_helper.set_path(
-                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, file)
+                os.path.join(self.info_manager.pyfunceble_config_dir, file)
             ).exists():
                 return True
 
         if all(
             file_helper.set_path(
-                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, x)
+                os.path.join(self.info_manager.pyfunceble_config_dir, x)
             ).exists()
             for x in self.INACTIVE_FILES_TO_DELETE
         ):
@@ -96,17 +95,17 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
     def pre(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
             "Started maintenance of %r.",
-            self.info_manager.PYFUNCEBLE_CONFIG_DIR,
+            self.info_manager.pyfunceble_config_dir,
         )
 
-        DirectoryHelper(self.info_manager.PYFUNCEBLE_CONFIG_DIR).create()
+        DirectoryHelper(self.info_manager.pyfunceble_config_dir).create()
 
         return self
 
     def post(self) -> "PyFuncebleConfigLocationUpdater":
         logging.info(
             "Finished maintenance %r",
-            self.info_manager.PYFUNCEBLE_CONFIG_DIR,
+            self.info_manager.pyfunceble_config_dir,
         )
 
         return self
@@ -117,7 +116,7 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
                 os.path.join(self.info_manager.WORKSPACE_DIR, file)
             )
             destination_file = FileHelper(
-                os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, file)
+                os.path.join(self.info_manager.pyfunceble_config_dir, file)
             )
 
             if source_file.exists():
@@ -145,13 +144,13 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
             if (
                 all(
                     FileHelper(
-                        os.path.join(self.info_manager.PYFUNCEBLE_CONFIG_DIR, x)
+                        os.path.join(self.info_manager.pyfunceble_config_dir, x)
                     ).exists()
                     for x in self.INACTIVE_FILES_TO_DELETE
                 )
                 or FileHelper(
                     os.path.join(
-                        self.info_manager.PYFUNCEBLE_CONFIG_DIR,
+                        self.info_manager.pyfunceble_config_dir,
                         self.INACTIVE_FILES_TO_DELETE[0],
                     )
                 ).exists()
@@ -163,7 +162,7 @@ class PyFuncebleConfigLocationUpdater(UpdaterBase):
                 for inactive_file in self.INACTIVE_FILES_TO_DELETE:
                     FileHelper(
                         os.path.join(
-                            self.info_manager.PYFUNCEBLE_CONFIG_DIR, inactive_file
+                            self.info_manager.pyfunceble_config_dir, inactive_file
                         )
                     ).delete()
 

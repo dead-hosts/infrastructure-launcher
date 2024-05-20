@@ -36,7 +36,6 @@ License:
     SOFTWARE.
 """
 
-
 import logging
 import os
 
@@ -54,7 +53,7 @@ class OfficialPyFuncebleConfigUpdater(UpdaterBase):
 
     def __init__(self, info_manager: InfoManager) -> None:
         self.destination = os.path.join(
-            info_manager.PYFUNCEBLE_CONFIG_DIR,
+            info_manager.pyfunceble_config_dir,
             dead_hosts.launcher.defaults.links.OFFICIAL_PYFUNCEBLE_CONFIG[
                 "destination"
             ],

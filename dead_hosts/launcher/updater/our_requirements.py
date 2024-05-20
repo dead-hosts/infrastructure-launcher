@@ -36,7 +36,6 @@ License:
     SOFTWARE.
 """
 
-
 import logging
 import os
 

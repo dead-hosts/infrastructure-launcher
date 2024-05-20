@@ -96,9 +96,7 @@ class Orchestration:
         )
 
         EnvironmentVariableHelper("PYFUNCEBLE_CONFIG_DIR").set_value(
-            self.info_manager.PYFUNCEBLE_CONFIG_DIR
-            if self.info_manager.platform_optout is True
-            else os.path.join(tempfile.gettempdir(), "pyfunceble", "config")
+            self.info_manager.pyfunceble_config_dir
         )
 
         self.authorization_handler = Authorization(self.info_manager)

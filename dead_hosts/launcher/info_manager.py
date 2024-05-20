@@ -39,6 +39,7 @@ License:
 import copy
 import logging
 import os
+import tempfile
 import uuid
 from datetime import datetime, timedelta
 from typing import Any
@@ -60,15 +61,16 @@ class InfoManager:
     """
 
     WORKSPACE_DIR: str = dead_hosts.launcher.defaults.envs.WORKSPACE_DIR
-    PYFUNCEBLE_CONFIG_DIR: str = (
-        dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
-    )
     GHA_WORKFLOWS_DIR: str = os.path.join(
         WORKSPACE_DIR, dead_hosts.launcher.defaults.paths.GHA_WORKFLOW_DIR
     )
 
     INFO_FILE = os.path.join(
         WORKSPACE_DIR, dead_hosts.launcher.defaults.paths.INFO_FILENAME
+    )
+
+    pyfunceble_config_dir: str = (
+        dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
     )
 
     def __init__(self) -> None:
@@ -89,6 +91,15 @@ class InfoManager:
         self.create_missing_index()
         self.clean()
         self.store()
+
+        if self.platform_optout is True:
+            self.pyfunceble_config_dir = (
+                dead_hosts.launcher.defaults.paths.PYFUNCEBLE_CONFIG_DIRECTORY
+            )
+        else:
+            self.pyfunceble_config_dir = os.path.join(
+                tempfile.gettempdir(), "pyfunceble", "config"
+            )
 
     def __getattr__(self, index: str) -> Any:
         if index in self.content:
