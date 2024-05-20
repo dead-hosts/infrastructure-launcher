@@ -150,7 +150,9 @@ class PyFuncebleConfigUpdater(UpdaterBase):
             # Default behavior of PyFunceble since 4.0.0b12.
             local_version["cli_testing.autocontinue"] = False
 
+        logging.debug("Local version:\n%s", local_version)
         local_version = DictHelper(local_version).unflatten()
+
 
         DictHelper(local_version).to_yaml_file(
             self.pyfunceble_config_file_instance.path
