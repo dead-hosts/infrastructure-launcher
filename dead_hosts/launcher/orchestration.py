@@ -207,6 +207,9 @@ class Orchestration:
         Run a test of the input list.
         """
 
+        # Ensure that everything is up-to-date.
+        execute_all_updater(self.info_manager)
+
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
         Command("pyfunceble platform").run_to_stdout()
