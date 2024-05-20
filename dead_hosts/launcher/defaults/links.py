@@ -63,8 +63,12 @@ GHA_MAIN_WORKFLOW: dict = {
     "destination": "main.yml",
 }
 
-
 GHA_SCHEDULER_WORKFLOW: dict = {
     "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/scheduler.yml",
     "destination": "scheduler.yml",
+}
+
+GHA_WORKER_WORKFLOW: dict = {
+    "link": "https://github.com/dead-hosts/template/raw/master/.github/workflows/worker.yml",
+    "destination": "worker.yml",
 }

@@ -96,4 +96,13 @@ class GHAWorkflowsUpdater(UpdaterBase):
             )
         )
 
+        DownloadHelper(
+            dead_hosts.launcher.defaults.links.GHA_WORKER_WORKFLOW["link"]
+        ).download_text(
+            destination=os.path.join(
+                self.info_manager.GHA_WORKFLOWS_DIR,
+                dead_hosts.launcher.defaults.links.GHA_WORKER_WORKFLOW["destination"],
+            )
+        )
+
         return self
