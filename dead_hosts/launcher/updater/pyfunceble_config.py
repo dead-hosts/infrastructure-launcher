@@ -60,7 +60,7 @@ class PyFuncebleConfigUpdater(UpdaterBase):
 
     def __init__(self, info_manager: InfoManager) -> None:
         self.pyfunceble_config_file_instance = FileHelper(
-            os.path.join(info_manager.pyfunceble_config_dir, ".PyFunceble.yaml")
+            os.path.join(info_manager.pyfunceble_config_dir, ".PyFunceble.overwrite.yaml")
         )
 
         super().__init__(info_manager)
@@ -151,7 +151,6 @@ class PyFuncebleConfigUpdater(UpdaterBase):
             # Default behavior of PyFunceble since 4.0.0b12.
             local_version["cli_testing.autocontinue"] = False
 
-        logging.debug("Local version:\n%s", local_version)
         local_version = DictHelper(local_version).unflatten()
 
         DictHelper(local_version).to_yaml_file(
@@ -159,5 +158,9 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         )
 
         logging.debug("Configuration:\n%s", self.pyfunceble_config_file_instance.read())
+        logging.info(
+            "Configuration file %r updated.",
+            self.pyfunceble_config_file_instance.path,
+        )
 
         return self
