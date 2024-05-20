@@ -101,6 +101,8 @@ class InfoManager:
                 tempfile.gettempdir(), "pyfunceble", "config"
             )
 
+        os.makedirs(self.pyfunceble_config_dir, exist_ok=True)
+
     def __getattr__(self, index: str) -> Any:
         if index in self.content:
             return self.content[index]
