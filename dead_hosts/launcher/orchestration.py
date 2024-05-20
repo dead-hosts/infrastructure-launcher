@@ -126,11 +126,10 @@ class Orchestration:
         elif not end and not save:
             logging.info("Checking authorization to run.")
 
-            if self.authorization_handler.is_platform_authorized():
+            if EnvironmentVariableHelper("PLATFORM_WORKER").get_value():
+                self.run_platform_worker()
+            elif self.authorization_handler.is_platform_authorized():
                 self.run_platform_sync()
-
-                if EnvironmentVariableHelper("PLATFORM_WORKER").get_value():
-                    self.run_platform_worker()
             elif self.authorization_handler.is_test_authorized():
                 PyFunceble.facility.ConfigLoader.start()
                 self.fetch_file_to_test()
@@ -457,6 +456,7 @@ class Orchestration:
             # The commit is one of the last one.
             ci_engine.bypass()
         except (StopExecution, ContinuousIntegrationException):
+            logging.info("No need to synchronize.")
             sys.exit(0)
 
         execute_all_updater(self.info_manager)
