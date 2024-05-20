@@ -42,6 +42,7 @@ import os
 from typing import Optional
 
 from PyFunceble.helpers.dict import DictHelper
+from PyFunceble.helpers.environment_variable import EnvironmentVariableHelper
 from PyFunceble.helpers.file import FileHelper
 from PyFunceble.helpers.merge import Merge
 
@@ -69,7 +70,7 @@ class PyFuncebleConfigUpdater(UpdaterBase):
         return (
             self.info_manager.platform_optout is True
             and not self.info_manager.own_management
-        )
+        ) or EnvironmentVariableHelper("PLATFORM_WORKER").get_value() is not None
 
     @staticmethod
     def get_commit_message(message: str, ping: Optional[str] = None) -> str:
@@ -152,7 +153,6 @@ class PyFuncebleConfigUpdater(UpdaterBase):
 
         logging.debug("Local version:\n%s", local_version)
         local_version = DictHelper(local_version).unflatten()
-
 
         DictHelper(local_version).to_yaml_file(
             self.pyfunceble_config_file_instance.path
