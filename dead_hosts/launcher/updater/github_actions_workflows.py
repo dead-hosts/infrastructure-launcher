@@ -63,6 +63,7 @@ class GHAWorkflowsUpdater(UpdaterBase):
                     dead_hosts.launcher.defaults.paths.EXAMPLE_INFO_FILENAME,
                 )
             ).exists()
+            and dead_hosts.launcher.defaults.paths.GIT_BASE_NAME != "template"
         )
 
     def pre(self) -> "GHAWorkflowsUpdater":
