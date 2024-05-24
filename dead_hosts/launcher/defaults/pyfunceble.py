@@ -89,5 +89,6 @@ PLATFORM_PERSISTENT_CONFIG: dict = {
     "cli_testing.display_mode.dots": True,
     "cli_testing.max_workers": 1,
     "cli_testing.chancy_tester": False,
-    "cli_testing.testing_mode.platform_contribution": True,
+    # WARNING: DO NO SWITCH TO TRUE.
+    "cli_testing.testing_mode.platform_contribution": False,
 }
