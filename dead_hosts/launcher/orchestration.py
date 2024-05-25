@@ -210,6 +210,8 @@ class Orchestration:
 
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
+        EnvironmentVariableHelper("PYFUNCEBLE_BYPASS_BYPASS").set_value("True")
+
         Command("pyfunceble platform").run_to_stdout()
 
         if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
