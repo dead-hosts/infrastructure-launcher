@@ -92,6 +92,13 @@ def tool() -> None:
     )
 
     parser.add_argument(
+        "--update",
+        help="Update the local infrastructure.",
+        action="store_true",
+        default=False,
+    )
+
+    parser.add_argument(
         "-v",
         "--version",
         help="Show the version of and exit.",
@@ -112,4 +119,9 @@ def tool() -> None:
 
     logging.info("Launcher version: %s", __version__)
 
-    Orchestration(end=arguments.end, save=arguments.save, authorize=arguments.authorize)
+    Orchestration(
+        end=arguments.end,
+        save=arguments.save,
+        authorize=arguments.authorize,
+        update=arguments.update,
+    )

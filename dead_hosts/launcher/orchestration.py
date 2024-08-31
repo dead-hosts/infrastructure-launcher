@@ -78,7 +78,11 @@ class Orchestration:
     output_file: Optional[FileHelper] = None
 
     def __init__(
-        self, save: bool = False, end: bool = False, authorize: bool = False
+        self,
+        save: bool = False,
+        end: bool = False,
+        authorize: bool = False,
+        update: bool = False,
     ) -> None:
         self.info_manager = InfoManager()
 
@@ -121,7 +125,13 @@ class Orchestration:
 
         if authorize:
             self.run_authorize()
-        elif not end and not save:
+        elif save:
+            self.run_autosave()
+        elif update:
+            execute_all_updater(self.info_manager)
+        elif end:
+            self.run_end()
+        else:
             logging.info("Checking authorization to run.")
 
             if EnvironmentVariableHelper("PLATFORM_WORKER").get_value():
@@ -140,10 +150,6 @@ class Orchestration:
                     self.authorization_handler.next_authorization_time,
                 )
                 sys.exit(0)
-        elif save:
-            self.run_autosave()
-        else:
-            self.run_end()
 
     def fetch_file_to_test(self) -> "Orchestration":
         """
