@@ -208,6 +208,8 @@ class Orchestration:
         # Ensure that everything is up-to-date.
         execute_all_updater(self.info_manager)
 
+        self.write_trigger()
+
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
         EnvironmentVariableHelper("PYFUNCEBLE_BYPASS_BYPASS").set_value("True")
@@ -245,6 +247,7 @@ class Orchestration:
             "latest_part_finish_datetime"
         ].timestamp()
 
+        self.write_trigger()
         logging.info("Updated all timestamps.")
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
@@ -265,6 +268,8 @@ class Orchestration:
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
         ].timestamp()
+
+        self.write_trigger()
 
         logging.info("Updated all timestamps.")
 
@@ -324,6 +329,8 @@ class Orchestration:
             self.output_file.write("\n")
 
             logging.info("Updated of the content of %r", self.output_file.path)
+
+        self.write_trigger()
 
     def _fetch_workflows(self, token, repo):
         headers = {
