@@ -34,15 +34,14 @@ License:
     SOFTWARE.
 """
 
-from re import compile as comp
-from re import sub as substring
+import re
 
-from setuptools import setup, find_namespace_packages
+from setuptools import find_namespace_packages, setup
 
 NAMESPACE = "dead_hosts"
 MODULE = "launcher"
 
-PYPI_NAME = substring("_", "-", "{0}-{1}".format(NAMESPACE, MODULE))
+PYPI_NAME = f"{NAMESPACE}-{MODULE}".replace("_", "-")
 
 
 def get_requirements():
@@ -50,7 +49,7 @@ def get_requirements():
     Extracts all requirements from requirements.txt.
     """
 
-    with open("requirements.txt") as file:
+    with open("requirements.txt", encoding="utf-8") as file:
         requirements = file.read().splitlines()
 
     return requirements
@@ -61,10 +60,9 @@ def get_version():
     Extracts the version from {NAMESPACE}/{MODULE}/__about__.py
     """
 
-    to_match = comp(r'__version__\s=\s"(.*)"')
-    extracted = to_match.findall(
-        open(f"{NAMESPACE}/{MODULE}/__about__.py", encoding="utf-8").read()
-    )[0]
+    with open(f"{NAMESPACE}/{MODULE}/__about__.py", encoding="utf-8") as file_stream:
+        to_match = re.compile(r'__version__\s=\s"(.*)"')
+        extracted = to_match.findall(file_stream.read())[0]
 
     return ".".join(list(filter(lambda x: x.isdigit(), extracted.split("."))))
 
