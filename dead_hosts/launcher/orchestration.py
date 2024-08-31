@@ -391,6 +391,19 @@ class Orchestration:
 
         return False
 
+    def write_trigger(self):
+        """
+        Write the trigger file.
+        """
+
+        with open(
+            os.path.join(self.info_manager.WORKSPACE_DIR, ".trigger"),
+            "w",
+            encoding="utf-8",
+        ) as file_stream:
+            logging.info("Writing into: %s", file_stream.name)
+            file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
+
     def run_authorize(self):
         """
         Authorized and proceed the scheduling.
@@ -417,13 +430,7 @@ class Orchestration:
 
         execute_all_updater(self.info_manager)
 
-        with open(
-            os.path.join(self.info_manager.WORKSPACE_DIR, ".trigger"),
-            "w",
-            encoding="utf-8",
-        ) as file_stream:
-            logging.info("Writing into: %s", file_stream.name)
-            file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
+        self.write_trigger()
 
         try:
             ci_engine.apply_commit()
@@ -472,6 +479,7 @@ class Orchestration:
         try:
             # Download what's available - yet
             platform.download()
+            self.write_trigger()
             ci_engine.apply_end_commit()
         except (StopExecution, ContinuousIntegrationException):
             pass
