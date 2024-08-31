@@ -253,12 +253,12 @@ class Orchestration:
             "latest_part_finish_datetime"
         ].timestamp()
 
-        self.write_trigger()
         logging.info("Updated all timestamps.")
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
 
         Command(f"pyfunceble -f {self.origin_file.path}").run_to_stdout()
 
+        self.write_trigger()
         if not dead_hosts.launcher.defaults.envs.GITHUB_TOKEN:
             self.run_end()
 

@@ -36,6 +36,7 @@ License:
     SOFTWARE.
 """
 
+import secrets
 from typing import Optional
 
 from dead_hosts.launcher.info_manager import InfoManager
@@ -104,3 +105,36 @@ class UpdaterBase:
             self.post()
 
         return self
+
+    @staticmethod
+    def randomize_cron(given: str = None, randomize_index=(0,)) -> str:
+        """
+        Provides a random cron expression.
+        """
+
+        index2ranges = {
+            0: (0, 59 + 1),
+            1: (0, 23 + 1),
+            2: (1, 31 + 1),
+            3: (1, 12 + 1),
+            4: (0, 6 + 1),
+        }
+
+        if given:
+            dataset = given.split(" ")
+
+            for index in randomize_index:
+                first_part = str(secrets.choice(range(*index2ranges[index])))
+                second_part = str(secrets.choice(range(*index2ranges[index])))
+
+                if index not in randomize_index:
+                    dataset[index] = f"{first_part}/{second_part}"
+                else:
+                    dataset[index] = f"{first_part}"
+        else:
+            dataset = ["*", "*", "*", "*", "*"]
+
+            for index in randomize_index:
+                dataset[index] = str(secrets.choice(range(*index2ranges[index])))
+
+        return " ".join(dataset)

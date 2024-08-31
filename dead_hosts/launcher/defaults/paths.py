@@ -49,6 +49,7 @@ GHA_WORKFLOW_DIR: str = os.path.join(".github", "workflows")
 PYFUNCEBLE_NAMESPACE: str = ".pyfunceble"
 PYFUNCEBLE_CONFIG_DIRECTORY: str = os.path.join(CURRENT_DIRECTORY, PYFUNCEBLE_NAMESPACE)
 
+GHA_WORKFLOW_LOCAL_HASHES_FILENAME: str = "hs.json"
 INFO_FILENAME: str = "info.json"
 ORIGIN_FILENAME: str = "origin.list"
 INPUT_FILENAME: str = "domains.list"
