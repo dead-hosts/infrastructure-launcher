@@ -49,17 +49,18 @@ configuration. Meaning that each :code:`.` is a nested dictionary.
 ## Usage
 
 ```shell
-usage: dead_hosts_launcher [-h] [-d] [-s] [-e] [-v]
+usage: dead-hosts-launcher [-h] [-d] [-s] [-e] [--authorize] [--update] [-v]
 
 The launcher of the Dead-Hosts infrastructure.
 
-optional arguments:
-    -h, --help     show this help message and exit
-    -d, --debug    Activate the logging in verbose mode..
-    -s, --save     Declare a test as 'to be continued'.
-    -e, --end      Declare a test as completly finished and generate
-                    `clean.list`.
-    -v, --version  Show the version of and exit.
+options:
+  -h, --help     show this help message and exit
+  -d, --debug    Activate the logging in verbose mode..
+  -s, --save     Declare a test as 'to be continued'.
+  -e, --end      Declare a test as completely finished and generate `clean.list`.
+  --authorize    Try to authorize the next job.
+  --update       Update the local infrastructure.
+  -v, --version  Show the version of and exit.
 
 Crafted with ♥ by Nissar Chababy (@funilrys)
 ```
