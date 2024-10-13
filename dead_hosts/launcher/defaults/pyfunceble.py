@@ -78,8 +78,8 @@ PERSISTENT_CONFIG: dict = {
     "cli_testing.display_mode.execution_time": True,
     "cli_testing.max_workers": 5,
     "cli_testing.preload_file": False,
-    "collection.push": True,
-    "lookup.collection": True,
+    "platform.push": True,
+    "lookup.platform": True,
     "cli_testing.chancy_tester": True,
 }
 
@@ -89,5 +89,5 @@ PLATFORM_PERSISTENT_CONFIG: dict = {
     "cli_testing.display_mode.dots": True,
     "cli_testing.max_workers": 1,
     "cli_testing.chancy_tester": False,
-    "collection.push": True,
+    "platform.push": True,
 }
