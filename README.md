@@ -23,6 +23,7 @@ The file should look like follow:
     "name": "[repository-name]",  # The name of the current repository. WARNING: Partially autocompleted under CI.
     "own_management": false,  # You are the one managing the PyFunceble configuration.
     "ping": [],  # Put your GitHub username here to get a mention at the end of the test of your file.
+    "ping_enabled": false,  # Enable the ping through GitHub.
     "raw_link": "[URL]" # Put the link to your file. Or leave empty and fill the origin.list file.
 }
 ```

@@ -200,6 +200,7 @@ class InfoManager:
             "platform_description": "Imported from Dead-Hosts legacy infrastructure.",
             "own_management": False,
             "ping": [],
+            "ping_enabled": False,
             "raw_link": None,
             "start_datetime": default_datetime,
             "start_timestamp": default_datetime.timestamp(),
@@ -300,7 +301,7 @@ class InfoManager:
                 dict,
             )
 
-        for index in ["currently_under_test"]:
+        for index in ["currently_under_test", "ping_enabled"]:
             if index in self.content and not isinstance(self.content[index], bool):
                 self.content[index] = bool(int(self.content[index]))
 
@@ -433,6 +434,7 @@ class InfoManager:
         Provides the string to append in order to mention the users to ping.
         """
 
-        if "ping" in self.content:
-            return " ".join(self.content["ping"])
+        if "ping_enabled" in self.content and "ping" in self.content:
+            if self.content["ping_enabled"] is True and self.content["ping"]:
+                return " ".join(self.content["ping"])
         return ""

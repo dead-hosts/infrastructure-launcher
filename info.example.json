@@ -6,6 +6,7 @@
     "name": "repository-structure",
     "own_management": false,
     "ping": [],
+    "ping_enabled": false,
     "raw_link": null,
     "repo": "dead-hosts/repository-structure"
 }
