@@ -9,5 +9,5 @@
   "ping_enabled": false,
   "raw_link": null,
   "repo": "dead-hosts/repository-structure",
-  "platform_optout": false
+  "platform_optout": true
 }
