@@ -243,9 +243,13 @@ class Orchestration:
             ].timestamp()
 
             self.info_manager["finish_datetime"] = datetime.fromtimestamp(0)
-            self.info_manager["finish_timestamp"] = self.info_manager[
-                "finish_datetime"
-            ].timestamp()
+
+            try:
+                self.info_manager["finish_timestamp"] = self.info_manager[
+                    "finish_datetime"
+                ].timestamp()
+            except (OSError, ValueError, OverflowError):
+                self.info_manager["finish_timestamp"] = 0.0
 
         self.info_manager["latest_part_start_datetime"] = datetime.now(timezone.utc)
         self.info_manager["latest_part_start_timestamp"] = self.info_manager[
