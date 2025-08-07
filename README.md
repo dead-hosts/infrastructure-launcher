@@ -24,7 +24,8 @@ The file should look like follow:
     "own_management": false,  # You are the one managing the PyFunceble configuration.
     "ping": [],  # Put your GitHub username here to get a mention at the end of the test of your file.
     "ping_enabled": false,  # Enable the ping through GitHub.
-    "raw_link": "[URL]" # Put the link to your file. Or leave empty and fill the origin.list file.
+    "raw_link": "[URL]", # Put the link to your file. Or leave empty and fill the origin.list file.
+    "platform_optout": false, # If you want to opt-out of the platform and run the launcher locally/classically.
 }
 ```
 
@@ -72,7 +73,7 @@ Crafted with ♥ by Nissar Chababy (@funilrys)
 MIT License
 
 Copyright (c) 2019, 2020, 2021, 2022, 2023, 2024, 2025 Dead Hosts Contributors
-Copyright (c) 2019, 2020. 2021, 2022, 2023, 2024 Nissar Chababy
+Copyright (c) 2019, 2020. 2021, 2022, 2023, 2024, 2025 Nissar Chababy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
