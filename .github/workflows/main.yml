@@ -150,7 +150,9 @@ jobs:
         shell: pwsh
 
   deploy_pypi:
-    needs: run
+    needs:
+      - run-platform-optin
+      - run-platform-optout
     name: "Deploy 📦 to the PyPi"
 
     environment: release
