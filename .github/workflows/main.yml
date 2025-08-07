@@ -81,7 +81,7 @@ jobs:
       - name: Look for changes in info file (Windows)
         if: runner.os == 'Windows'
         run: |
-          Get-Content "${{ github.workspace }}\info.json
+          Get-Content "${{ github.workspace }}\info.json"
 
       - name: Look for changes in clean file (Linux)
         if: runner.os == 'Linux'
@@ -137,7 +137,7 @@ jobs:
       - name: Look for changes in info file (Windows)
         if: runner.os == 'Windows'
         run: |
-          Get-Content "${{ github.workspace }}\info.json
+          Get-Content "${{ github.workspace }}\info.json"
 
       - name: Look for changes in clean file (Linux)
         if: runner.os == 'Linux'
