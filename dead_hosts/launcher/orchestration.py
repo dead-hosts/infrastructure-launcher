@@ -198,9 +198,13 @@ class Orchestration:
                 logging.info("Emptying the download time.")
 
                 self.info_manager["last_download_datetime"] = datetime.fromtimestamp(0)
-                self.info_manager["last_download_timestamp"] = self.info_manager[
-                    "last_download_datetime"
-                ].timestamp()
+
+                try:
+                    self.info_manager["last_download_timestamp"] = self.info_manager[
+                        "last_download_datetime"
+                    ].timestamp()
+                except (OSError, ValueError, OverflowError):
+                    self.info_manager["last_download_timestamp"] = 0.0
 
             logging.info("Updated %r.", self.origin_file.path)
 
