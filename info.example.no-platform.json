@@ -7,7 +7,7 @@
   "own_management": false,
   "ping": [],
   "ping_enabled": false,
-  "raw_link": null,
+  "raw_link": "https://raw.githubusercontent.com/PyFunceble/ci_test/refs/heads/master/test.list",
   "repo": "dead-hosts/repository-structure",
   "platform_optout": true
 }
