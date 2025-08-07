@@ -41,7 +41,7 @@ import logging
 import os
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import PyFunceble
@@ -169,7 +169,7 @@ class Orchestration:
                     "Could get the new version of the list. Updating the download time."
                 )
 
-                self.info_manager["last_download_datetime"] = datetime.utcnow()
+                self.info_manager["last_download_datetime"] = datetime.now(timezone.utc)
                 self.info_manager["last_download_timestamp"] = self.info_manager[
                     "last_download_datetime"
                 ].timestamp()
@@ -233,7 +233,7 @@ class Orchestration:
         if not self.info_manager.currently_under_test:
             self.info_manager["currently_under_test"] = True
 
-            self.info_manager["start_datetime"] = datetime.utcnow()
+            self.info_manager["start_datetime"] = datetime.now(timezone.utc)
             self.info_manager["start_timestamp"] = self.info_manager[
                 "start_datetime"
             ].timestamp()
@@ -243,7 +243,7 @@ class Orchestration:
                 "finish_datetime"
             ].timestamp()
 
-        self.info_manager["latest_part_start_datetime"] = datetime.utcnow()
+        self.info_manager["latest_part_start_datetime"] = datetime.now(timezone.utc)
         self.info_manager["latest_part_start_timestamp"] = self.info_manager[
             "latest_part_start_datetime"
         ].timestamp()
@@ -270,7 +270,7 @@ class Orchestration:
             This is just about the administration file not PyFunceble.
         """
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
+        self.info_manager["latest_part_finish_datetime"] = datetime.now(timezone.utc)
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
         ].timestamp()
@@ -286,7 +286,7 @@ class Orchestration:
 
         self.info_manager["currently_under_test"] = False
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
+        self.info_manager["latest_part_finish_datetime"] = datetime.now(timezone.utc)
         self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
             "latest_part_finish_datetime"
         ].timestamp()
@@ -415,7 +415,7 @@ class Orchestration:
             encoding="utf-8",
         ) as file_stream:
             logging.info("Writing into: %s", file_stream.name)
-            file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
+            file_stream.write(str(datetime.now(timezone.utc).timestamp()) + "\n")
 
     def run_authorize(self):
         """
