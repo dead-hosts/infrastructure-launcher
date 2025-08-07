@@ -41,7 +41,7 @@ import logging
 import os
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import PyFunceble
@@ -169,10 +169,14 @@ class Orchestration:
                     "Could get the new version of the list. Updating the download time."
                 )
 
-                self.info_manager["last_download_datetime"] = datetime.utcnow()
-                self.info_manager["last_download_timestamp"] = self.info_manager[
-                    "last_download_datetime"
-                ].timestamp()
+                self.info_manager["last_download_datetime"] = datetime.now(timezone.utc)
+
+                try:
+                    self.info_manager["last_download_timestamp"] = self.info_manager[
+                        "last_download_datetime"
+                    ].timestamp()
+                except (OSError, ValueError, OverflowError):
+                    self.info_manager["last_download_timestamp"] = 0.0
             elif self.origin_file.exists():
                 logging.info(
                     "Raw link not given or is empty. Let's work with %r.",
@@ -184,9 +188,12 @@ class Orchestration:
                 logging.info("Emptying the download time.")
 
                 self.info_manager["last_download_datetime"] = datetime.fromtimestamp(0)
-                self.info_manager["last_download_timestamp"] = self.info_manager[
-                    "last_download_datetime"
-                ].timestamp()
+                try:
+                    self.info_manager["last_download_timestamp"] = self.info_manager[
+                        "last_download_datetime"
+                    ].timestamp()
+                except (OSError, ValueError, OverflowError):
+                    self.info_manager["last_download_timestamp"] = 0.0
             else:
                 logging.info(
                     "Could not find %s. Generating empty content to test.",
@@ -198,9 +205,13 @@ class Orchestration:
                 logging.info("Emptying the download time.")
 
                 self.info_manager["last_download_datetime"] = datetime.fromtimestamp(0)
-                self.info_manager["last_download_timestamp"] = self.info_manager[
-                    "last_download_datetime"
-                ].timestamp()
+
+                try:
+                    self.info_manager["last_download_timestamp"] = self.info_manager[
+                        "last_download_datetime"
+                    ].timestamp()
+                except (OSError, ValueError, OverflowError):
+                    self.info_manager["last_download_timestamp"] = 0.0
 
             logging.info("Updated %r.", self.origin_file.path)
 
@@ -233,25 +244,41 @@ class Orchestration:
         if not self.info_manager.currently_under_test:
             self.info_manager["currently_under_test"] = True
 
-            self.info_manager["start_datetime"] = datetime.utcnow()
-            self.info_manager["start_timestamp"] = self.info_manager[
-                "start_datetime"
-            ].timestamp()
+            self.info_manager["start_datetime"] = datetime.now(timezone.utc)
+
+            try:
+                self.info_manager["start_timestamp"] = self.info_manager[
+                    "start_datetime"
+                ].timestamp()
+            except (OSError, ValueError, OverflowError):
+                self.info_manager["start_timestamp"] = 0.0
 
             self.info_manager["finish_datetime"] = datetime.fromtimestamp(0)
-            self.info_manager["finish_timestamp"] = self.info_manager[
-                "finish_datetime"
-            ].timestamp()
 
-        self.info_manager["latest_part_start_datetime"] = datetime.utcnow()
-        self.info_manager["latest_part_start_timestamp"] = self.info_manager[
-            "latest_part_start_datetime"
-        ].timestamp()
+            try:
+                self.info_manager["finish_timestamp"] = self.info_manager[
+                    "finish_datetime"
+                ].timestamp()
+            except (OSError, ValueError, OverflowError):
+                self.info_manager["finish_timestamp"] = 0.0
+
+        self.info_manager["latest_part_start_datetime"] = datetime.now(timezone.utc)
+
+        try:
+            self.info_manager["latest_part_start_timestamp"] = self.info_manager[
+                "latest_part_start_datetime"
+            ].timestamp()
+        except (OSError, ValueError, OverflowError):
+            self.info_manager["latest_part_start_timestamp"] = 0.0
 
         self.info_manager["latest_part_finish_datetime"] = datetime.fromtimestamp(0)
-        self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
-            "latest_part_finish_datetime"
-        ].timestamp()
+
+        try:
+            self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
+                "latest_part_finish_datetime"
+            ].timestamp()
+        except (OSError, ValueError, OverflowError):
+            self.info_manager["latest_part_finish_timestamp"] = 0.0
 
         logging.info("Updated all timestamps.")
         logging.info("Starting PyFunceble %r ...", PyFunceble.__version__)
@@ -270,10 +297,13 @@ class Orchestration:
             This is just about the administration file not PyFunceble.
         """
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
-        self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
-            "latest_part_finish_datetime"
-        ].timestamp()
+        self.info_manager["latest_part_finish_datetime"] = datetime.now(timezone.utc)
+        try:
+            self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
+                "latest_part_finish_datetime"
+            ].timestamp()
+        except (OSError, ValueError, OverflowError):
+            self.info_manager["latest_part_finish_timestamp"] = 0.0
 
         self.write_trigger()
 
@@ -286,17 +316,24 @@ class Orchestration:
 
         self.info_manager["currently_under_test"] = False
 
-        self.info_manager["latest_part_finish_datetime"] = datetime.utcnow()
-        self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
-            "latest_part_finish_datetime"
-        ].timestamp()
+        self.info_manager["latest_part_finish_datetime"] = datetime.now(timezone.utc)
+
+        try:
+            self.info_manager["latest_part_finish_timestamp"] = self.info_manager[
+                "latest_part_finish_datetime"
+            ].timestamp()
+        except (OSError, ValueError, OverflowError):
+            self.info_manager["latest_part_finish_timestamp"] = 0.0
 
         self.info_manager["finish_datetime"] = self.info_manager[
             "latest_part_finish_datetime"
         ]
-        self.info_manager["finish_timestamp"] = self.info_manager[
-            "finish_datetime"
-        ].timestamp()
+        try:
+            self.info_manager["finish_timestamp"] = self.info_manager[
+                "finish_datetime"
+            ].timestamp()
+        except (OSError, ValueError, OverflowError):
+            self.info_manager["finish_timestamp"] = 0.0
 
         logging.info("Updated all timestamps and indexes that needed to be updated.")
 
@@ -415,7 +452,7 @@ class Orchestration:
             encoding="utf-8",
         ) as file_stream:
             logging.info("Writing into: %s", file_stream.name)
-            file_stream.write(str(datetime.utcnow().timestamp()) + "\n")
+            file_stream.write(str(datetime.now(timezone.utc).timestamp()) + "\n")
 
     def run_authorize(self):
         """

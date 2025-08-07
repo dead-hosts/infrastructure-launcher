@@ -41,7 +41,7 @@ import logging
 import os
 import tempfile
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from PyFunceble.helpers.dict import DictHelper
@@ -172,7 +172,7 @@ class InfoManager:
         Creates the missing indexes.
         """
 
-        default_datetime = datetime.utcnow() - timedelta(days=15)
+        default_datetime = datetime.now(timezone.utc) - timedelta(days=15)
 
         indexes = {
             "currently_under_test": False,

@@ -36,7 +36,7 @@ License:
     SOFTWARE.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from PyFunceble.helpers.regex import RegexHelper
 
@@ -111,7 +111,7 @@ class Authorization:
         ):
             return True
 
-        if datetime.utcnow() > self.next_authorization_time:
+        if datetime.now(timezone.utc) > self.next_authorization_time:
             return True
 
         if self.info_manager.currently_under_test:

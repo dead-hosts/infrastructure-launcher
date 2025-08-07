@@ -37,9 +37,9 @@ jobs:
       - name: Lint Dead-Hosts Launcher with Pylint
         run: pylint dead_hosts
 
-  run:
+  run-platform-optin:
     needs: lint
-    name: "Run Dead-Hosts Launcher and check behaviors"
+    name: "Run Dead-Hosts Launcher and check behaviors (platform-optin)"
 
     runs-on: "${{ matrix.os }}"
 
@@ -50,6 +50,7 @@ jobs:
           - "3.12"
         os:
           - ubuntu-latest
+          - windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -72,16 +73,86 @@ jobs:
         run: |
           dead-hosts-launcher
 
-      - name: Look for changes in info file
+      - name: Look for changes in info file (Linux)
+        if: runner.os == 'Linux'
         run: |
           cat ${{ github.workspace }}/info.json
 
-      - name: Look for changes in clean file
+      - name: Look for changes in info file (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Get-Content "${{ github.workspace }}\info.json"
+
+      - name: Look for changes in clean file (Linux)
+        if: runner.os == 'Linux'
         run: |
           cat ${{ github.workspace }}/clean.list || true
 
+      - name: Look for changes in clean file (Windows)
+        if: runner.os == 'Windows'
+        run: Get-Content "${{ github.workspace }}\clean.list" -ErrorAction SilentlyContinue
+        shell: pwsh
+
+  run-platform-optout:
+    needs: lint
+    name: "Run Dead-Hosts Launcher and check behaviors (platform-optout)"
+
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.12"
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Clone repository
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install dependencies
+        run: |
+          pip install .
+
+      - name: Prepare Launcher settings
+        run: |
+          cp ${{ github.workspace }}/info.example.no-platform.json ${{ github.workspace }}/info.json
+
+      - name: Launch the launcher
+        run: |
+          dead-hosts-launcher
+
+      - name: Look for changes in info file (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cat ${{ github.workspace }}/info.json
+
+      - name: Look for changes in info file (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Get-Content "${{ github.workspace }}\info.json"
+
+      - name: Look for changes in clean file (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cat ${{ github.workspace }}/clean.list || true
+
+      - name: Look for changes in clean file (Windows)
+        if: runner.os == 'Windows'
+        run: Get-Content "${{ github.workspace }}\clean.list" -ErrorAction SilentlyContinue
+        shell: pwsh
+
   deploy_pypi:
-    needs: run
+    needs:
+      - run-platform-optin
+      - run-platform-optout
     name: "Deploy 📦 to the PyPi"
 
     environment: release
